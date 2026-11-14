@@ -90,6 +90,17 @@ openings, window handshake, reachability) to polygon footprints, with Noor's bel
 from shared circulation, never through another flat; living rooms and bedrooms on windows; wet rooms inside; no
 leftover islands; shops and basements with their own circulation. Stable ids for floors, flats, rooms, doors (§5).
 
+**Floor-plan archetypes for PRL blocks** (Tom, 15 Nov; examples of type, not copies of real buildings):
+- **Corridor block** (korytarzowiec): one long corridor down the middle of every floor, flats on both sides. A central
+  core off the corridor: lift lobby, two lifts, the staircase and a utility room (rubbish chute, meters) repeated on
+  every floor. The entrance is a small vestibule in front of the core; inside, a short flight of steps climbs to the
+  raised ground floor (the plinth, D5). Other floors are alike.
+- **Staircase block** (klatkowiec, the common slab): several staircases, each serving 2–4 flats per floor, no corridor;
+  flats run through from the entrance side to the balcony side.
+- **Point tower** (punktowiec): one core in the middle (stairs, lifts, a small lobby), flats all round it.
+The style picks the archetype from the footprint (length, depth, number of entrances) and the seed; the facade follows
+it (balcony side, staircase strips, corridor-end windows), so outside and inside agree.
+
 ## Later investigations (recorded, not scheduled)
 
 - **Style presets** (Tom, 15 Nov): the rules that pick a style for each building (from type, age, footprint,
