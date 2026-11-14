@@ -111,3 +111,7 @@ camera), with a fit test in validation from the street door to every room. A rea
 footprint never grows: the extra space comes out of the rooms (fewer, roomier ones), and only buildings without a
 mapped height may grow a little taller. Layouts are invented, believable but not the real buildings' plans (Tom: "less
 rooms and of course inaccurate"). To be put to Noor with the scale numbers.
+Fallback (Tom, 15 Nov): fill every building as fully as possible, but where a part cannot get a believable interior,
+seal it as games do: a door that stays locked for good, with nothing behind it, marked as such in the metadata so a
+game knows not to send the player there. Balcony kind (projecting, loggia or a mix) is a believable choice per
+building, not a copy of the real one.
