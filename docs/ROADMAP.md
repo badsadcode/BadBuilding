@@ -92,6 +92,12 @@ leftover islands; shops and basements with their own circulation. Stable ids for
 
 ## Later investigations (recorded, not scheduled)
 
+- **Style presets** (Tom, 15 Nov): the rules that pick a style for each building (from type, age, footprint,
+  neighbours) and the styles' palettes and ornament live in a data preset (JSON), not in code. "Warsaw as it is" is
+  one preset; others re-dress the same city: e.g. **Brutalist Warsaw**, every building in a brutalist family (raw
+  board-marked concrete, deep window recesses, cantilevered masses, chunky fins and towers, sci-fi meets PRL). Same
+  footprints, streets and interiors, so a preset changes the look, never the map or the gameplay space.
+
 - Persistent world changes kept apart from the generated initial state; OSM edits and migration (Noor §5).
 - Hand-authored overrides for landmarks and chosen interiors (Tom).
 - Cut-in basements and exposed basement walls on steep lots; steps and ramps to doors (Noor §1, beyond the datum).
