@@ -12,6 +12,8 @@ All renders live in [`docs/img`](img/). The newest are below; each question also
 
 | | |
 |---|---|
+| ![A closed gate with its wicket door](img/closed_gate_wicket.jpg) | ![The real courtyard block with the closed gate](img/closed_gate_block.jpg) |
+| **New (your Q1):** a closed gate with a small door in the right leaf. The yard behind it still counts as reachable. | The same gate on a real courtyard block from OSM. Half the gates are closed, picked by the seed. |
 | ![The courtyard block from above](img/courtyard_block_overview.jpg) | ![The gate passage from the street](img/courtyard_gate_close.jpg) |
 | The synthetic courtyard block (5 storeys, PRL style). | Its new gate passage from the street. |
 | ![Looking through the gate into the yard](img/courtyard_gate_through.jpg) | ![The yard from above](img/courtyard_yard_from_above.jpg) |
@@ -23,54 +25,7 @@ All renders live in [`docs/img`](img/). The newest are below; each question also
 
 ## Open questions
 
-### Q1 — Gate leaves: open or closed?
-The gates in the courtyard passages are drawn standing **open**, flat against the passage walls. In Warsaw many are
-locked, with a small pedestrian door cut into one leaf.
-- **a)** always open (today);
-- **b)** a mix, decided by the seed (some open, some closed with a door in the leaf);
-- **c)** open or closed as a game state, so a player can close a gate (survival: a courtyard becomes a safe yard).
-
-![Gate leaves standing open](img/courtyard_gate_through.jpg)
-
-*Sage's default:* **b** now, built so **c** is easy later.
-
-### Q2 — Staircases that go through to the yard?
-Every courtyard now gets one staircase door from the yard. In many blocks the staircase runs right through: a door
-on the street side and another on the yard side of the same stairwell.
-- Should a staircase on a wall facing a courtyard always get a second door into the yard?
-- Is one yard door per courtyard enough for small courtyards?
-
-![The yard with its one staircase door (left wall)](img/courtyard_yard_from_above.jpg)
-
-*Sage's default:* through-doors where the stairwell backs onto the yard; one yard door minimum.
-
-### Q3 — Which style next?
-After the PRL block, the roadmap's next styles are:
-- **kamienica** (pre-war tenement: cornices, tall windows, a gate passage, shop fronts on the ground floor);
-- **detached houses** (pitched roofs, the suburbs and villages of Mazowsze);
-- **shop ground floors** under any style (shop windows, signs, roller shutters).
-
-Which matters most to you first? Anything you'd want in a kamienica from the start?
-
-For comparison, the PRL block as it is now:
-
-![The PRL slab today](img/prl_long_slab.jpg)
-
-*Sage's default:* kamienica, with shop fronts on its ground floor.
-
-### Q4 — Light well or courtyard?
-Holes under 40 m² count as light wells (no way in); larger ones are courtyards and get a passage. Does 40 m² sound
-right, or do you know Warsaw yards smaller than that which people do walk into?
-
-*Sage's default:* 40 m².
-
-### Q5 — Licence for BadBuilding
-The repository has no licence yet, so legally nobody else may use the code. This is Tom's and your decision:
-- **MIT:** anyone may use it, also in closed games; only the copyright line must stay;
-- **MPL 2.0:** anyone may use it, but changes to BadBuilding's own files must be shared back;
-- **no licence for now:** stays "look, don't use".
-
-*Sage's default:* none until you two decide.
+None right now. Thank you, Noor! 💜 Next questions will come with the first kamienica.
 
 ---
 
@@ -83,3 +38,9 @@ Noor's earlier feedback and what came of it, so nothing gets lost.
 | 14 Nov 2026 | The recon notes (docs/RECON_NOOR.md): site first, exposure, sources, safe failure, a hard footprint set. | Milestone 1 built on them (D1–D6). |
 | 14 Nov 2026 | Party walls must stay blank. | Kept: walls touching a neighbour get no windows (D4). |
 | 14 Nov 2026 | "How does anyone get into the courtyard?" Gate passage, pedestrian passage, or an existing gap; make it a validation rule. | Gate or pedestrian passage cut through the ground floor, a yard door, and an access check (D7). |
+| 14 Nov 2026 | Q1: gates B now, C later; a closed gate must not make the yard unreachable. | Half the gates closed, with a wicket door; closed is a state, the passage stays reachable (D8). |
+| 14 Nov 2026 | Q2: through-access where it fits, at least one yard door, not a second door on every stair. | Street stairs that back onto the yard get a yard door; every yard keeps at least one (D8). |
+| 14 Nov 2026 | Q3: kamienica next; street vs yard facades, brama, shops, varied roofs, bays first, not all equally ornate. | Kamienica is milestone 2's first style, with your list as its brief (ROADMAP, D8). |
+| 14 Nov 2026 | Q4: 40 m² as a default, with contextual overrides. | A mapped door makes any hole a yard; anything under 4 m wide is a shaft (D8). |
+| 14 Nov 2026 | Q5: no licence yet; MIT preferred if Tom releases it; check what was reused. | Left unlicensed; noted to check BadShip and BadLevel terms first (D8). |
+| 14 Nov 2026 | Two kinds of success: technical validity and architectural plausibility. | Adopted as a principle (D8). |

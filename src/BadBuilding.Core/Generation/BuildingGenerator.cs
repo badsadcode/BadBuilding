@@ -32,7 +32,7 @@ public static class BuildingGenerator
         foreach (var p in ctx.Passages)
         {
             string side = b.Materials.ContainsKey("concrete") ? "concrete" : "reveal";
-            Passages.Build(ctx, p, side, side, "plinth", "door");
+            Passages.Build(ctx, p, side, side, "plinth", "door", "reveal");
         }
         AddMass(ctx);
         Validate(ctx);
@@ -176,7 +176,7 @@ public static class BuildingGenerator
         // courtyard access (Noor): every courtyard must be reachable from outside, not only by helicopter
         for (int h = 0; h < c.Site.Holes.Count; h++)
         {
-            if (Polygon.Area(c.Site.Holes[h]) < Passages.LightWell) continue;
+            if (!Passages.IsCourtyard(c, h, out _)) continue;
             if (c.Passages.Any(p => c.Site.Edges[p.HoleEdge].Ring == h + 1)) continue;
             var ring = c.Site.Holes[h];
             bool door = b.Markers.Any(m => m.Kind == "entrance"

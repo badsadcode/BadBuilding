@@ -159,7 +159,7 @@ public sealed class PrlBlock : IStyle
         Kit.Slab(roof.Mesh, "roof", c.Site.Outer, c.Site.Holes, top - 0.2f, top + 0.15f, sides: false);
         Kit.Parapet(roof.Mesh, "wall_alt", c.Site.Outer, top + 0.15f, top + 0.75f, 0.25f);
         foreach (var h in c.Site.Holes) Kit.Parapet(roof.Mesh, "wall_alt", h, top + 0.15f, top + 0.75f, 0.25f);
-        foreach (var d in doors)
+        foreach (var d in doors.Where(d => d.Kind != "through"))   // a through-staircase already has its machine room
         {
             var e = plan.Edges[d.Edge];
             var f = Kit.Frame.Of(e);

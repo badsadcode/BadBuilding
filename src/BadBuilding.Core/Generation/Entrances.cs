@@ -16,6 +16,8 @@ public readonly record struct DoorSite(int Edge, float U, Source Source, string 
 public static class Entrances
 {
     public const float Snap = 3f;
+    /// <summary>A stairwell reaches through to the yard when the yard wall is within this of the street door (a block's depth).</summary>
+    public const float ThroughDepth = 16f;
 
     public static List<DoorSite> Place(BuildingGenerator.Context c, Func<WallEdge, int> wanted, float bay)
     {
@@ -57,10 +59,27 @@ public static class Entrances
                 for (int k = 0; k < n; k++) AddInBay(edge, pick, (k + 0.5f) / n);
             }
         }
-        // a door from every courtyard into the building: a staircase opening onto the yard
+        // through-staircases (Noor Q2): a stairwell whose back wall is a courtyard wall gets a door into the yard too
+        foreach (var d in doors.ToList())
+        {
+            var w = edges[d.Edge];
+            if (w.Ring != 0) continue;
+            var o = w.A + w.Dir * d.U;
+            int hit = -1; float best = ThroughDepth;
+            for (int j = 0; j < edges.Count; j++)
+                if (j != d.Edge && Passages.Ray(o, -w.Out, edges[j].A, edges[j].B) is { } t && t > 0.05f && t < best) { best = t; hit = j; }
+            if (hit < 0 || edges[hit].Ring == 0 || !Passages.IsCourtyard(c, edges[hit].Ring - 1, out _)) continue;
+            var he = edges[hit];
+            if (Vector2.Dot(he.Out, -w.Out) < 0.9f) continue;   // the yard wall must be roughly parallel
+            float hu = Vector2.Dot(o - w.Out * best - he.A, he.Dir);
+            if (hu < 1.2f || hu > he.Length - 1.2f || !Free(hit, hu)) continue;
+            doors.Add(new DoorSite(hit, hu, Source.Inferred, "through"));
+        }
+        // at least one door from every courtyard into the building: a staircase opening onto the yard
         for (int h = 0; h < c.Site.Holes.Count; h++)
         {
-            if (Polygon.Area(c.Site.Holes[h]) < Passages.LightWell) continue;
+            if (!Passages.IsCourtyard(c, h, out _)) continue;
+            if (doors.Any(d => edges[d.Edge].Ring == h + 1)) continue;
             int pick = -1; float longest = 0;
             for (int i = 0; i < edges.Count; i++)
                 if (edges[i].Ring == h + 1 && edges[i].Length > longest) { longest = edges[i].Length; pick = i; }

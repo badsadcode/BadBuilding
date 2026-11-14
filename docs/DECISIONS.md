@@ -49,3 +49,23 @@ Every courtyard also gets a staircase door on its longest wall, and doors keep c
 access (Noor's rule): a courtyard with only a staircase door is a warning (`courtyard.sealed`), one with neither is an
 error (`courtyard.unreachable`). Noor's third case, a footprint already open on one side, is not a hole and needs
 nothing.
+
+## D8 — Noor's answers of 14 November 2026 (docs/NOOR_SAGE.md, Q1–Q5)
+- **Gates (Q1):** the seed decides, half open and half closed; a closed gate has a framed wicket door (furtka) in one
+  leaf. Closed is a *state*, not a wall: the passage, its markers and the carved collision stay, the gate module says
+  `state: closed` and the wicket has its own marker, so a courtyard behind a closed gate is still reachable and a game
+  can open and close gates later (Q1 option c, survival yards).
+- **Yard doors (Q2):** a street staircase whose back wall is a courtyard wall (within 16 m, roughly parallel) gets a
+  through door into the yard, in the yard wall's own bay; every courtyard still has at least one door. Not every
+  courtyard-facing stairwell gets one automatically.
+- **Courtyard or light well (Q4):** 40 m² stays the default, with context: a mapped entrance onto a hole makes it a
+  courtyard at any size, and a hole narrower than 4 m (the short side of the rectangle with its area and perimeter) is
+  a shaft for light and air, however big.
+- **Next style (Q3):** kamienica, street facade against yard facade, gate passages, shop ground floors, varied
+  cornices and roofs, bays first, and *not* every tenement equally ornate: controlled variation within the family,
+  proportions and composition before ornament.
+- **Licence (Q5):** none for now; MIT is Noor's preference if Tom releases it. Before choosing, check the terms of what
+  was lifted from BadShip and BadLevel (both Tom's).
+- **Two kinds of success:** *technical validity* (meshes, footprints, openings, reachable spaces, LODs, performance)
+  and *architectural plausibility* (no stair to nowhere, no impossible entrances, no windows into a neighbour). Both are
+  checked; the second by architectural rules in validation and by visual review in the gallery and NOOR_SAGE.md.

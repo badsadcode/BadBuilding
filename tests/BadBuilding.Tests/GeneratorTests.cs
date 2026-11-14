@@ -193,6 +193,45 @@ public class GeneratorTests
     }
 
     [Fact]
+    public void Gates_are_a_mix_of_open_and_closed_and_a_closed_gate_keeps_the_yard_reachable()
+    {
+        var states = new HashSet<string>();
+        for (ulong seed = 0; seed < 12; seed++)
+        {
+            var b = BuildingGenerator.Generate(Court(13) with { Seed = seed });
+            var gate = b.Modules.Single(m => m.Type == "gate");
+            states.Add((string)gate.Extras!["state"]);
+            Assert.Single(b.Modules, m => m.Type == "passage");
+            Assert.DoesNotContain(b.Report.Issues, i => i.Code is "courtyard.sealed" or "courtyard.unreachable");
+            if ((string)gate.Extras["state"] == "closed") Assert.Contains(b.Markers, m => m.Kind == "wicket");
+        }
+        Assert.Equal(2, states.Count);
+    }
+
+    [Fact]
+    public void A_narrow_shaft_is_not_a_courtyard_but_a_small_yard_with_a_mapped_door_is()
+    {
+        // 3 m × 30 m: 90 m², but a shaft
+        var shaft = Court(13) with { Holes = [new Ring([new(-15, -1.5f), new(-15, 1.5f), new(15, 1.5f), new(15, -1.5f)])] };
+        Assert.DoesNotContain(BuildingGenerator.Generate(shaft).Modules, m => m.Type == "passage");
+        // 5 m × 5 m: 25 m², but a mapped entrance opens onto it
+        var yard = Court(2.5f) with { Entrances = [new Entrance(new(0, -2.5f), "main")] };
+        Assert.Single(BuildingGenerator.Generate(yard).Modules, m => m.Type == "passage");
+    }
+
+    [Fact]
+    public void A_street_staircase_backing_onto_the_yard_gets_a_yard_door()
+    {
+        // a 9 m deep ring block: street doors on the south wall reach through to the yard
+        var b = BuildingGenerator.Generate(Court(16));
+        var yardDoors = b.Markers.Where(m => m.Kind == "entrance" && MathF.Abs(m.Position.Z - 16) < 0.5f && MathF.Abs(m.Position.X) < 16).ToList();
+        var streetDoors = b.Markers.Where(m => m.Kind == "entrance" && m.Position.Z > 24.5f).ToList();
+        Assert.NotEmpty(streetDoors);
+        // the yard door lands in the yard wall's own bay grid, so within one bay of the street door
+        Assert.All(streetDoors, s => Assert.Contains(yardDoors, y => MathF.Abs(y.Position.X - s.Position.X) < 3.6f));
+    }
+
+    [Fact]
     public void Glb_lods_get_lighter()
     {
         var b = BuildingGenerator.Generate(Block());

@@ -29,8 +29,29 @@ public sealed record Passage(string Kind, int OuterEdge, float OuterU, int HoleE
 /// </summary>
 public static class Passages
 {
-    /// <summary>Holes under this are light wells, not courtyards.</summary>
+    /// <summary>Holes under this are light wells, not courtyards, unless a mapped entrance opens onto them (D8).</summary>
     public const float LightWell = 40f;
+    /// <summary>A hole narrower than this (the short side of a rectangle of the same area and perimeter) is a shaft for light and air.</summary>
+    public const float ShaftWidth = 4f;
+
+    /// <summary>
+    /// Whether hole <paramref name="h"/> is a courtyard people go into, or a light well / shaft (D8, Noor Q4): a mapped
+    /// entrance on its wall makes it a courtyard at any size; otherwise it needs 40 m² and a width of 4 m.
+    /// </summary>
+    public static bool IsCourtyard(BuildingGenerator.Context c, int h, out string why)
+    {
+        var ring = c.Site.Holes[h];
+        float area = Polygon.Area(ring), half = Polygon.Perimeter(ring) * 0.5f;
+        // the short side of the rectangle with this area and perimeter: exact for rectangles, near enough for the rest
+        float width = (half - MathF.Sqrt(MathF.Max(0f, half * half - 4f * area))) * 0.5f;
+        bool mapped = c.Request.Entrances.Any(e => Enumerable.Range(0, ring.Count)
+            .Any(i => Polygon.DistanceToSegment(e.Position, ring[i], ring[(i + 1) % ring.Count]) < Entrances.Snap));
+        if (mapped) { why = "a mapped entrance opens onto it"; return true; }
+        if (area < LightWell) { why = $"{area:0} m², a light well"; return false; }
+        if (width < ShaftWidth) { why = $"only ~{width:0.0} m wide, a shaft"; return false; }
+        why = $"{area:0} m²";
+        return true;
+    }
     public const float GateHalf = 1.5f, WalkHalf = 0.9f, MaxDepth = 25f;
 
     public static List<Passage> Plan(BuildingGenerator.Context c, float plinth)
@@ -43,9 +64,9 @@ public static class Passages
         for (int h = 0; h < site.Holes.Count; h++)
         {
             float area = Polygon.Area(site.Holes[h]);
-            if (area < LightWell)
+            if (!IsCourtyard(c, h, out var why))
             {
-                c.Building.Report.Add(Severity.Info, "courtyard.light_well", $"Hole {h + 1} covers {area:0} m²: a light well, no way in.");
+                c.Building.Report.Add(Severity.Info, "courtyard.light_well", $"Hole {h + 1}: {why}, no way in.");
                 continue;
             }
             Passage? best = null; float bestScore = 0;
@@ -117,7 +138,7 @@ public static class Passages
         return new Hit(target, hu, tm, lo, ro, lo + d * tl, ro + d * tr);
     }
 
-    private static float? Ray(Vector2 o, Vector2 d, Vector2 a, Vector2 b)
+    internal static float? Ray(Vector2 o, Vector2 d, Vector2 a, Vector2 b)
     {
         var s = b - a;
         float den = Polygon.Cross(d, s);
@@ -131,7 +152,7 @@ public static class Passages
     /// The passage itself, shared by every style: side walls, a ceiling and paving between the two cuts, and for a gate
     /// two leaves standing open against the walls just inside the street opening.
     /// </summary>
-    public static void Build(BuildingGenerator.Context c, Passage p, string wallRole, string ceilingRole, string floorRole, string gateRole)
+    public static void Build(BuildingGenerator.Context c, Passage p, string wallRole, string ceilingRole, string floorRole, string gateRole, string frameRole)
     {
         var b = c.Building;
         var m = b.Add(c.Id($"passage.e{p.OuterEdge}"), "passage", ModuleTier.Primary);
@@ -148,15 +169,33 @@ public static class Passages
         b.Markers.Add(new Marker(c.Id($"passage.e{p.OuterEdge}.street"), "passage", V(p.Mid, p.Floor), V(-inward, 0)));
         b.Markers.Add(new Marker(c.Id($"passage.e{p.OuterEdge}.courtyard"), "passage", V((p.LeftIn + p.RightIn) * 0.5f, p.Floor), V(inward, 0)));
         if (!p.IsGate) return;
-        // two gate leaves swung open flat against the side walls, hinged 0.4 m inside the street face
+        // Noor Q1: a mix decided by the seed, some gates open, some closed with a small door (furtka) in one leaf.
+        // A closed gate is a state, not a wall: the passage, its markers and the carved collision stay, so the
+        // courtyard is still reachable and a game can open and close it later (D8).
+        bool closed = c.Detail.Chance(0.5);
         var gate = b.Add(c.Id($"gate.e{p.OuterEdge}"), "gate", ModuleTier.Secondary, m.Id);
+        gate.Extras = new() { ["state"] = closed ? "closed" : "open", ["wicket"] = closed, ["hinge_depth"] = 0.4f };
         float leaf = p.HalfWidth, gh = MathF.Min(p.Ceiling - p.Floor - 0.1f, 3.2f);
-        foreach (var (hinge, side) in new[] { (p.LeftOut, 1f), (p.RightOut, -1f) })
+        if (!closed)
         {
-            var h0 = hinge + inward * 0.4f + across * side * 0.02f;
-            var f = new Kit.Frame(V(h0, 0), V(inward, 0), V(across * side, 0));
-            Kit.Box(gate.Mesh, gateRole, f, 0, leaf, p.Floor + 0.05f, p.Floor + gh, 0, 0.07f);
+            // two leaves swung open flat against the side walls, hinged 0.4 m inside the street face
+            foreach (var (hinge, side) in new[] { (p.LeftOut, 1f), (p.RightOut, -1f) })
+            {
+                var h0 = hinge + inward * 0.4f + across * side * 0.02f;
+                var f = new Kit.Frame(V(h0, 0), V(inward, 0), V(across * side, 0));
+                Kit.Box(gate.Mesh, gateRole, f, 0, leaf, p.Floor + 0.05f, p.Floor + gh, 0, 0.07f);
+            }
+            return;
         }
+        // closed: both leaves across the opening, 0.4 m in, facing the street; a framed wicket door in the right leaf
+        var fc = new Kit.Frame(V(p.LeftOut + inward * 0.47f, 0), V(across, 0), V(-inward, 0));
+        float w = p.HalfWidth * 2, g0 = p.Floor + 0.05f, g1 = p.Floor + gh;
+        Kit.Box(gate.Mesh, gateRole, fc, 0, w * 0.5f - 0.01f, g0, g1, 0, 0.07f);
+        Kit.Box(gate.Mesh, gateRole, fc, w * 0.5f + 0.01f, w, g0, g1, 0, 0.07f);
+        float d0 = w * 0.5f + 0.35f, d1 = d0 + 0.9f;
+        foreach (var (u0, u1, v0, v1) in new[] { (d0 - 0.05f, d0, g0, g0 + 2.0f), (d1, d1 + 0.05f, g0, g0 + 2.0f), (d0 - 0.05f, d1 + 0.05f, g0 + 2.0f, g0 + 2.05f) })
+            Kit.Box(gate.Mesh, frameRole, fc, u0, u1, v0, v1, 0.07f, 0.1f);
+        b.Markers.Add(new Marker(c.Id($"gate.e{p.OuterEdge}.wicket"), "wicket", fc.P((d0 + d1) * 0.5f, p.Floor, 0.1f), V(-inward, 0)));
     }
 
     /// <summary>Doors keep this far (m, from the passage centre beyond its half width) from a passage on the same wall.</summary>

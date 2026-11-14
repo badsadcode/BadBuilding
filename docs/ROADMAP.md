@@ -31,8 +31,16 @@ Known gaps in milestone 1: roofs are always flat (a mapped gabled roof is report
 (~35–40k triangles for 11 storeys × 120 m: merge plain wall runs, simpler far LODs); kamienica-like buildings fall to
 the plain style.
 
+Added after the first review (Tom and Noor): courtyard gate or pedestrian passages, yard doors, through-staircases,
+open or closed gates, courtyard access validation (D7, D8).
+
 ## Milestone 2 — more styles, used in the game
 
+- **Kamienica first** (Noor Q3, D8): street facade with tall windows, surrounds, cornices and a distinctive entrance;
+  plain yard facades with practical windows and service doors; a brama with a rectangular or arched opening; shop
+  ground floors with display windows and occasional roller shutters; varied cornices, parapets, pitched or mansard
+  roofs; everything on a coherent bay grid. Ornament varies across the family (lavish, plain, damaged, renovated);
+  proportions and composition come before detail.
 - Detached house (pitched roofs from the footprint's minimum rectangle; straight skeleton later), outbuilding/farm,
   shop/warehouse, kamienica (street/courtyard contrast, gate passage, cornice and plinth proportions).
 - Style fingerprints: several seeds per style, unlabelled, still recognisable (Noor §3 test; BadLevel's fingerprint).
