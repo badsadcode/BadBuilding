@@ -10,6 +10,20 @@ Where Sage has a default it says so, and that is what happens unless you say oth
 
 All renders live in [`docs/img`](img/). The newest are below; each question also shows the ones it is about.
 
+### Evidence before confidence (your Q8 and Q9, 14 November 2026)
+
+Real buildings from OSM, chosen by what the map knows about them.
+
+| | |
+|---|---|
+| ![A listed tenement](img/real_listed_tenement.jpg) | ![A tenement mapped as built in 1904](img/real_1904_tenement.jpg) |
+| Listed in OSM (heritage), 3 storeys: the full kamienica family. Its shop fronts are where OSM maps shops. | Mapped `start_date=1904`, 6 storeys, squeezed between neighbours: only its street front shows. |
+| ![The same 1904 tenement from the side](img/real_1904_firewall.jpg) | ![A 1965 infill](img/real_1965_infill.jpg) |
+| The same building from the side: firewalls on three sides, chimney stacks along them. | Mapped `start_date=1965`, touching its neighbours: not a kamienica (a PRL block), because the map says post-war. |
+
+A tenement with nothing mapped about its age stays in the kamienica family but is never rich (plain or modest only),
+and the gallery labels it "no age evidence".
+
 ### The first kamienica (14 November 2026, later)
 
 Your Q3 brief, first cut: proportions and composition only, no fine ornament yet.
@@ -47,41 +61,7 @@ What decides the look:
 
 ## Open questions
 
-### Q6 — Kamienica roofs
-They are all flat behind the attic for now. Which roof should come first?
-- **a)** a mono-pitched roof falling to the yard, hidden behind the street attic (very common in Warsaw);
-- **b)** a mansard on the richer ones, with dormer windows;
-- **c)** a corner tower or dome on rich corner tenements.
-
-*Sage's default:* **a** for most, **b** on some rich ones; **c** later.
-
-### Q7 — Arched or rectangular brama?
-The brama is rectangular today.
-
-![The brama today](img/kamienica_brama.jpg)
-
-*Sage's default:* arched on the rich tenements, rectangular on the plain and modest ones.
-
-### Q8 — Telling a kamienica from the map
-Today a building becomes a kamienica when it has a party wall and 2–8 storeys. OSM sometimes also has `start_date`
-(year built), `building:architecture` or `heritage`. Do you know other signs that tell a pre-war tenement from a
-post-war infill that also touches its neighbours?
-
-*Sage's default:* use `start_date` before 1945 when the map has it; party walls otherwise.
-
-### Q9 — Shop fronts
-70 % of kamienice get shops, signs are plain coloured boards (no lettering), one shutter in five is down.
-Does that feel right? Should signs get lettering or shop types (bakery, pharmacy, kantor…) later?
-
-![Shop fronts](img/kamienica_shops.jpg)
-
-*Sage's default:* keep the numbers; shop types later, when they matter to the game (loot!).
-
-### Q10 — Firewalls
-Party walls are bare brick with chimney stacks. In Warsaw a firewall standing free above a lower neighbour often
-carries a painted advert or a mural. Worth doing later?
-
-*Sage's default:* later, as an optional decal layer.
+None right now. Thank you, Noor! 💜 No golden domes, promised. 😁
 
 ---
 
@@ -100,3 +80,9 @@ Noor's earlier feedback and what came of it, so nothing gets lost.
 | 14 Nov 2026 | Q4: 40 m² as a default, with contextual overrides. | A mapped door makes any hole a yard; anything under 4 m wide is a shaft (D8). |
 | 14 Nov 2026 | Q5: no licence yet; MIT preferred if Tom releases it; check what was reused. | Left unlicensed; noted to check BadShip and BadLevel terms first (D8). |
 | 14 Nov 2026 | Two kinds of success: technical validity and architectural plausibility. | Adopted as a principle (D8). |
+| 14 Nov 2026 | Q6: roofs: mono-pitch to the yard first, mansards sometimes, towers and domes later and only where they belong. | Recorded for the roof work (D10). |
+| 14 Nov 2026 | Q7: both arched and rectangular, by style and age, not ornament alone; a real opening with clearance. | Recorded; rectangular stays for now (D10). |
+| 14 Nov 2026 | Q8: use several clues; missing data is not evidence; when unsure, a modest town house, not an invented rich tenement. | Built: build year, heritage and architecture tags are read; post-war → not a kamienica; no evidence → never rich (D10). |
+| 14 Nov 2026 | Q9: keep it, but mapped shops come first; frequency by street later; shop types later. | Built: mapped shops decide the shop fronts; the guess only without shop data (D10). |
+| 14 Nov 2026 | Q10: firewall adverts and murals later, optional, many walls bare, nothing fake on real buildings. | Recorded (D10). |
+| 14 Nov 2026 | Keep an eye on windows vs future floor plans. | Noted for the interiors milestone (D10). |

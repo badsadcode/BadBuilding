@@ -16,6 +16,7 @@ import sys
 
 import osmium
 
+SHOP_AMENITIES = ('pharmacy', 'cafe', 'restaurant', 'bar', 'pub', 'fast_food', 'bank', 'bureau_de_change', 'post_office')
 BOX = (20.95, 52.19, 21.06, 52.245)       # lon/lat: Ochota, Śródmieście, Mokotów, Powiśle
 R = 6378137.0
 
@@ -41,6 +42,7 @@ class Collect(osmium.SimpleHandler):
         self.buildings = []
         self.entrances = []
         self.streets = []
+        self.shops = []
 
     def inside(self, lon, lat, pad=0.0):
         return BOX[0] - pad <= lon <= BOX[2] + pad and BOX[1] - pad <= lat <= BOX[3] + pad
@@ -48,6 +50,8 @@ class Collect(osmium.SimpleHandler):
     def node(self, n):
         if 'entrance' in n.tags and n.location.valid() and self.inside(n.location.lon, n.location.lat, 0.002):
             self.entrances.append((n.location.lon, n.location.lat, n.tags.get('entrance')))
+        if ('shop' in n.tags or n.tags.get('amenity') in SHOP_AMENITIES) and n.location.valid() and self.inside(n.location.lon, n.location.lat, 0.002):
+            self.shops.append((n.location.lon, n.location.lat))
 
     def way(self, w):
         hw = w.tags.get('highway')
@@ -74,6 +78,10 @@ class Collect(osmium.SimpleHandler):
                 'type': b, 'levels': int(lv) if lv and lv.isdigit() else None,
                 'height': a.tags.get('height'), 'roof': a.tags.get('roof:shape'),
                 'housenumber': a.tags.get('addr:housenumber'), 'outer': pts[:-1], 'holes': [h[:-1] for h in holes],
+                'start_date': a.tags.get('start_date') or a.tags.get('building:start_date'),
+                'heritage': 'heritage' in a.tags or 'heritage:ref' in a.tags or a.tags.get('historic') == 'building',
+                'architecture': a.tags.get('building:architecture'),
+                'shop_on_building': 'shop' in a.tags,
             })
             break
 
@@ -175,6 +183,12 @@ def main():
     pick('house', lambda b: b['type'] in ('house', 'detached') and 60 < b['_area'] < 250)
     pick('outbuilding', lambda b: b['type'] in ('garage', 'garages', 'shed', 'outbuilding') and 15 < b['_area'] < 120)
     pick('tiny', lambda b: b['_area'] < 3, 1)
+    # tenements with evidence: built before the war (or listed), standing in a frontage
+    def year(b):
+        d = (b.get('start_date') or '')[:4]
+        return int(d) if d.isdigit() else None
+    pick('pre_war_tenement', lambda b: b['type'] in ('apartments', 'residential', 'yes', 'commercial', 'retail') and ((year(b) or 9999) < 1939 or b['heritage']) and touching(b) and 200 < b['_area'] < 3000, 3)
+    pick('post_war_infill', lambda b: (year(b) or 0) >= 1950 and touching(b) and b['type'] in ('apartments', 'residential', 'yes') and 150 < b['_area'] < 3000, 2)
 
     samples = []
     for case, bs in picks.items():
@@ -189,6 +203,11 @@ def main():
                 p = L(lo, la)
                 if abs(p[0]) < b['_span'] and abs(p[1]) < b['_span']:
                     ents.append({'position': p, 'kind': kind if kind in ('main', 'staircase', 'service') else 'main'})
+            shops = []
+            for lo, la in h.shops:
+                p = L(lo, la)
+                if abs(p[0]) < b['_span'] and abs(p[1]) < b['_span']:
+                    shops.append(p)
             streets = []
             for hw, pts in h.streets:
                 pl = [L(lo, la) for lo, la in pts]
@@ -200,6 +219,8 @@ def main():
                 'roof': b['roof'], 'house_number': b['housenumber'],
                 'outer': [L(lo, la) for lo, la in b['outer']], 'holes': [[L(lo, la) for lo, la in hh] for hh in b['holes']],
                 'neighbours': neighbours, 'streets': streets, 'entrances': ents,
+                'start_date': b['start_date'], 'heritage': b['heritage'], 'architecture': b['architecture'],
+                'shops': shops, 'shop_on_building': b['shop_on_building'],
             })
     with open(out, 'w', encoding='utf-8') as f:
         json.dump({'attribution': 'Map data (c) OpenStreetMap contributors, ODbL 1.0 (openstreetmap.org/copyright)',

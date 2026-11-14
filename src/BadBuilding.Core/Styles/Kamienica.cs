@@ -24,15 +24,27 @@ public sealed class Kamienica : IStyle
     public float RoofExtra => 0.9f;
     private const float Bay = 3.1f, DefaultStorey = 3.5f;
 
-    /// <summary>A walled-in town building: at least one party wall, 2–8 storeys, not a house, deep enough for rooms.</summary>
+    /// <summary>
+    /// A walled-in town building: at least one party wall, 2–8 storeys, not a house, deep enough for rooms, and not
+    /// mapped as built after the war (D10: a post-war infill also touches its neighbours).
+    /// </summary>
     public static bool Fits(BuildingGenerator.Context c)
     {
+        if (c.Request.StartYear is >= 1945) return false;
         var t = c.Request.Type;
         bool kind = t is null or "yes" or "apartments" or "residential" or "commercial" or "retail" or "office" or "hotel";
         if (!kind || c.Site.Depth < 6f || c.Site.Depth > 30f) return false;
         if (c.Request.Levels is { } lv && (lv < 2 || lv > 8)) return false;
         return c.Site.Edges.Any(e => e.Exposure == Exposure.Party);
     }
+
+    /// <summary>
+    /// Evidence that this is really a pre-war tenement (Noor Q8): a mapped build year before 1945, a heritage tag or a
+    /// mapped architecture. Missing data is not evidence: without it the building is a modest town house of the family,
+    /// never a rich one confidently invented (D10).
+    /// </summary>
+    public static bool Historic(BuildingRequest r) =>
+        r.StartYear is < 1945 || r.Heritage || r.Architecture is { Length: > 0 } a && a is not ("modern" or "brutalist" or "socialist_realism" or "contemporary");
 
     public int InferLevels(BuildingGenerator.Context c) => c.PlanRng.Weighted<int>([(3, 1), (4, 3), (5, 3), (6, 1)]);
     public float StoreyHeight(BuildingGenerator.Context c) => DefaultStorey;
@@ -54,13 +66,19 @@ public sealed class Kamienica : IStyle
     /// a deep two-step cornice).</summary>
     private int _ornament;
     private bool _shops;
+    private IReadOnlyList<Vector2>? _shopAt;
 
     public void Materials(BuildingGenerator.Context c)
     {
         var p = c.Look.Pick(Palettes);
-        _ornament = p.Name == "sooty" ? c.Look.Weighted<int>([(1, 1), (2, 2)]) : c.Look.Weighted<int>([(0, 2), (1, 3), (2, 2)]);
-        _shops = c.Request.Type is "commercial" or "retail" || c.Look.Chance(0.7);
-        c.Plan = c.Plan with { Palette = $"{p.Name}, ornament {_ornament}{(_shops ? ", shops" : "")}" };
+        bool historic = Historic(c.Request);
+        _ornament = !historic ? c.Look.Weighted<int>([(0, 1), (1, 1)])
+            : p.Name == "sooty" ? c.Look.Weighted<int>([(1, 1), (2, 2)]) : c.Look.Weighted<int>([(0, 2), (1, 3), (2, 2)]);
+        // shops: mapped shops decide where they are; without shop data a guess, more likely on a commercial building
+        var mapped = c.Request.Shops;
+        _shops = c.Request.ShopOnBuilding || mapped is { Count: > 0 } || (mapped is null || mapped.Count == 0) && (c.Request.Type is "commercial" or "retail" || c.Look.Chance(0.7));
+        _shopAt = mapped is { Count: > 0 } && !c.Request.ShopOnBuilding ? mapped : null;
+        c.Plan = c.Plan with { Palette = $"{p.Name}, ornament {_ornament}{(historic ? "" : " (no age evidence)")}{(_shops ? _shopAt != null ? ", mapped shops" : ", shops" : "")}" };
         c.Building.Plan = c.Plan;
         var m = c.Building.Materials;
         m["wall"] = Kit.Mat("wall", p.Plaster, 0.92f);
@@ -149,7 +167,7 @@ public sealed class Kamienica : IStyle
                         b.Markers.Add(new Marker(c.Id($"entrance.{tag}.{bi}"), "entrance", f.P(uc, y0, 0.05f), f.Out));
                         continue;
                     }
-                    if (s == 0 && street && _shops)
+                    if (s == 0 && street && _shops && (_shopAt == null || _shopAt.Any(q => Vector2.Distance(q, ToPlan(f.P(uc, 0))) < 6f)))
                     {
                         Shop(c, wall.Mesh, trim.Mesh, f, u0, u1, y0, y1, role, tag, bi);
                         continue;
@@ -198,6 +216,8 @@ public sealed class Kamienica : IStyle
         foreach (var h in c.Site.Holes) Kit.Parapet(roof.Mesh, "wall_yard", h, top + 0.15f, top + 0.5f, 0.2f);
     }
 
+    private static Vector2 ToPlan(Vector3 p) => new(p.X, p.Z);
+
     /// <summary>A window surround: jambs and a lintel band round the opening, and a sill shelf below it.</summary>
     private static void Surround(Mesh m, Kit.Frame f, float a, float b, float y0, float y1, float t, bool sill)
     {
@@ -233,7 +253,12 @@ public sealed class Kamienica : IStyle
             Kit.Box(wall, "door", f, d, d + 0.95f, y0, y0 + 2.25f, -0.15f, -0.11f);
             c.Building.Markers.Add(new Marker(c.Id($"shop.{tag}.{bi}"), "shop_entrance", f.P(d + 0.47f, y0, 0.05f), f.Out));
         }
-        else Kit.Box(trim, "shutter", f, a - 0.05f, b + 0.05f, top, top + 0.3f, 0, 0.25f);   // the shutter box
+        else
+        {
+            Kit.Box(trim, "shutter", f, a - 0.05f, b + 0.05f, top, top + 0.3f, 0, 0.25f);   // the shutter box
+            // still a shop, only closed: the way in is behind the shutter
+            c.Building.Markers.Add(new Marker(c.Id($"shop.{tag}.{bi}"), "shop_entrance", f.P((a + b) * 0.5f, y0, 0.05f), f.Out));
+        }
         Kit.Box(trim, "sign", f, u0 + 0.2f, u1 - 0.2f, top + (shut ? 0.32f : 0.1f), top + (shut ? 0.32f : 0.1f) + 0.4f, 0, 0.08f);
     }
 }

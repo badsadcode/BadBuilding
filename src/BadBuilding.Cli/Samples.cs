@@ -37,6 +37,12 @@ public static class Samples
                     HouseNumber = s.GetProperty("house_number").GetString(),
                     Neighbours = s.GetProperty("neighbours").EnumerateArray().Select(n => new Ring(Ring(n))).ToList(),
                     Streets = streets.Select(p => new StreetLine(p)).ToList(),
+                    StartYear = s.TryGetProperty("start_date", out var sd) && sd.ValueKind == JsonValueKind.String
+                        && sd.GetString()!.Length >= 4 && int.TryParse(sd.GetString()![..4], out int yr) ? yr : null,
+                    Heritage = s.TryGetProperty("heritage", out var he) && he.ValueKind == JsonValueKind.True,
+                    Architecture = s.TryGetProperty("architecture", out var ar) && ar.ValueKind == JsonValueKind.String ? ar.GetString() : null,
+                    Shops = s.TryGetProperty("shops", out var sh) ? sh.EnumerateArray().Select(p => new Vector2(p[0].GetSingle(), p[1].GetSingle())).ToList() : null,
+                    ShopOnBuilding = s.TryGetProperty("shop_on_building", out var sb) && sb.ValueKind == JsonValueKind.True,
                     Entrances = s.GetProperty("entrances").EnumerateArray()
                         .Select(e => new Entrance(new Vector2(e.GetProperty("position")[0].GetSingle(), e.GetProperty("position")[1].GetSingle()), e.GetProperty("kind").GetString() ?? "main")).ToList(),
                 };

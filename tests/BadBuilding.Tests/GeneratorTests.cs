@@ -255,12 +255,31 @@ public class GeneratorTests
     }
 
     [Fact]
-    public void Kamienice_are_not_all_equally_ornate()
+    public void Pre_war_kamienice_are_not_all_equally_ornate()
     {
-        var looks = Enumerable.Range(0, 16).Select(i => BuildingGenerator.Generate(Tenement((ulong)i)).Plan!.Palette).ToList();
+        var looks = Enumerable.Range(0, 16).Select(i => BuildingGenerator.Generate(Tenement((ulong)i) with { StartYear = 1905 }).Plan!.Palette).ToList();
         Assert.Contains(looks, p => p.Contains("ornament 0"));
         Assert.Contains(looks, p => p.Contains("ornament 2"));
         Assert.True(looks.Select(p => p.Split(',')[0]).Distinct().Count() >= 3);
+    }
+
+    [Fact]
+    public void Without_age_evidence_a_tenement_is_never_rich_and_a_post_war_infill_is_no_kamienica()
+    {
+        var looks = Enumerable.Range(0, 24).Select(i => BuildingGenerator.Generate(Tenement((ulong)i)).Plan!.Palette).ToList();
+        Assert.DoesNotContain(looks, p => p.Contains("ornament 2"));
+        Assert.All(looks, p => Assert.Contains("no age evidence", p));
+        Assert.NotEqual("kamienica", BuildingGenerator.Generate(Tenement(1) with { StartYear = 1962 }).Plan!.Style);
+    }
+
+    [Fact]
+    public void Mapped_shops_decide_where_the_shop_fronts_go()
+    {
+        // one shop mapped at the west end of the front: only the bays near it are shops
+        var b = BuildingGenerator.Generate(Tenement(3) with { StartYear = 1910, Shops = [new(-8, -1)] });
+        var shops = b.Markers.Where(m => m.Kind == "shop_entrance").ToList();
+        Assert.NotEmpty(shops);
+        Assert.All(shops, m => Assert.True(m.Position.X < 0, $"shop at {m.Position.X}"));
     }
 
     [Fact]

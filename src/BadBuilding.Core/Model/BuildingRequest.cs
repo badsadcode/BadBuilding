@@ -42,6 +42,18 @@ public sealed record BuildingRequest
     public string? HouseNumber { get; init; }
     public IReadOnlyList<Entrance> Entrances { get; init; } = [];
 
+    /// <summary>OSM start_date (year built), when mapped. Evidence for a style's age (D10); missing is not evidence.</summary>
+    public int? StartYear { get; init; }
+    /// <summary>Listed or marked historic in OSM (heritage=*, historic=building).</summary>
+    public bool Heritage { get; init; }
+    /// <summary>OSM building:architecture, when mapped.</summary>
+    public string? Architecture { get; init; }
+    /// <summary>Mapped shops (shop=* and shop-like amenity nodes) in or at the building, plan points. Null = not known;
+    /// when given, they decide where shop fronts go instead of a guess (D10).</summary>
+    public IReadOnlyList<Vector2>? Shops { get; init; }
+    /// <summary>The building itself carries a shop=* tag.</summary>
+    public bool ShopOnBuilding { get; init; }
+
     /// <summary>Footprints of nearby buildings (outer rings): party walls and slivers (D4).</summary>
     public IReadOnlyList<Ring> Neighbours { get; init; } = [];
     public IReadOnlyList<StreetLine> Streets { get; init; } = [];
@@ -52,7 +64,7 @@ public sealed record BuildingRequest
     /// <summary>Where the facts came from: true when they are mapped OSM data (else "request").</summary>
     public bool FromOsm { get; init; } = true;
 
-    /// <summary>Force a style ("prl_block", "plain"), otherwise chosen from the facts.</summary>
+    /// <summary>Force a style ("prl_block", "kamienica", "plain"), otherwise chosen from the facts.</summary>
     public string? Style { get; init; }
 
     /// <summary>Replaces the seed for one stage only ("plan", "facade", "detail", "look"): reroll that stage, keep the rest.</summary>

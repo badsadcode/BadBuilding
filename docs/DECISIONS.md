@@ -83,3 +83,23 @@ header over the first-floor windows, a balcony with an iron railing and a deep t
 60 m² or more get a gate passage (150 m² for PRL blocks). Roofs are flat behind the attic for now (Q6 to Noor).
 Found on the way: a neighbour merely in line with a wall (the next house's front, continuing the frontage) counted as
 a narrow gap in front of it; a gap now only counts when the neighbour is really in front.
+
+## D10 — Noor's answers on the kamienica (Q6–Q10), and evidence before confidence
+Noor asked for these to be read as guidance, not a backlog; the main priority stays a reliable generator for real OSM
+footprints. Two of them are about exactly that, so they are built now:
+- **Evidence (Q8):** a party wall and 2–8 storeys say "town building", not "pre-war tenement". The request now carries
+  what OSM knows: `start_date`, `heritage`, `building:architecture`. Mapped after 1945 → not a kamienica. Mapped before
+  1945, listed, or with a historic architecture tag → the full family, rich ones included. Nothing mapped → still the
+  kamienica family (the street-and-yard logic holds for any frontage house) but never rich: plain or modest only, and
+  marked "no age evidence". Missing data is never taken as evidence of age.
+- **Mapped shops first (Q9):** shop=* nodes (and shop-like amenities: pharmacy, café, bank, kantor…) and a shop tag on
+  the building are passed in; when there are mapped shops, the shop fronts go in the bays near them; only without shop
+  data does the 70 % guess apply. A shuttered shop is still a shop, with its own marker.
+- Recorded for later, not built: roofs (Q6: mono-pitch to the yard hidden behind the attic first, an occasional
+  mansard with dormers on rich ones, towers and domes only on chosen buildings, never at random; roofs must respect
+  courtyards, odd footprints and the neighbours' roof lines); an arched brama (Q7: a real geometric opening with
+  collision clearance, chosen by style and age rather than ornament alone); shop frequency by street character and
+  shop types (Q9); optional firewall decals, bare by default, sometimes old adverts, never fake adverts on identifiable
+  real buildings (Q10).
+- Watch (Noor): windows, doors and bays must leave room for believable floor plans; regular window spacing is not
+  worth an impossible plan.
