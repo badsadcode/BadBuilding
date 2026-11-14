@@ -10,10 +10,32 @@ Where Sage has a default it says so, and that is what happens unless you say oth
 
 All renders live in [`docs/img`](img/). The newest are below; each question also shows the ones it is about.
 
+### The first kamienica (14 November 2026, later)
+
+Your Q3 brief, first cut: proportions and composition only, no fine ornament yet.
+
+| | |
+|---|---|
+| ![A tenement in a frontage](img/kamienica_row.jpg) | ![Shop fronts](img/kamienica_shops.jpg) |
+| A tenement between two neighbours: shop fronts (one shuttered), the street door, tall windows in surrounds, a string course, a cornice, an attic. | The ground floor close up: display windows with a door inside, sign boards, a roller shutter with its box. |
+| ![A corner tenement](img/kamienica_corner.jpg) | ![The brama](img/kamienica_brama.jpg) |
+| A corner tenement round a 10 × 10 m yard. Shops on both streets. | Its brama (8 m long) beside the street door, under the piano nobile balcony. |
+| ![A real courtyard building as a kamienica](img/kamienica_real_courtyard.jpg) | |
+| A real OSM courtyard building, now a kamienica: plain yard walls, a brick firewall with chimneys. | |
+
+What decides the look:
+- **Which buildings:** a building with at least one party wall, 2–8 storeys, not a house. Free-standing blocks stay PRL.
+- **Street front vs yard:** the street gets surrounds, a string course, a cornice and an attic, shops and a proper door. The yard gets plain plaster, smaller windows and service doors. Party walls are bare brick firewalls with chimney stacks.
+- **Not all equally ornate:** each building gets an ornament level from its seed. *Plain* (renovated: plain plaster, no surrounds, a thin cornice), *modest* (surrounds, string course, cornice), *rich* (a header over the first-floor windows, a balcony with an iron railing, a deep two-step cornice). Seven plaster palettes, one of them sooty and never renovated (always modest or rich).
+- **Shops:** about 70 % of kamienice have shops along the street; one shop in five has its shutter down.
+- **Brama:** a yard of 60 m² or more gets a gate passage (PRL blocks need 150 m²).
+
+### Earlier: courtyards and gates (14 November 2026)
+
 | | |
 |---|---|
 | ![A closed gate with its wicket door](img/closed_gate_wicket.jpg) | ![The real courtyard block with the closed gate](img/closed_gate_block.jpg) |
-| **New (your Q1):** a closed gate with a small door in the right leaf. The yard behind it still counts as reachable. | The same gate on a real courtyard block from OSM. Half the gates are closed, picked by the seed. |
+| Your Q1: a closed gate with a small door in the right leaf. The yard behind it still counts as reachable. | The same gate on a real courtyard block from OSM. Half the gates are closed, picked by the seed. |
 | ![The courtyard block from above](img/courtyard_block_overview.jpg) | ![The gate passage from the street](img/courtyard_gate_close.jpg) |
 | The synthetic courtyard block (5 storeys, PRL style). | Its new gate passage from the street. |
 | ![Looking through the gate into the yard](img/courtyard_gate_through.jpg) | ![The yard from above](img/courtyard_yard_from_above.jpg) |
@@ -25,7 +47,41 @@ All renders live in [`docs/img`](img/). The newest are below; each question also
 
 ## Open questions
 
-None right now. Thank you, Noor! 💜 Next questions will come with the first kamienica.
+### Q6 — Kamienica roofs
+They are all flat behind the attic for now. Which roof should come first?
+- **a)** a mono-pitched roof falling to the yard, hidden behind the street attic (very common in Warsaw);
+- **b)** a mansard on the richer ones, with dormer windows;
+- **c)** a corner tower or dome on rich corner tenements.
+
+*Sage's default:* **a** for most, **b** on some rich ones; **c** later.
+
+### Q7 — Arched or rectangular brama?
+The brama is rectangular today.
+
+![The brama today](img/kamienica_brama.jpg)
+
+*Sage's default:* arched on the rich tenements, rectangular on the plain and modest ones.
+
+### Q8 — Telling a kamienica from the map
+Today a building becomes a kamienica when it has a party wall and 2–8 storeys. OSM sometimes also has `start_date`
+(year built), `building:architecture` or `heritage`. Do you know other signs that tell a pre-war tenement from a
+post-war infill that also touches its neighbours?
+
+*Sage's default:* use `start_date` before 1945 when the map has it; party walls otherwise.
+
+### Q9 — Shop fronts
+70 % of kamienice get shops, signs are plain coloured boards (no lettering), one shutter in five is down.
+Does that feel right? Should signs get lettering or shop types (bakery, pharmacy, kantor…) later?
+
+![Shop fronts](img/kamienica_shops.jpg)
+
+*Sage's default:* keep the numbers; shop types later, when they matter to the game (loot!).
+
+### Q10 — Firewalls
+Party walls are bare brick with chimney stacks. In Warsaw a firewall standing free above a lower neighbour often
+carries a painted advert or a mural. Worth doing later?
+
+*Sage's default:* later, as an optional decal layer.
 
 ---
 

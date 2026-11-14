@@ -87,6 +87,20 @@ public static class Samples
             Req("syn:slope", house, "house", 2) with { Ground = [3, 3, 0, 0], Streets = st }, S);
         yield return new("synthetic_thin", true, "1.5 m wide strip: too thin for rooms",
             Req("syn:thin", R(-10, -0.75f, 10, -0.75f, 10, 0.75f, -10, 0.75f), "yes", 1), S);
+        // kamienice: the middle of a frontage, and a corner tenement round a small yard with neighbours on two sides
+        var kl = R(-38, -14, -10, -14, -10, 0, -38, 0); var kr = R(10, -14, 34, -14, 34, 0, 10, 0);
+        var front = new[] { new StreetLine(new List<Vector2> { new(-80, 8), new(80, 8) }) };
+        IReadOnlyList<IReadOnlyList<Vector2>> FS = [new List<Vector2> { new(-80, 8), new(80, 8) }];
+        yield return new("synthetic_kamienica_row", true, "tenement in a frontage: party walls both sides, street to the south",
+            Req("syn:kam_row", R(-10, -14, 10, -14, 10, 0, -10, 0), "apartments", 5) with { Neighbours = [kl, kr], Streets = front }, FS);
+        var corner = new List<IReadOnlyList<Vector2>> { new List<Vector2> { new(-80, 8), new(80, 8) }, new List<Vector2> { new(8, -80), new(8, 80) } };
+        yield return new("synthetic_kamienica_corner", true, "corner tenement round a 10 × 10 m yard, neighbours north and west",
+            Req("syn:kam_corner", R(-26, -26, 0, -26, 0, 0, -26, 0), "apartments", 5) with
+            {
+                Holes = [R(-18, -18, -18, -8, -8, -8, -8, -18)],
+                Neighbours = [R(-26, -50, 0, -50, 0, -26, -26, -26), R(-50, -26, -26, -26, -26, 0, -50, 0)],
+                Streets = corner.Select(p => new StreetLine(p)).ToArray(),
+            }, corner);
         yield return new("synthetic_bowtie", true, "self-intersecting outline: must be rejected",
             Req("syn:bowtie", R(-10, -10, 10, 10, 10, -10, -10, 10), "yes", 2), S);
         yield return new("synthetic_tiny", true, "0.6 m² footprint: must be rejected",

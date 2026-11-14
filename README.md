@@ -5,7 +5,7 @@ seed. Engine-agnostic C# (.NET 8, no dependencies), built for Baltic Drive's Maz
 reusable DLL for other Bad Ideas Works tools. Ideas and code lifted from
 [BadShip](https://github.com/badsadcode/BadShip) and [BadLevel](https://github.com/badsadcode/BadLevel).
 
-**Status: milestone 1 of [the roadmap](docs/ROADMAP.md).** Exteriors only: a PRL panel block style and a plain fallback.
+**Status: milestone 1 of [the roadmap](docs/ROADMAP.md).** Exteriors only: a PRL panel block style, a kamienica style and a plain fallback.
 Interiors come later.
 
 ## What it does now
@@ -19,6 +19,8 @@ Interiors come later.
 - **Styles with grammar, not random greeble:**
   - **PRL panel block:** panel joints, one window per bay, balconies stacked in columns, glass-block staircase strips
     over each entrance, entrance canopies, flat roof with parapet and lift machine rooms.
+  - **Kamienica:** the pre-war tenement in a frontage: a dressed street front (surrounds, string course, cornice,
+    attic, shop fronts, a brama) against a plain yard side, brick firewalls with chimneys, three ornament levels.
   - **Plain:** the fallback for everything else.
 - **Courtyards can be reached:** every courtyard gets a gate passage (brama przejazdowa) or a pedestrian passage cut
   through the ground floor, plus a staircase door; validation flags any yard nobody can get into.

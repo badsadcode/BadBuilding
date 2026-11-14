@@ -231,6 +231,38 @@ public class GeneratorTests
         Assert.All(streetDoors, s => Assert.Contains(yardDoors, y => MathF.Abs(y.Position.X - s.Position.X) < 3.6f));
     }
 
+    private static BuildingRequest Tenement(ulong seed) => new()
+    {
+        Id = "test:kam", Seed = seed, Outer = Rect(-10, -14, 10, 0), Type = "apartments", Levels = 5,
+        Neighbours = [Rect(-30, -14, -10, 0), Rect(10, -14, 30, 0)],
+        Streets = [new StreetLine([new(-60, 8), new(60, 8)])],
+    };
+
+    [Fact]
+    public void A_house_in_a_frontage_is_a_kamienica_with_a_dressed_front_and_a_plain_yard()
+    {
+        var b = BuildingGenerator.Generate(Tenement(1));
+        Assert.Equal("kamienica", b.Plan!.Style);
+        var edges = b.Plan.Edges;
+        var front = edges.Single(e => e.Exposure == Exposure.Street);
+        var back = edges.Single(e => e.A.Y < -13 && e.B.Y < -13);
+        Assert.Equal(2, edges.Count(e => e.Exposure == Exposure.Party));
+        // the next houses' front walls continue the frontage: they are not a gap in front of ours
+        Assert.NotEqual(Exposure.Sliver, back.Exposure);
+        Assert.True(b.Modules.Single(m => m.Id == $"test:kam/wall.e0.{front.Index}").Mesh.Groups.ContainsKey("glass"));
+        Assert.True(b.Modules.Single(m => m.Id == $"test:kam/wall.e0.{back.Index}").Mesh.Groups.ContainsKey("glass"));
+        Assert.Empty(b.Modules.Single(m => m.Id == $"test:kam/trim.e0.{back.Index}").Mesh.Positions);
+    }
+
+    [Fact]
+    public void Kamienice_are_not_all_equally_ornate()
+    {
+        var looks = Enumerable.Range(0, 16).Select(i => BuildingGenerator.Generate(Tenement((ulong)i)).Plan!.Palette).ToList();
+        Assert.Contains(looks, p => p.Contains("ornament 0"));
+        Assert.Contains(looks, p => p.Contains("ornament 2"));
+        Assert.True(looks.Select(p => p.Split(',')[0]).Distinct().Count() >= 3);
+    }
+
     [Fact]
     public void Glb_lods_get_lighter()
     {

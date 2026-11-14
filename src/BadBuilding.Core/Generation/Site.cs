@@ -140,7 +140,9 @@ public sealed class Site
                 // only what lies in front of the wall counts (behind it is our own building)
                 if (Vector2.Dot(off, outward) < -PartyTolerance) continue;
                 bestAlong = MathF.Min(bestAlong, dist);
-                bestFacing = MathF.Min(bestFacing, dist);
+                // a gap only counts when the neighbour is actually in front of the wall, not merely in line with it
+                // (the next house's front wall, continuing the frontage)
+                if (Vector2.Dot(off, outward) >= 0.7f * dist) bestFacing = MathF.Min(bestFacing, dist);
             }
             if (bestAlong <= PartyTolerance) covered++;
             else if (bestFacing <= SliverGap) sliver++;

@@ -54,7 +54,7 @@ public static class Passages
     }
     public const float GateHalf = 1.5f, WalkHalf = 0.9f, MaxDepth = 25f;
 
-    public static List<Passage> Plan(BuildingGenerator.Context c, float plinth)
+    public static List<Passage> Plan(BuildingGenerator.Context c, float plinth, float gateArea = 150f)
     {
         var list = new List<Passage>();
         var site = c.Site;
@@ -74,7 +74,7 @@ public static class Passages
             {
                 float hw = gate ? GateHalf : WalkHalf;
                 // a gate wants a courtyard a car can turn in and a storey tall enough
-                if (gate && (area < 150f || storeyTop - floor < 2.9f)) continue;
+                if (gate && (area < gateArea || storeyTop - floor < 2.9f)) continue;
                 float ceiling = floor + MathF.Min(gate ? 3.6f : 2.6f, storeyTop - floor);
                 for (int ei = 0; ei < edges.Count; ei++)
                 {

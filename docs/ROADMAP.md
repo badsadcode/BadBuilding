@@ -36,7 +36,8 @@ open or closed gates, courtyard access validation (D7, D8).
 
 ## Milestone 2 — more styles, used in the game
 
-- **Kamienica first** (Noor Q3, D8): street facade with tall windows, surrounds, cornices and a distinctive entrance;
+- [x] first cut (D9); roofs, arched brama, finer ornament next (Noor Q6–Q10).
+  **Kamienica first** (Noor Q3, D8): street facade with tall windows, surrounds, cornices and a distinctive entrance;
   plain yard facades with practical windows and service doors; a brama with a rectangular or arched opening; shop
   ground floors with display windows and occasional roller shutters; varied cornices, parapets, pitched or mansard
   roofs; everything on a coherent bay grid. Ornament varies across the family (lavish, plain, damaged, renovated);

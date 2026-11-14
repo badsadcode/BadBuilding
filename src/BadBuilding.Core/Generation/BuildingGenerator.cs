@@ -26,7 +26,7 @@ public static class BuildingGenerator
         var plan = MakePlan(ctx, style);
         b.Plan = plan;
         ctx.Plan = plan;
-        if (!site.Small) ctx.Passages.AddRange(Passages.Plan(ctx, style.Plinth));
+        if (!site.Small) ctx.Passages.AddRange(Passages.Plan(ctx, style.Plinth, style is Kamienica ? 60f : 150f));
         style.Materials(ctx);
         style.Build(ctx);
         foreach (var p in ctx.Passages)
@@ -67,8 +67,10 @@ public static class BuildingGenerator
             {
                 PrlBlock.Name => new PrlBlock(),
                 Plain.Name => new Plain(),
-                _ => throw new ArgumentException($"Unknown style '{forced}' (styles: {PrlBlock.Name}, {Plain.Name})."),
+                Kamienica.Name => new Kamienica(),
+                _ => throw new ArgumentException($"Unknown style '{forced}' (styles: {PrlBlock.Name}, {Kamienica.Name}, {Plain.Name})."),
             };
+        if (!c.Site.Small && Kamienica.Fits(c)) return new Kamienica();
         if (!c.Site.Small && PrlBlock.Fits(c)) return new PrlBlock();
         return new Plain();
     }

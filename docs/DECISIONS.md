@@ -69,3 +69,17 @@ nothing.
 - **Two kinds of success:** *technical validity* (meshes, footprints, openings, reachable spaces, LODs, performance)
   and *architectural plausibility* (no stair to nowhere, no impossible entrances, no windows into a neighbour). Both are
   checked; the second by architectural rules in validation and by visual review in the gallery and NOOR_SAGE.md.
+
+## D9 — The kamienica style, first cut
+Built from Noor's Q3 brief (D8), proportions and composition before ornament. A building with a party wall, 2–8
+storeys and not a house becomes a kamienica (before the PRL check: blocks of flats stand free, tenements stand in a
+frontage). 3.5 m storeys on a 0.5 m stone plinth, one window axis per 3.1 m bay. Street walls: tall windows (raised on
+the ground floor), surrounds, a string course over the ground floor, a cornice and a 0.9 m attic; shop fronts on the
+ground floor of about 70 % of them (display window with a door, a sign board, one in five shuttered); a tall street door
+when there is no brama. Yard and side walls: plain plaster, smaller windows, service doors, staircase windows between
+floors. Party walls: bare brick firewalls rising past the roof, with chimney stacks. Variation inside the family:
+seven plaster palettes (one sooty, never renovated) and three ornament levels from the seed (plain, modest, rich with a
+header over the first-floor windows, a balcony with an iron railing and a deep two-step cornice). Kamienica yards of
+60 m² or more get a gate passage (150 m² for PRL blocks). Roofs are flat behind the attic for now (Q6 to Noor).
+Found on the way: a neighbour merely in line with a wall (the next house's front, continuing the frontage) counted as
+a narrow gap in front of it; a gap now only counts when the neighbour is really in front.
