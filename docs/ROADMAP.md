@@ -79,7 +79,10 @@ Roofs come first, because most of these need pitched roofs.
    several parts, generated as one building; where a taller part rises above a lower part's roof, that wall is a real
    facade (with a parapet and roof terrace on the lower roof), walls between parts are not drawn, each part gets its
    own roof. Most stepped offices and many PRL complexes are mapped this way.
-7. **Skyscrapers and towers** (wieżowce, over 42 m): today drawn by the game's skyline layer. Glass curtain walls or
+7. **Socialist realism** (socrealizm, MDM, early 1950s): monumental stone-clad fronts, arcades over the pavement,
+   tall ground floors with shops, heavy cornices and attics, sculpted details; from start_date 1949–1956 or
+   building:architecture=socialist_realism.
+8. **Skyscrapers and towers** (wieżowce, over 42 m): today drawn by the game's skyline layer. Glass curtain walls or
    concrete grids, a podium, setbacks and a crown; the landmarks (Palace of Culture and the like) stay hand-made
    overrides, not generated.
 
