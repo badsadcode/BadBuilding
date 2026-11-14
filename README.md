@@ -1,0 +1,63 @@
+# BadBuilding
+
+A procedural **building generator** library: a footprint plus a few facts in, a whole building out, deterministic from a
+seed. Engine-agnostic C# (.NET 8, no dependencies), built for Baltic Drive's Mazowsze first and meant to become a
+reusable DLL for other Bad Ideas Works tools. Ideas and code lifted from
+[BadShip](https://github.com/badsadcode/BadShip) and [BadLevel](https://github.com/badsadcode/BadLevel).
+
+**Status: milestone 1 of [the roadmap](docs/ROADMAP.md).** Exteriors only: a PRL panel block style and a plain fallback.
+Interiors come later.
+
+## What it does now
+
+- **Footprint + context in:** outer ring and holes, levels, height, type, roof, mapped entrances, house number, plus
+  neighbouring footprints, street lines and ground heights round the outline.
+- **Reads the site first:**
+  - every wall edge is classified as *street*, *side*, *courtyard*, *party* (a neighbour abuts it: no windows) or
+    *sliver* (a gap too narrow to look into);
+  - the ground floor sits on the high side of a sloped lot and the plinth reaches the low side.
+- **Styles with grammar, not random greeble:**
+  - **PRL panel block:** panel joints, one window per bay, balconies stacked in columns, glass-block staircase strips
+    over each entrance, entrance canopies, flat roof with parapet and lift machine rooms.
+  - **Plain:** the fallback for everything else.
+- **Honest about what it guessed:** every attribute is marked `osm`, `request` or `inferred`.
+- **Fails safely:** degenerate, self-intersecting, tiny or too-thin footprints are reported with a reason and a fallback,
+  never built outside the outline.
+- **Out:** GLB (LOD0, LOD1, LOD2 = the bare mass, also the collision shape) with semantic node extras and markers
+  (entrances, roof access); recipe, metadata and validation JSON.
+
+## Quick start
+
+```bash
+dotnet run --project src/BadBuilding.Cli -- gallery --out out/gallery
+python -m http.server --directory out/gallery 8766    # then open http://localhost:8766
+dotnet run --project src/BadBuilding.Cli -- generate --case l_block --out out/one
+dotnet run --project src/BadBuilding.Cli -- generate --case synthetic_slab --stage-seed look=5 --out out/one
+dotnet run --project src/BadBuilding.Cli -- stress --count 1000
+dotnet test BadBuilding.slnx
+```
+
+The gallery shows each building in 3D beside its plan. The plan includes:
+- the footprint, neighbours and streets;
+- wall exposure, colour-coded;
+- doors (mapped or inferred);
+- the attributes with their sources;
+- validation warnings.
+
+## Test footprints
+
+- **`samples/warsaw.json`:** real buildings from central Warsaw with their context, cut from OSM by `tools/osm_samples.py`:
+  long PRL slabs, PRL blocks, L-blocks, courtyards, touching rows, wedges, houses, outbuildings and a tiny one.
+  *Map data © OpenStreetMap contributors, ODbL 1.0.*
+- **Synthetic stress shapes** (labelled in the gallery): a slab, an L, a courtyard block, a 25° wedge, a deep recess, the
+  middle of a touching row, a wall facing a 2.5 m gap, a house on a 3 m slope, a 1.5 m strip, a bowtie and a 1 m² square.
+
+## Conventions
+
+- **Units and axes:** metres, +Y up, +X east, +Z south (north is −Z).
+- **Lifted, not referenced:** `Rng`, `Mesh`, `Aabb` and the GLB writer come from BadShip 0.31 (see
+  [docs/DECISIONS.md](docs/DECISIONS.md)).
+- **Background:** the recon documents [docs/RECON_SAGE.md](docs/RECON_SAGE.md) and
+  [docs/RECON_NOOR.md](docs/RECON_NOOR.md).
+
+Licence: not chosen yet (Bad Ideas Works).

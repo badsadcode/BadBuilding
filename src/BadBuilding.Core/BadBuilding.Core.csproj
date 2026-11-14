@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- The building generator: footprints in, exterior (and later interior) geometry, recipes, validation and GLB out.
+       No dependencies beyond the .NET base library, so any engine or tool can use it (docs/DECISIONS.md D1). -->
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>12</LangVersion>
+    <RootNamespace>BadBuilding</RootNamespace>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>CS1591</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="BadBuilding.Tests" />
+  </ItemGroup>
+
+</Project>

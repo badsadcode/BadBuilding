@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/BadBuilding.Cli/BadBuilding.Cli.csproj" />
+    <Project Path="src/BadBuilding.Core/BadBuilding.Core.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/BadBuilding.Tests/BadBuilding.Tests.csproj" />
+  </Folder>
+</Solution>

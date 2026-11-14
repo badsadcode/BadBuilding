@@ -1,0 +1,158 @@
+using System.Numerics;
+using BadBuilding.Export;
+using BadBuilding.Generation;
+using BadBuilding.Geometry;
+using BadBuilding.Model;
+
+namespace BadBuilding.Tests;
+
+public class GeneratorTests
+{
+    private static Ring Rect(float x0, float z0, float x1, float z1) => new([new(x0, z0), new(x1, z0), new(x1, z1), new(x0, z1)]);
+
+    private static BuildingRequest Block(string id = "test:block", ulong seed = 7) => new()
+    {
+        Id = id, Seed = seed, Outer = Rect(-30, -6, 30, 6), Type = "apartments", Levels = 5,
+        Streets = [new StreetLine([new(-60, 20), new(60, 20)])],
+    };
+
+    [Fact]
+    public void Same_request_gives_byte_identical_glb()
+    {
+        var a = BuildingFiles.Lod(BuildingGenerator.Generate(Block()), 0);
+        var b = BuildingFiles.Lod(BuildingGenerator.Generate(Block()), 0);
+        Assert.Equal(a, b);
+    }
+
+    [Fact]
+    public void Different_seeds_vary_the_look_but_keep_the_style()
+    {
+        var styles = Enumerable.Range(0, 12).Select(i => BuildingGenerator.Generate(Block(seed: (ulong)i)).Plan!).ToList();
+        Assert.All(styles, p => Assert.Equal("prl_block", p.Style));
+        Assert.True(styles.Select(p => p.Palette).Distinct().Count() > 1);
+    }
+
+    [Fact]
+    public void Rerolling_detail_keeps_the_walls()
+    {
+        var a = BuildingGenerator.Generate(Block());
+        var b = BuildingGenerator.Generate(Block() with { StageSeeds = new Dictionary<string, ulong> { ["look"] = 99 } });
+        var wa = a.Modules.Where(m => m.Type == "wall").Select(m => m.Mesh.Positions.Count);
+        var wb = b.Modules.Where(m => m.Type == "wall").Select(m => m.Mesh.Positions.Count);
+        Assert.Equal(wa, wb);
+    }
+
+    [Fact]
+    public void Every_attribute_says_where_it_came_from()
+    {
+        var p = BuildingGenerator.Generate(Block() with { Levels = null, Type = "apartments", Outer = Rect(-30, -6, 30, 6) }).Plan!;
+        Assert.Equal(Source.Inferred, p.Levels.Source);
+        Assert.Equal(Source.Inferred, p.Roof.Source);
+        var q = BuildingGenerator.Generate(Block()).Plan!;
+        Assert.Equal(Source.Osm, q.Levels.Source);
+    }
+
+    [Fact]
+    public void Touching_neighbours_make_party_walls_without_windows()
+    {
+        var r = Block() with { Outer = Rect(-12, -6, 12, 6), Neighbours = [Rect(-36, -6, -12, 6), Rect(12, -6, 36, 6)] };
+        var b = BuildingGenerator.Generate(r);
+        var party = b.Plan!.Edges.Where(e => e.Exposure == Exposure.Party).ToList();
+        Assert.Equal(2, party.Count);
+        foreach (var e in party)
+        {
+            var wall = b.Modules.Single(m => m.Id == $"{r.Id}/wall.e{e.Ring}.{e.Index}");
+            Assert.False(wall.Mesh.Groups.ContainsKey("glass"));
+        }
+        // a coordinate that merely comes close is not a party wall
+        var corner = Block() with { Outer = Rect(-12, -6, 12, 6), Neighbours = [Rect(12.2f, 5.8f, 30, 20)] };
+        Assert.DoesNotContain(BuildingGenerator.Generate(corner).Plan!.Edges, e => e.Exposure == Exposure.Party);
+    }
+
+    [Fact]
+    public void A_wall_facing_a_narrow_gap_gets_no_windows()
+    {
+        var r = Block() with { Outer = Rect(-12, -6, 12, 6), Neighbours = [Rect(14.5f, -8, 30, 8)] };
+        var b = BuildingGenerator.Generate(r);
+        Assert.Contains(b.Plan!.Edges, e => e.Exposure == Exposure.Sliver);
+    }
+
+    [Fact]
+    public void The_street_side_is_found()
+    {
+        var b = BuildingGenerator.Generate(Block());
+        var south = b.Plan!.Edges.Single(e => e.A.Y > 5 && e.B.Y > 5);
+        Assert.Equal(Exposure.Street, south.Exposure);
+        Assert.Contains(b.Markers, m => m.Kind == "entrance" && m.Position.Z > 5);
+    }
+
+    [Fact]
+    public void On_a_slope_the_ground_floor_sits_on_the_high_side_and_the_plinth_reaches_the_low_side()
+    {
+        var r = new BuildingRequest { Id = "test:slope", Seed = 1, Outer = Rect(-6, -5, 6, 5), Type = "house", Levels = 2, Ground = [3, 3, 0, 0] };
+        var b = BuildingGenerator.Generate(r);
+        Assert.True(b.Plan!.Datum >= 3f);
+        Assert.True(b.Plan.GroundLow <= 0f);
+        var lowest = b.Modules.Where(m => m.Type == "wall").SelectMany(m => m.Mesh.Positions).Min(p => p.Y);
+        Assert.True(lowest <= 0f);
+    }
+
+    [Theory]
+    [InlineData("tiny", new float[] { 0, 0, 1, 0, 1, 1, 0, 1 }, "footprint.too_small")]
+    [InlineData("bowtie", new float[] { -10, -10, 10, 10, 10, -10, -10, 10 }, "footprint.self_intersecting")]
+    [InlineData("line", new float[] { 0, 0, 5, 0, 10, 0 }, "footprint.degenerate")]
+    public void Bad_footprints_are_rejected_with_a_reason_and_no_geometry(string name, float[] xz, string code)
+    {
+        var pts = new List<Vector2>();
+        for (int i = 0; i + 1 < xz.Length; i += 2) pts.Add(new Vector2(xz[i], xz[i + 1]));
+        var b = BuildingGenerator.Generate(new BuildingRequest { Id = name, Seed = 1, Outer = new Ring(pts) });
+        Assert.Empty(b.Modules);
+        Assert.Contains(b.Report.Issues, i => i.Code == code);
+    }
+
+    [Fact]
+    public void Nothing_is_built_outside_the_footprint_on_random_shapes()
+    {
+        var rng = new Rng(4242);
+        for (int i = 0; i < 150; i++)
+        {
+            int n = rng.Int(3, 10);
+            var pts = Enumerable.Range(0, n).Select(k =>
+            {
+                float a = k / (float)n * MathF.Tau, r = rng.Range(4, 40);
+                return new Vector2(MathF.Cos(a) * r, MathF.Sin(a) * r);
+            }).ToList();
+            var b = BuildingGenerator.Generate(new BuildingRequest { Id = $"r{i}", Seed = (ulong)i, Outer = new Ring(pts), Levels = rng.Int(1, 12), Type = "apartments" });
+            float minX = pts.Min(p => p.X) - 2, maxX = pts.Max(p => p.X) + 2, minZ = pts.Min(p => p.Y) - 2, maxZ = pts.Max(p => p.Y) + 2;
+            foreach (var p in b.Modules.SelectMany(m => m.Mesh.Positions))
+            {
+                Assert.True(float.IsFinite(p.X + p.Y + p.Z));
+                Assert.InRange(p.X, minX, maxX);
+                Assert.InRange(p.Z, minZ, maxZ);
+            }
+        }
+    }
+
+    [Fact]
+    public void Triangulation_covers_a_footprint_with_a_courtyard()
+    {
+        var outer = new List<Vector2> { new(-25, -25), new(25, -25), new(25, 25), new(-25, 25) };
+        var hole = new List<Vector2> { new(-10, -10), new(-10, 10), new(10, 10), new(10, -10) };
+        var tris = Polygon.Triangulate(outer, [hole]);
+        var pts = Polygon.Concat(outer, [hole]);
+        float area = 0;
+        for (int t = 0; t + 2 < tris.Count; t += 3)
+            area += Polygon.Area([pts[tris[t]], pts[tris[t + 1]], pts[tris[t + 2]]]);
+        Assert.Equal(50 * 50 - 20 * 20, area, 1f);
+    }
+
+    [Fact]
+    public void Glb_lods_get_lighter()
+    {
+        var b = BuildingGenerator.Generate(Block());
+        var l0 = BuildingFiles.Lod(b, 0).Length;
+        var l1 = BuildingFiles.Lod(b, 1).Length;
+        var l2 = BuildingFiles.Lod(b, 2).Length;
+        Assert.True(l0 > l1 && l1 > l2, $"{l0} {l1} {l2}");
+    }
+}
