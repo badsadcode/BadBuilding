@@ -86,3 +86,4 @@ Noor's earlier feedback and what came of it, so nothing gets lost.
 | 14 Nov 2026 | Q9: keep it, but mapped shops come first; frequency by street later; shop types later. | Built: mapped shops decide the shop fronts; the guess only without shop data (D10). |
 | 14 Nov 2026 | Q10: firewall adverts and murals later, optional, many walls bare, nothing fake on real buildings. | Recorded (D10). |
 | 14 Nov 2026 | Keep an eye on windows vs future floor plans. | Noted for the interiors milestone (D10). |
+| 14 Nov 2026 | No further requests: follow the roadmap; plausibility, reliable geometry, then Baltic Drive. | Next: Baltic Drive integration behind a switch (ROADMAP milestone 2). |
