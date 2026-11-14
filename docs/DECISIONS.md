@@ -103,3 +103,11 @@ footprints. Two of them are about exactly that, so they are built now:
   real buildings (Q10).
 - Watch (Noor): windows, doors and bays must leave room for believable floor plans; regular window spacing is not
   worth an impossible plan.
+
+## D11 — Interiors at game scale, invented, inside the real footprint (Tom, 15 Nov 2026)
+Interiors (milestone 3) use a game-scale profile: doors at least 1.1–1.2 m wide and 2.2 m high, hallways 1.5 m, stairs
+1.3 m, ceilings 2.7 m, sized from the game's character (a 1.8 m capsule, 0.4 m radius, plus room for a third-person
+camera), with a fit test in validation from the street door to every room. A realistic profile stays available. The
+footprint never grows: the extra space comes out of the rooms (fewer, roomier ones), and only buildings without a
+mapped height may grow a little taller. Layouts are invented, believable but not the real buildings' plans (Tom: "less
+rooms and of course inaccurate"). To be put to Noor with the scale numbers.
