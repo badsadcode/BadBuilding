@@ -6,6 +6,19 @@ Newest questions at the top. Each question has a number, so an answer can be as 
 **Noor:** answer in any form, in any order, and skip anything you don't care about. "No opinion" is a fine answer too.
 Where Sage has a default it says so, and that is what happens unless you say otherwise.
 
+## Pictures
+
+All renders live in [`docs/img`](img/). The newest are below; each question also shows the ones it is about.
+
+| | |
+|---|---|
+| ![The courtyard block from above](img/courtyard_block_overview.jpg) | ![The gate passage from the street](img/courtyard_gate_close.jpg) |
+| The synthetic courtyard block (5 storeys, PRL style). | Its new gate passage from the street. |
+| ![Looking through the gate into the yard](img/courtyard_gate_through.jpg) | ![The yard from above](img/courtyard_yard_from_above.jpg) |
+| Looking through the gate: open leaves, the yard beyond. | The yard: the passage in the far wall, the staircase door on the left. |
+| ![A long PRL slab from OSM](img/prl_long_slab.jpg) | ![A wedge block](img/wedge.jpg) |
+| A real 11-storey slab from OSM: balcony columns, staircases, lift rooms. | A real wedge-shaped block in another palette. |
+
 ---
 
 ## Open questions
@@ -17,6 +30,8 @@ locked, with a small pedestrian door cut into one leaf.
 - **b)** a mix, decided by the seed (some open, some closed with a door in the leaf);
 - **c)** open or closed as a game state, so a player can close a gate (survival: a courtyard becomes a safe yard).
 
+![Gate leaves standing open](img/courtyard_gate_through.jpg)
+
 *Sage's default:* **b** now, built so **c** is easy later.
 
 ### Q2 — Staircases that go through to the yard?
@@ -24,6 +39,8 @@ Every courtyard now gets one staircase door from the yard. In many blocks the st
 on the street side and another on the yard side of the same stairwell.
 - Should a staircase on a wall facing a courtyard always get a second door into the yard?
 - Is one yard door per courtyard enough for small courtyards?
+
+![The yard with its one staircase door (left wall)](img/courtyard_yard_from_above.jpg)
 
 *Sage's default:* through-doors where the stairwell backs onto the yard; one yard door minimum.
 
@@ -34,6 +51,10 @@ After the PRL block, the roadmap's next styles are:
 - **shop ground floors** under any style (shop windows, signs, roller shutters).
 
 Which matters most to you first? Anything you'd want in a kamienica from the start?
+
+For comparison, the PRL block as it is now:
+
+![The PRL slab today](img/prl_long_slab.jpg)
 
 *Sage's default:* kamienica, with shop fronts on its ground floor.
 
