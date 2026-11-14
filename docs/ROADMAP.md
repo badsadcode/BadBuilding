@@ -48,6 +48,20 @@ open or closed gates, courtyard access validation (D7, D8).
 - Baltic Drive adapter behind a switch: tile buildings → requests, meshes → Godot, on worker threads per 128 m chunk;
   measure against today's meshing time.
 
+### Building types still missing (Tom, 15 Nov), in the proposed order
+Roofs come first, because most of these need pitched roofs.
+1. **Single-family houses** (domki jednorodzinne): the most common building in Mazowsze. Gabled or hipped roofs
+   from the footprint's minimum rectangle, 1–2 storeys plus an attic, porch, garage, fence line.
+2. **Warehouses and sheds** (magazyny): big simple boxes, loading docks and roller doors on the yard side, few
+   windows, shallow roofs, ribbed metal cladding.
+3. **Industrial and factories** (zakłady): halls with saw-tooth or shallow roofs, high ribbon windows, chimneys, brick
+   for the old ones (by start_date), concrete or metal for post-war ones.
+4. **Villas** (wille, przedwojenne i nowe): houses with more presence — hipped or mansard roofs, a terrace, bay windows,
+   a garden; pre-war ones need age evidence, like the kamienica.
+5. **Skyscrapers and towers** (wieżowce, over 42 m): today drawn by the game's skyline layer. Glass curtain walls or
+   concrete grids, a podium, setbacks and a crown; the landmarks (Palace of Culture and the like) stay hand-made
+   overrides, not generated.
+
 ## Milestone 3 — interiors on demand
 
 Port BadShip's interior generator (stair core and lift aligned on every storey, corridor, room programme, wall
