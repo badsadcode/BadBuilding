@@ -49,7 +49,13 @@ open or closed gates, courtyard access validation (D7, D8).
   measure against today's meshing time.
 
 ### PRL block fixes (Tom, 15 Nov, from real blocks compared with the game)
-- Balconies on one long side only: the side away from the entrances (living rooms), not on every long wall. The
+- Two kinds of PRL block: the **slab** (long, several staircases: balconies on the side away from the entrances) and
+  the **point tower** (punktowiec: compact, one staircase core with flats round it: balconies or loggias on two or
+  more sides). Tell them apart by footprint (length to depth, number of staircases).
+- The entrance of a point tower is often a small one-storey vestibule (wiatrołap) in front of the stair core. When OSM
+  maps it as a small touching building, build it as the vestibule; otherwise only a canopy (nothing outside the
+  footprint).
+- For slabs: balconies on one long side only: the side away from the entrances (living rooms), not on every long wall. The
   entrance side gets staircases, kitchen and bathroom windows. Makes the facade true to type and the flats possible to
   plan inside.
 - Loggias: balconies recessed into the building (floor, side walls and back wall with the balcony door inside the
