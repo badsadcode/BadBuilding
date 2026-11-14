@@ -61,7 +61,7 @@ public static class BuildingGenerator
                 Plain.Name => new Plain(),
                 _ => throw new ArgumentException($"Unknown style '{forced}' (styles: {PrlBlock.Name}, {Plain.Name})."),
             };
-        if (PrlBlock.Fits(c)) return new PrlBlock();
+        if (!c.Site.Small && PrlBlock.Fits(c)) return new PrlBlock();
         return new Plain();
     }
 

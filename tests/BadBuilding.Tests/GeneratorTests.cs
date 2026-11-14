@@ -98,7 +98,7 @@ public class GeneratorTests
     }
 
     [Theory]
-    [InlineData("tiny", new float[] { 0, 0, 1, 0, 1, 1, 0, 1 }, "footprint.too_small")]
+    [InlineData("tiny", new float[] { 0, 0, 0.8f, 0, 0.8f, 0.8f, 0, 0.8f }, "footprint.too_small")]
     [InlineData("bowtie", new float[] { -10, -10, 10, 10, 10, -10, -10, 10 }, "footprint.self_intersecting")]
     [InlineData("line", new float[] { 0, 0, 5, 0, 10, 0 }, "footprint.degenerate")]
     public void Bad_footprints_are_rejected_with_a_reason_and_no_geometry(string name, float[] xz, string code)
@@ -108,6 +108,23 @@ public class GeneratorTests
         var b = BuildingGenerator.Generate(new BuildingRequest { Id = name, Seed = 1, Outer = new Ring(pts) });
         Assert.Empty(b.Modules);
         Assert.Contains(b.Report.Issues, i => i.Code == code);
+    }
+
+    [Fact]
+    public void A_kiosk_sized_footprint_becomes_a_plain_box()
+    {
+        var b = BuildingGenerator.Generate(new BuildingRequest { Id = "kiosk", Seed = 1, Outer = Rect(0, 0, 1.5f, 1.5f), Type = "yes" });
+        Assert.NotEmpty(b.Modules);
+        Assert.Contains(b.Report.Issues, i => i.Code == "footprint.small");
+        Assert.DoesNotContain(b.Modules, m => m.Mesh.Groups.ContainsKey("glass"));
+    }
+
+    [Fact]
+    public void A_mapped_height_stretches_the_storeys_and_the_walls_reach_the_roof()
+    {
+        var b = BuildingGenerator.Generate(Block() with { Levels = 10, Height = 40f });
+        var wallTop = b.Modules.Where(m => m.Type == "wall").SelectMany(m => m.Mesh.Positions).Max(p => p.Y);
+        Assert.True(wallTop >= 39f, $"walls end at {wallTop}");
     }
 
     [Fact]

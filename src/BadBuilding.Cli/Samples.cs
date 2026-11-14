@@ -89,7 +89,9 @@ public static class Samples
             Req("syn:thin", R(-10, -0.75f, 10, -0.75f, 10, 0.75f, -10, 0.75f), "yes", 1), S);
         yield return new("synthetic_bowtie", true, "self-intersecting outline: must be rejected",
             Req("syn:bowtie", R(-10, -10, 10, 10, 10, -10, -10, 10), "yes", 2), S);
-        yield return new("synthetic_tiny", true, "1 m² footprint: must be rejected",
-            Req("syn:tiny", R(0, 0, 1, 0, 1, 1, 0, 1), "yes", 1), S);
+        yield return new("synthetic_tiny", true, "0.6 m² footprint: must be rejected",
+            Req("syn:tiny", R(0, 0, 0.8f, 0, 0.8f, 0.8f, 0, 0.8f), "yes", 1), S);
+        yield return new("synthetic_kiosk", true, "2.25 m² kiosk: a plain box",
+            Req("syn:kiosk", R(0, 0, 1.5f, 0, 1.5f, 1.5f, 0, 1.5f), "yes", 1), S);
     }
 }

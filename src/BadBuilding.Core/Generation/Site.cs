@@ -22,6 +22,8 @@ public sealed class Site
     /// ~10–14 m deep, a house ~8 m.</summary>
     public float Depth { get; private set; }
     public bool Usable { get; private set; }
+    /// <summary>Under 4 m²: built as a plain box without openings.</summary>
+    public bool Small { get; private set; }
 
     public const float PartyTolerance = 0.6f, PartyCover = 0.5f, SliverGap = 4f, StreetReach = 25f;
 
@@ -50,10 +52,16 @@ public sealed class Site
             report.Add(Severity.Error, "footprint.degenerate", "The outline encloses no area (its points lie on a line).", "no building");
             return s;
         }
+        if (s.Area < 1f)
+        {
+            report.Add(Severity.Error, "footprint.too_small", $"The footprint covers {s.Area:0.0} m², under 1 m².", "no building");
+            return s;
+        }
         if (s.Area < 4f)
         {
-            report.Add(Severity.Error, "footprint.too_small", $"The footprint covers {s.Area:0.0} m², under 4 m².", "no building");
-            return s;
+            // a kiosk, a transformer box: a hole in the map looks worse than a plain little box inside the outline
+            report.Add(Severity.Warn, "footprint.small", $"The footprint covers {s.Area:0.0} m²: a plain box without openings.", "box");
+            s.Small = true;
         }
         s.Usable = true;
         s.Depth = EstimateDepth(s.Outer, s.Holes);

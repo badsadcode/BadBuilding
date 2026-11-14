@@ -69,7 +69,7 @@ public sealed class Plain : IStyle
         int levels = plan.Levels.Value;
         float sh = plan.StoreyHeight, datum = plan.Datum, top = c.RoofLevel;
         float bay = utility ? 4.5f : 3.2f;
-        bool thin = c.Site.Depth < 2.2f;
+        bool thin = c.Site.Depth < 2.2f || c.Site.Small;
         var doors = thin ? [] : Entrances.Place(c, _ => 1, bay);
 
         for (int ei = 0; ei < plan.Edges.Count; ei++)
