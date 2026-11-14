@@ -20,6 +20,8 @@ Interiors come later.
   - **PRL panel block:** panel joints, one window per bay, balconies stacked in columns, glass-block staircase strips
     over each entrance, entrance canopies, flat roof with parapet and lift machine rooms.
   - **Plain:** the fallback for everything else.
+- **Courtyards can be reached:** every courtyard gets a gate passage (brama przejazdowa) or a pedestrian passage cut
+  through the ground floor, plus a staircase door; validation flags any yard nobody can get into.
 - **Honest about what it guessed:** every attribute is marked `osm`, `request` or `inferred`.
 - **Fails safely:** degenerate, self-intersecting, tiny or too-thin footprints are reported with a reason and a fallback,
   never built outside the outline.

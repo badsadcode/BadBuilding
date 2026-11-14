@@ -174,6 +174,12 @@ public static class Program
         if (b.Plan != null)
             foreach (var e in b.Plan.Edges)
                 sb.Append($"<line x1='{e.A.X:0.##}' y1='{e.A.Y:0.##}' x2='{e.B.X:0.##}' y2='{e.B.Y:0.##}' class='ex-{e.Exposure.ToString().ToLowerInvariant()}' style='stroke-width:{sw:0.##}'/>");
+        foreach (var m in b.Modules.Where(m => m.Type == "passage"))
+        {
+            var ps = m.Mesh.Positions;
+            float x0 = ps.Min(p => p.X), x1 = ps.Max(p => p.X), z0 = ps.Min(p => p.Z), z1 = ps.Max(p => p.Z);
+            sb.Append($"<rect x='{x0:0.##}' y='{z0:0.##}' width='{x1 - x0:0.##}' height='{z1 - z0:0.##}' class='passage'/>");
+        }
         foreach (var m in b.Markers.Where(m => m.Kind == "entrance"))
             sb.Append($"<circle cx='{m.Position.X:0.##}' cy='{m.Position.Z:0.##}' r='{sw * 1.6f:0.##}' class='{(r.Entrances.Count > 0 ? "door-osm" : "door-inf")}'/>");
         foreach (var e in r.Entrances) sb.Append($"<circle cx='{e.Position.X:0.##}' cy='{e.Position.Y:0.##}' r='{sw * 0.7f:0.##}' class='mapped'/>");
@@ -202,14 +208,14 @@ svg.plan { width:100%; aspect-ratio:1/1; background:#fff; border-radius:4px; }
 .bg { fill:#fbfaf6; } .street { fill:none; stroke:#c9c3b6; stroke-linecap:round; } .nb { fill:#d9d6cf; stroke:#b9b4aa; stroke-width:.3; }
 .fp { fill:#f1e7cf; } .hole { fill:#fbfaf6; } .north { fill:#888; }
 line { stroke-linecap:round; } .ex-street { stroke:#2f7fd8; } .ex-side { stroke:#7a7a7a; } .ex-courtyard { stroke:#2fa36b; } .ex-party { stroke:#d23c3c; } .ex-sliver { stroke:#e08a00; }
-.door-osm { fill:#1d9e4a; } .door-inf { fill:#ff9b2f; } .mapped { fill:none; stroke:#000; stroke-width:.4; }
+.passage { fill:#c9b48c; stroke:#8a6d3b; stroke-width:.3; stroke-dasharray:1 .6; } .door-osm { fill:#1d9e4a; } .door-inf { fill:#ff9b2f; } .mapped { fill:none; stroke:#000; stroke-width:.4; }
 table { width:100%; font-size:12.5px; border-collapse:collapse; margin-top:6px; } td { padding:1px 4px; border-top:1px solid var(--line); } td:first-child { color:var(--muted); width:80px; }
 .st-pass { color:#1d9e4a; } .st-warn { color:#d08a00; } .st-error { color:#d23c3c; font-weight:700; }
 ul { margin:6px 0 0; padding-left:18px; font-size:12px; } .sev-error { color:#d23c3c; } .sev-warn { color:#b07400; } .sev-info { color:var(--muted); }
 .legend span { margin-right:10px; white-space:nowrap; } .legend b { display:inline-block; width:14px; height:4px; vertical-align:middle; margin-right:4px; }
 </style></head><body>
 <header><h1>BadBuilding gallery</h1>
-<p>Click a card to load it into the 3D view. Plan: walls by exposure — <span class="legend"><span><b style="background:#2f7fd8"></b>street</span><span><b style="background:#7a7a7a"></b>side</span><span><b style="background:#2fa36b"></b>courtyard</span><span><b style="background:#d23c3c"></b>party</span><span><b style="background:#e08a00"></b>sliver</span></span> · doors: green mapped, orange inferred · grey: neighbours. Real footprints: map data © OpenStreetMap contributors (ODbL).</p></header>
+<p>Click a card to load it into the 3D view. Plan: walls by exposure — <span class="legend"><span><b style="background:#2f7fd8"></b>street</span><span><b style="background:#7a7a7a"></b>side</span><span><b style="background:#2fa36b"></b>courtyard</span><span><b style="background:#d23c3c"></b>party</span><span><b style="background:#e08a00"></b>sliver</span></span> · doors: green mapped, orange inferred · dashed tan: passage to a courtyard · grey: neighbours. Real footprints: map data © OpenStreetMap contributors (ODbL).</p></header>
 <div id="viewer"><div id="vlabel">select a building</div></div>
 <div class="grid">
 """ + cards + """

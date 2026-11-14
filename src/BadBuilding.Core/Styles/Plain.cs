@@ -79,7 +79,10 @@ public sealed class Plain : IStyle
             float len = e.Length;
             var wall = b.Add(c.Id($"wall.e{e.Ring}.{e.Index}"), "wall", ModuleTier.Primary);
             wall.Extras = new() { ["exposure"] = e.Exposure.ToString().ToLowerInvariant(), ["length"] = MathF.Round(len, 2) };
-            Kit.Wall(wall.Mesh, "plinth", f, 0, len, plan.GroundLow - 0.5f, datum, 0.03f);
+            var cuts = c.Passages.Select(p => p.Cut(ei)).OfType<(float, float)>().ToList();
+            var pass = c.Passages.FirstOrDefault(p => p.Cut(ei) != null);
+            float cutLow = pass?.Floor ?? 0, cutHigh = pass?.Ceiling ?? 0;
+            Kit.WallCut(wall.Mesh, "plinth", f, 0, len, plan.GroundLow - 0.5f, datum, cuts, cutLow, cutHigh);
             bool noWindows = thin || e.Exposure is Exposure.Party or Exposure.Sliver || len < 1.5f;
             int bays = Math.Max(1, (int)MathF.Round(len / bay));
             float bw = len / bays;
@@ -90,6 +93,7 @@ public sealed class Plain : IStyle
                 for (int s = 0; s < levels; s++)
                 {
                     float y0 = datum + s * sh, y1 = y0 + sh;
+                    if (s == 0 && Kit.Overlaps(cuts, u0, u1)) { Kit.WallCut(wall.Mesh, "wall", f, u0, u1, y0, y1, cuts, cutLow, cutHigh); continue; }
                     if (s == 0 && doorBays.Contains(bi))
                     {
                         bool wide = c.Request.Type is "garage" or "garages";

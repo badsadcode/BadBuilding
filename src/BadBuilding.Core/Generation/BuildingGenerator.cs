@@ -26,10 +26,16 @@ public static class BuildingGenerator
         var plan = MakePlan(ctx, style);
         b.Plan = plan;
         ctx.Plan = plan;
+        if (!site.Small) ctx.Passages.AddRange(Passages.Plan(ctx, style.Plinth));
         style.Materials(ctx);
         style.Build(ctx);
+        foreach (var p in ctx.Passages)
+        {
+            string side = b.Materials.ContainsKey("concrete") ? "concrete" : "reveal";
+            Passages.Build(ctx, p, side, side, "plinth", "door");
+        }
         AddMass(ctx);
-        Validate(b);
+        Validate(ctx);
         return b;
     }
 
@@ -44,6 +50,8 @@ public static class BuildingGenerator
         public Rng Look { get; } = Stage(r, "look");
         public Rng Facade { get; } = Stage(r, "facade");
         public Rng Detail { get; } = Stage(r, "detail");
+        /// <summary>Ways into the courtyards, planned before the facade (D7).</summary>
+        public List<Passage> Passages { get; } = [];
         public float RoofLevel => Plan.Datum + Plan.Levels.Value * Plan.StoreyHeight;
         public string Id(string part) => $"{Request.Id}/{part}";
 
@@ -96,15 +104,60 @@ public static class BuildingGenerator
         };
     }
 
-    /// <summary>The bare mass (LOD2 and collision): the footprint as a prism from below the lowest ground to the roof.</summary>
+    /// <summary>The bare mass (LOD2 and collision): the footprint as a prism from below the lowest ground to the roof.
+    /// Up to the passage ceilings the footprint has each passage carved out of it, so the collision lets you through.</summary>
     private static void AddMass(Context c)
     {
         var mod = c.Building.Add(c.Id("mass"), "mass", ModuleTier.Primary, lods: 0b100);
-        Kit.Slab(mod.Mesh, "wall", c.Site.Outer, c.Site.Holes, c.Plan.GroundLow - 0.5f, c.RoofLevel + 0.6f);
+        float bottom = c.Plan.GroundLow - 0.5f, top = c.RoofLevel + 0.6f;
+        var outer = c.Site.Outer.ToList();
+        var holes = c.Site.Holes.Select(h => (IReadOnlyList<Vector2>)h).ToList();
+        float split = bottom;
+        foreach (var p in c.Passages)
+        {
+            var hole = c.Site.Holes[c.Site.Edges[p.HoleEdge].Ring - 1];
+            if (Carve(outer, hole, c.Site.Edges[p.HoleEdge].Index, p) is { } carved)
+            {
+                outer = carved;
+                holes.Remove(hole);
+                split = MathF.Max(split, p.Ceiling);
+            }
+            else c.Building.Report.Add(Severity.Warn, "mass.passage_not_carved", "A passage could not be cut out of the collision mass.", "solid mass");
+        }
+        if (split > bottom) Kit.Slab(mod.Mesh, "wall", outer, holes, bottom, split);
+        Kit.Slab(mod.Mesh, "wall", c.Site.Outer, c.Site.Holes, split, top);
     }
 
-    private static void Validate(Building b)
+    /// <summary>
+    /// The outline with a passage cut through to a courtyard: walking the outer ring (counter-clockwise), at the passage
+    /// it turns in along the left side, runs round the courtyard (clockwise, solid still on the left) and comes back out
+    /// along the right side. The courtyard stops being a hole.
+    /// </summary>
+    private static List<Vector2>? Carve(List<Vector2> ring, List<Vector2> hole, int j, Passage p)
     {
+        int k = -1;
+        for (int i = 0; i < ring.Count && k < 0; i++)
+        {
+            var a = ring[i]; var b = ring[(i + 1) % ring.Count];
+            if (Polygon.DistanceToSegment(p.LeftOut, a, b) < 0.01f && Polygon.DistanceToSegment(p.RightOut, a, b) < 0.01f
+                && Vector2.Distance(a, p.LeftOut) < Vector2.Distance(a, p.RightOut)) k = i;
+        }
+        if (k < 0) return null;
+        var ha = hole[j]; var hb = hole[(j + 1) % hole.Count];
+        var hd = hb - ha;
+        if (Vector2.Dot(p.LeftIn - ha, hd) <= Vector2.Dot(p.RightIn - ha, hd)) return null;
+        var res = new List<Vector2>();
+        for (int i = 0; i <= k; i++) res.Add(ring[i]);
+        res.Add(p.LeftOut); res.Add(p.LeftIn);
+        for (int i = 1; i <= hole.Count; i++) res.Add(hole[(j + i) % hole.Count]);
+        res.Add(p.RightIn); res.Add(p.RightOut);
+        for (int i = k + 1; i < ring.Count; i++) res.Add(ring[i]);
+        return res;
+    }
+
+    private static void Validate(Context c)
+    {
+        var b = c.Building;
         int tris = b.TriangleCount;
         b.Report.Metrics["triangles"] = tris;
         b.Report.Metrics["modules"] = b.Modules.Count;
@@ -119,6 +172,18 @@ public static class BuildingGenerator
                     b.Report.Add(Severity.Error, "mesh.nan", $"Module {m.Id} has a non-finite vertex.");
                     return;
                 }
+        b.Report.Metrics["passages"] = c.Passages.Count;
+        // courtyard access (Noor): every courtyard must be reachable from outside, not only by helicopter
+        for (int h = 0; h < c.Site.Holes.Count; h++)
+        {
+            if (Polygon.Area(c.Site.Holes[h]) < Passages.LightWell) continue;
+            if (c.Passages.Any(p => c.Site.Edges[p.HoleEdge].Ring == h + 1)) continue;
+            var ring = c.Site.Holes[h];
+            bool door = b.Markers.Any(m => m.Kind == "entrance"
+                && ring.Select((q, i) => Polygon.DistanceToSegment(new Vector2(m.Position.X, m.Position.Z), q, ring[(i + 1) % ring.Count])).Min() < 0.5f);
+            if (door) b.Report.Add(Severity.Warn, "courtyard.sealed", $"Courtyard {h + 1} has no passage: reachable only through a staircase.");
+            else b.Report.Add(Severity.Error, "courtyard.unreachable", $"Courtyard {h + 1} has no passage and no door: nobody can get in.");
+        }
         if (b.Plan != null && b.Plan.Edges.All(e => e.Exposure is Exposure.Party or Exposure.Sliver))
             b.Report.Add(Severity.Warn, "facade.enclosed", "Every wall is a party wall or faces a sliver: no windows at all.");
     }

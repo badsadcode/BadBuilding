@@ -163,6 +163,35 @@ public class GeneratorTests
         Assert.Equal(50 * 50 - 20 * 20, area, 1f);
     }
 
+    private static BuildingRequest Court(float hole) => new()
+    {
+        Id = "test:court", Seed = 3, Outer = Rect(-25, -25, 25, 25), Holes = [new Ring([new(-hole, -hole), new(-hole, hole), new(hole, hole), new(hole, -hole)])],
+        Type = "apartments", Levels = 5, Streets = [new StreetLine([new(-60, 40), new(60, 40)])],
+    };
+
+    [Fact]
+    public void A_courtyard_gets_a_gate_from_the_street_and_a_door()
+    {
+        var b = BuildingGenerator.Generate(Court(13));
+        var gate = b.Modules.Single(m => m.Type == "passage");
+        Assert.Equal("gate", gate.Extras!["kind"]);
+        // the gate opens from the street (south) side
+        Assert.True(gate.Mesh.Positions.Max(p => p.Z) > 24.9f);
+        Assert.Contains(b.Markers, m => m.Kind == "entrance" && MathF.Abs(m.Position.X) < 13.5f && MathF.Abs(m.Position.Z) < 13.5f);
+        Assert.DoesNotContain(b.Report.Issues, i => i.Code.StartsWith("courtyard.unreachable") || i.Code == "courtyard.sealed");
+        // the collision mass is open through the passage: its lowest band has the passage's corners
+        var mass = b.Modules.Single(m => m.Type == "mass");
+        Assert.Contains(mass.Mesh.Positions, p => p.Z > 24.9f && p.Y < 0.5f && MathF.Abs(MathF.Abs(p.X - gate.Mesh.Positions.Average(q => q.X)) - 1.5f) < 0.05f);
+    }
+
+    [Fact]
+    public void A_light_well_gets_no_passage()
+    {
+        var b = BuildingGenerator.Generate(Court(2.5f));
+        Assert.DoesNotContain(b.Modules, m => m.Type == "passage");
+        Assert.Contains(b.Report.Issues, i => i.Code == "courtyard.light_well");
+    }
+
     [Fact]
     public void Glb_lods_get_lighter()
     {

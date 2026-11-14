@@ -53,6 +53,26 @@ public static class Kit
         m.AddQuad(infillRole, f.P(ou0, oy0, back), f.P(ou1, oy0, back), f.P(ou1, oy1, back), f.P(ou0, oy1, back), f.Out);
     }
 
+    /// <summary>
+    /// A rectangle of wall with open cuts (passages) through it: each cut spans its u range from oy0 to oy1 and is left
+    /// open, no reveal or infill (the passage brings its own sides). Cuts outside the rectangle are ignored.
+    /// </summary>
+    public static void WallCut(Mesh m, string role, Frame f, float u0, float u1, float y0, float y1,
+        IEnumerable<(float U0, float U1)> cuts, float oy0, float oy1)
+    {
+        oy0 = Math.Clamp(oy0, y0, y1); oy1 = Math.Clamp(oy1, y0, y1);
+        var open = cuts.Select(k => (A: MathF.Max(k.U0, u0), B: MathF.Min(k.U1, u1))).Where(k => k.B - k.A > 0.01f).OrderBy(k => k.A).ToList();
+        if (open.Count == 0 || oy1 - oy0 < 0.01f) { Wall(m, role, f, u0, u1, y0, y1); return; }
+        Wall(m, role, f, u0, u1, y0, oy0);
+        Wall(m, role, f, u0, u1, oy1, y1);
+        float u = u0;
+        foreach (var (a, b) in open) { Wall(m, role, f, u, a, oy0, oy1); u = MathF.Max(u, b); }
+        Wall(m, role, f, u, u1, oy0, oy1);
+    }
+
+    /// <summary>Whether u0..u1 overlaps any of the cuts.</summary>
+    public static bool Overlaps(IEnumerable<(float U0, float U1)> cuts, float u0, float u1) => cuts.Any(k => k.U1 > u0 + 0.01f && k.U0 < u1 - 0.01f);
+
     /// <summary>A box in a wall's frame: u0..u1 along, y0..y1 up, w0..w1 out from the facade.</summary>
     public static void Box(Mesh m, string role, Frame f, float u0, float u1, float y0, float y1, float w0, float w1)
     {

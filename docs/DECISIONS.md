@@ -35,3 +35,17 @@ Footprints are cleaned (duplicate and collinear points, orientation), then check
 self-intersecting outline, or a part thinner than a room are reported in the validation report. A footprint that cannot
 carry the requested style falls back to the plain style; one that cannot carry anything yields an empty building with
 an error, never geometry outside the outline (Noor §6).
+
+## D7 — Every courtyard gets a way in
+Tom and Noor caught it on the first gallery: a courtyard block with no way into its yard ("residents must arrive by
+helicopter"). Holes of 40 m² and more are courtyards; smaller ones are light wells and are left alone. For each
+courtyard, three straight rays are cast in from every open outer wall (not party or sliver), and the passage goes where
+all three reach the same courtyard wall first, nearly square to it, within 25 m. Street walls score three times higher,
+short passages and wall middles score better. A courtyard of 150 m² or more under a storey tall enough gets a **gate
+passage** (brama przejazdowa: 3 m wide, up to 3.6 m clear, two gate leaves standing open); otherwise a 1.8 m
+**pedestrian passage**. The passage is a real opening: the plinth and ground-storey walls are cut, it has side walls,
+a ceiling and paving, markers at both ends, and the collision mass (LOD2) is carved so you can walk or drive through.
+Every courtyard also gets a staircase door on its longest wall, and doors keep clear of passages. Validation checks
+access (Noor's rule): a courtyard with only a staircase door is a warning (`courtyard.sealed`), one with neither is an
+error (`courtyard.unreachable`). Noor's third case, a footprint already open on one side, is not a hole and needs
+nothing.

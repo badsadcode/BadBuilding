@@ -85,8 +85,12 @@ public sealed class PrlBlock : IStyle
             var detail = b.Add(c.Id($"detail.{tag}"), "panel_joints", ModuleTier.Tertiary, wall.Id, lods: 0b001);
             Module? balconies = null;
 
+            // passages cut through the plinth and the ground storey (D7)
+            var cuts = c.Passages.Select(p => p.Cut(ei)).OfType<(float, float)>().ToList();
+            var pass = c.Passages.FirstOrDefault(p => p.Cut(ei) != null);
+            float cutLow = pass?.Floor ?? 0, cutHigh = pass?.Ceiling ?? 0;
             // plinth, from below the lowest ground to the ground floor
-            Kit.Wall(wall.Mesh, "plinth", f, 0, len, plan.GroundLow - 0.5f, datum, 0.04f);
+            Kit.WallCut(wall.Mesh, "plinth", f, 0, len, plan.GroundLow - 0.5f, datum, cuts, cutLow, cutHigh);
             if (len < 0.4f) { Kit.Wall(wall.Mesh, "wall", f, 0, len, datum, top); continue; }
 
             bool blank = e.Exposure is Exposure.Party;
@@ -105,6 +109,7 @@ public sealed class PrlBlock : IStyle
                 {
                     float y0 = datum + s * Sh, y1 = y0 + Sh;
                     string role = (s % 2 == 0) ? "wall" : "wall";   // panels alike; seams make the grid
+                    if (s == 0 && Kit.Overlaps(cuts, u0, u1)) { Kit.WallCut(wall.Mesh, role, f, u0, u1, y0, y1, cuts, cutLow, cutHigh); continue; }
                     if (noWindows) { Kit.Wall(wall.Mesh, role, f, u0, u1, y0, y1); continue; }
                     if (stair)
                     {
@@ -139,7 +144,7 @@ public sealed class PrlBlock : IStyle
                     Kit.WallWithOpening(wall.Mesh, role, "reveal", "glass", f, u0, u1, y0, y1, uc - 0.75f, uc + 0.75f, y0 + 0.9f, y0 + 2.35f, 0.2f);
                 }
                 // vertical panel joint at the bay's left edge
-                if (bi > 0 && !blank) Kit.Box(detail.Mesh, "seam", f, u0 - 0.025f, u0 + 0.025f, datum, top, 0, 0.02f);
+                if (bi > 0 && !blank) Kit.Box(detail.Mesh, "seam", f, u0 - 0.025f, u0 + 0.025f, Kit.Overlaps(cuts, u0 - 0.03f, u0 + 0.03f) ? cutHigh : datum, top, 0, 0.02f);
             }
             // horizontal joints at every floor line
             if (!blank)
