@@ -100,6 +100,10 @@ leftover islands; shops and basements with their own circulation. Stable ids for
 
 - Persistent world changes kept apart from the generated initial state; OSM edits and migration (Noor §5).
 - Hand-authored overrides for landmarks and chosen interiors (Tom).
+- **Live editing** (Tom, 15 Nov): take a generated building, edit its footprint, parts and facade choices (style,
+  storeys, balconies, entrances, the passage) in the game's authoring mode, and regenerate the exterior and then the
+  interiors on the spot. The edit is saved as a request override keyed by the OSM id (not as a mesh), so it survives
+  library updates and map rebuilds; a hand-made model stays the option for true landmarks.
 - Cut-in basements and exposed basement walls on steep lots; steps and ramps to doors (Noor §1, beyond the datum).
 - Kamienica rows reading as one street frontage with shared cornice lines (Noor §2 test, needs the kamienica style).
 - Swapping generated modules for Synty or hand-made pieces by type (BadShip's `asset_swap.gd`).
