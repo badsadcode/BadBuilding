@@ -115,3 +115,21 @@ Fallback (Tom, 15 Nov): fill every building as fully as possible, but where a pa
 seal it as games do: a door that stays locked for good, with nothing behind it, marked as such in the metadata so a
 game knows not to send the player there. Balcony kind (projecting, loggia or a mix) is a believable choice per
 building, not a copy of the real one.
+
+## D12 — Noor's guidance on the family plan (15 Nov 2026, friendly chat via Tom)
+- **After roofs: single-family houses**, including houses extended over time (an older core, a newer extension with
+  its own roof height, a garage added later) and houses that respect the terrain (walkout basement, raised entrance,
+  stepped foundation). Then warehouses and industrial buildings.
+- **Game scale (D11) approved.** Also test corners, turning through doors, stairs and landings, not only straight
+  corridors; keep character-collision checks and third-person camera-clearance checks separate. Locked doors only as a
+  last resort, and navigation and gameplay must know the space is closed.
+- **BadStructures order:** beam bridges, then footbridges (stairs, ramps, railings, accessibility), then underpasses
+  and pedestrian tunnels; later brick railway viaducts, steel trusses, concrete arches. Principle: *a bridge is
+  defined by what it connects and what it must avoid*: supports respect clearance, terrain and what passes beneath,
+  never placed at fixed intervals in a road or on a track.
+- **Brutalist Warsaw:** a real vocabulary, not a concrete texture: monolithic residential, civic (overhangs,
+  cantilevers, monumental stairs), industrial (exposed frames, ventilation towers), futurist (elevated passages, fins,
+  projections); varied concrete (board-formed, precast panels, smooth poured, staining, exposed aggregate). First
+  gallery test: a PRL slab, a point tower, an office and a small house in the same alternate Warsaw. Style never
+  changes function: a brutalist house still works as a house. (One inappropriate golden dome reserved, for science.)
+- Order stays: roofs, bugs, then the rest.
