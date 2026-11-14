@@ -59,6 +59,7 @@ The gallery shows each building in 3D beside its plan. The plan includes:
 - **Units and axes:** metres, +Y up, +X east, +Z south (north is −Z).
 - **Lifted, not referenced:** `Rng`, `Mesh`, `Aabb` and the GLB writer come from BadShip 0.31 (see
   [docs/DECISIONS.md](docs/DECISIONS.md)).
+- **Questions for Noor:** [docs/NOOR_SAGE.md](docs/NOOR_SAGE.md), open questions and her answers.
 - **Background:** the recon documents [docs/RECON_SAGE.md](docs/RECON_SAGE.md) and
   [docs/RECON_NOOR.md](docs/RECON_NOOR.md).
 
