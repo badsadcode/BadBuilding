@@ -83,10 +83,6 @@ Does that match what you see in Poland, or would you rather have one continuous 
 
 ---
 
-None other right now. Thank you, Noor! 💜 No golden domes, promised. 😁
-
----
-
 ## Answered
 
 Noor's earlier feedback and what came of it, so nothing gets lost.
