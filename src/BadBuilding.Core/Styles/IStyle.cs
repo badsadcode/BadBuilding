@@ -13,6 +13,10 @@ public interface IStyle
     float RoofExtra { get; }
     int InferLevels(BuildingGenerator.Context c);
     float StoreyHeight(BuildingGenerator.Context c);
+    /// <summary>The roof when the map says nothing (an OSM roof:shape name: flat, gabled, hipped, pyramidal, skillion).</summary>
+    string InferRoof(BuildingGenerator.Context c);
+    /// <summary>Pitch in degrees for a pitched roof of this style (the map's roof:height wins).</summary>
+    float RoofPitch(BuildingGenerator.Context c);
     void Materials(BuildingGenerator.Context c);
     void Build(BuildingGenerator.Context c);
 }

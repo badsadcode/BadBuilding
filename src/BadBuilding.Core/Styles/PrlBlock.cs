@@ -34,6 +34,8 @@ public sealed class PrlBlock : IStyle
 
     public int InferLevels(BuildingGenerator.Context c) => c.PlanRng.Weighted<int>([(4, 2), (5, 4), (10, 2), (11, 1)]);
     public float StoreyHeight(BuildingGenerator.Context c) => DefaultStorey;
+    public string InferRoof(BuildingGenerator.Context c) => "flat";
+    public float RoofPitch(BuildingGenerator.Context c) => 25f;
 
     private static readonly (string Name, string Wall, string Alt, string Plinth, string Front)[] Palettes =
     [
@@ -158,6 +160,13 @@ public sealed class PrlBlock : IStyle
 
         // roof: slab, parapet, and a lift machine room behind each entrance
         var roof = b.Add(c.Id("roof"), "roof", ModuleTier.Primary);
+        if (plan.RoofShape is RoofShape.Gabled or RoofShape.Hipped or RoofShape.Pyramidal)
+        {
+            // only when the map says so (some blocks got pitched roofs added later)
+            Roofs.Pitched(roof.Mesh, "roof", "concrete", "wall", plan.RoofRect, plan.RoofShape, top, plan.RoofRise, 0.3f);
+            Kit.Slab(roof.Mesh, "concrete", c.Site.Outer, c.Site.Holes, top - 0.05f, top, sides: false);
+            return;
+        }
         Kit.Slab(roof.Mesh, "roof", c.Site.Outer, c.Site.Holes, top - 0.2f, top + 0.15f, sides: false);
         Kit.Parapet(roof.Mesh, "wall_alt", c.Site.Outer, top + 0.15f, top + 0.75f, 0.25f);
         foreach (var h in c.Site.Holes) Kit.Parapet(roof.Mesh, "wall_alt", h, top + 0.15f, top + 0.75f, 0.25f);

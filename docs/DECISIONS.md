@@ -133,3 +133,19 @@ building, not a copy of the real one.
   gallery test: a PRL slab, a point tower, an office and a small house in the same alternate Warsaw. Style never
   changes function: a brutalist house still works as a house. (One inappropriate golden dome reserved, for science.)
 - Order stays: roofs, bugs, then the rest.
+
+## D13 — Roofs (Noor Q6)
+`Generation/Roofs.cs`. Gabled, hipped and pyramidal roofs sit on the footprint's minimum-area rectangle (rotating
+calipers over the hull) when the footprint fills at least 86 % of it and has no courtyard: eaves at the top of the
+walls, the planes running 0.25–0.45 m past them (dropping with the slope) and seen from below as a soffit, gable walls
+closing a gabled roof's ends, hips rising at the same slope as the long sides. Anything less rectangular falls back to
+flat and says so (`roof.complex_footprint`); L-shaped and extended houses (Noor) are the next step, as wings with
+their own roofs. The mono-pitched roof (skillion) is a sloped surface over any footprint, from a height function: a
+kamienica's falls from its main street front to the yard (about 7°, at most 2.2 m), the street attic rises 0.3 m
+above its high edge so it stays hidden, yard walls rise to meet it and firewalls follow it 0.6 m higher, chimneys
+on top. The roof is chosen in the plan, before the storeys: a mapped roof:shape wins (gambrel and mansard drawn
+gabled, half-hipped hipped; domes and the rest flat, reported: the Chairwoman's embargo still stands), otherwise the
+style decides (PRL flat; kamienica skillion; plain: houses gabled or hipped, barns and sheds gabled, an unnamed
+building of house size taken for a house, the rest flat). The rise is roof:height when mapped, else from the style's
+pitch (houses 33–42°, barns and utility 20–28°); a mapped height includes the roof, so the walls get the rest.
+Pitched roofs get tile, slate or sheet colours of their own.

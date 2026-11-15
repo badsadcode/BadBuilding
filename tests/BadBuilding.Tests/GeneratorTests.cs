@@ -294,6 +294,62 @@ public class GeneratorTests
         Assert.NotEqual("prl_block", BuildingGenerator.Generate(Block() with { Type = "yes", Levels = null, Height = 7f }).Plan!.Style);
     }
 
+    private static BuildingRequest House(string? roof = null, float? height = null) => new()
+    {
+        Id = "test:house", Seed = 5, Outer = Rect(-6, -4.5f, 6, 4.5f), Type = "house", Levels = 2, Roof = roof, Height = height,
+        Streets = [new StreetLine([new(-30, 15), new(30, 15)])],
+    };
+
+    [Theory]
+    [InlineData("gabled")]
+    [InlineData("hipped")]
+    public void A_house_gets_its_pitched_roof_with_the_ridge_along_the_long_side(string roof)
+    {
+        var b = BuildingGenerator.Generate(House(roof));
+        Assert.Equal(roof == "gabled" ? RoofShape.Gabled : RoofShape.Hipped, b.Plan!.RoofShape);
+        var pts = b.Modules.Single(m => m.Type == "roof").Mesh.Positions;
+        float topY = pts.Max(p => p.Y);
+        Assert.True(topY > b.Plan.Datum + 2 * b.Plan.StoreyHeight + 2.5f, $"ridge at {topY}");
+        // the ridge runs east-west (the 12 m side), so the highest points spread along X, not Z
+        var ridge = pts.Where(p => p.Y > topY - 0.01f).ToList();
+        Assert.True(ridge.Max(p => p.X) - ridge.Min(p => p.X) >= ridge.Max(p => p.Z) - ridge.Min(p => p.Z));
+        // eaves overhang a little, never far
+        Assert.All(pts, p => Assert.True(MathF.Abs(p.X) <= 6.6f && MathF.Abs(p.Z) <= 5.1f, $"{p}"));
+    }
+
+    [Fact]
+    public void An_unmapped_house_gets_a_pitched_roof_and_a_mapped_height_includes_it()
+    {
+        var b = BuildingGenerator.Generate(House());
+        Assert.Contains(b.Plan!.RoofShape, new[] { RoofShape.Gabled, RoofShape.Hipped });
+        Assert.Equal(Source.Inferred, b.Plan.Roof.Source);
+        var mapped = BuildingGenerator.Generate(House("gabled", 9f));
+        float top = mapped.Modules.SelectMany(m => m.Mesh.Positions).Max(p => p.Y);
+        Assert.InRange(top, 8.5f, 9.6f);
+    }
+
+    [Fact]
+    public void An_L_shaped_house_falls_back_to_a_flat_roof_and_says_why()
+    {
+        var b = BuildingGenerator.Generate(House("gabled") with { Outer = new Ring([new(0, 0), new(12, 0), new(12, 4), new(4, 4), new(4, 12), new(0, 12)]) });
+        Assert.Equal(RoofShape.Flat, b.Plan!.RoofShape);
+        Assert.Contains(b.Report.Issues, i => i.Code == "roof.complex_footprint");
+    }
+
+    [Fact]
+    public void A_kamienica_roof_falls_from_the_street_to_the_yard_behind_the_attic()
+    {
+        var b = BuildingGenerator.Generate(Tenement(2) with { StartYear = 1900 });
+        Assert.Equal(RoofShape.Skillion, b.Plan!.RoofShape);
+        var roof = b.Modules.Single(m => m.Type == "roof").Mesh.Positions;
+        float front = roof.Where(p => p.Z > -0.5f).Max(p => p.Y), back = roof.Where(p => p.Z < -13.5f).Max(p => p.Y);
+        Assert.True(front > back + 0.5f, $"front {front}, back {back}");
+        // the street attic hides the high edge
+        var street = b.Plan.Edges.Single(e => e.Exposure == Exposure.Street);
+        float attic = b.Modules.Single(m => m.Id == $"test:kam/wall.e0.{street.Index}").Mesh.Positions.Max(p => p.Y);
+        Assert.True(attic >= front, $"attic {attic}, roof {front}");
+    }
+
     [Fact]
     public void Glb_lods_get_lighter()
     {

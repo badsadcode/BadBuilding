@@ -39,6 +39,8 @@ public sealed record BuildingRequest
     public float? Height { get; init; }
     /// <summary>OSM roof:shape (flat, gabled, hipped, ...).</summary>
     public string? Roof { get; init; }
+    /// <summary>OSM roof:height (m, eaves to ridge), when mapped.</summary>
+    public float? RoofHeight { get; init; }
     public string? HouseNumber { get; init; }
     public IReadOnlyList<Entrance> Entrances { get; init; } = [];
 

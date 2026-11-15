@@ -107,6 +107,13 @@ public static class Samples
                 Neighbours = [R(-26, -50, 0, -50, 0, -26, -26, -26), R(-50, -26, -26, -26, -26, 0, -50, 0)],
                 Streets = corner.Select(p => new StreetLine(p)).ToArray(),
             }, corner);
+        // roofs (D13): a house with a mapped gabled roof, a farm barn, a villa with a hipped roof
+        yield return new("synthetic_house_gabled", true, "detached house, mapped gabled roof",
+            Req("syn:house_g", R(-5, -4, 5, -4, 5, 4, -5, 4), "house", 2) with { Roof = "gabled", Streets = st }, S);
+        yield return new("synthetic_barn", true, "farm barn, roof inferred",
+            Req("syn:barn", R(-12, -5, 12, -5, 12, 5, -12, 5), "barn", 1) with { Streets = st }, S);
+        yield return new("synthetic_villa_hipped", true, "villa, mapped hipped roof",
+            Req("syn:villa", R(-8, -6, 8, -6, 8, 6, -8, 6), "house", 2) with { Roof = "hipped", Streets = st }, S);
         yield return new("synthetic_bowtie", true, "self-intersecting outline: must be rejected",
             Req("syn:bowtie", R(-10, -10, 10, 10, 10, -10, -10, 10), "yes", 2), S);
         yield return new("synthetic_tiny", true, "0.6 m² footprint: must be rejected",

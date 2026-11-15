@@ -48,6 +48,9 @@ public sealed class Kamienica : IStyle
 
     public int InferLevels(BuildingGenerator.Context c) => c.PlanRng.Weighted<int>([(3, 1), (4, 3), (5, 3), (6, 1)]);
     public float StoreyHeight(BuildingGenerator.Context c) => DefaultStorey;
+    /// <summary>Noor Q6: a mono-pitched roof falling from the street to the yard, hidden behind the street attic.</summary>
+    public string InferRoof(BuildingGenerator.Context c) => "skillion";
+    public float RoofPitch(BuildingGenerator.Context c) => 7f;
 
     private static readonly (string Name, string Plaster, string Trim, string Yard)[] Palettes =
     [
@@ -116,6 +119,16 @@ public sealed class Kamienica : IStyle
         for (int i = 0; i < plan.Edges.Count; i++)
             if (plan.Edges[i].Exposure == Exposure.Street && plan.Edges[i].Length > longest) { longest = plan.Edges[i].Length; balconyEdge = i; }
 
+        // the roof (D13, Noor Q6): mono-pitched, highest along the main street front and falling to the yard; the
+        // street attic rises high enough to hide it. Flat when the map says flat.
+        bool slope = plan.RoofShape == RoofShape.Skillion;
+        var front = plan.Edges.Where(e => e.Ring == 0 && e.Exposure == Exposure.Street).OrderByDescending(e => e.Length).FirstOrDefault()
+            ?? plan.Edges.Where(e => e.Ring == 0 && e.Exposure != Exposure.Party).OrderByDescending(e => e.Length).FirstOrDefault()
+            ?? plan.Edges[0];
+        float reach = MathF.Max(1f, c.Site.Outer.Max(p => Vector2.Dot(p - front.A, -front.Out)));
+        float RoofAt(Vector2 p) => slope ? top + plan.RoofRise * (1f - Math.Clamp(Vector2.Dot(p - front.A, -front.Out) / reach, 0f, 1f)) : top;
+        float attic = slope ? MathF.Max(0.9f, plan.RoofRise + 0.3f) : 0.9f;
+
         for (int ei = 0; ei < plan.Edges.Count; ei++)
         {
             var e = plan.Edges[ei];
@@ -136,10 +149,14 @@ public sealed class Kamienica : IStyle
             if (len < 0.4f) { Kit.Wall(wall.Mesh, party ? "brick" : "wall_yard", f, 0, len, datum, top); continue; }
             if (party)
             {
-                // a firewall: bare brick from the plinth up past the roof, with chimney stacks
-                Kit.Wall(wall.Mesh, "brick", f, 0, len, datum, top + 0.6f);
+                // a firewall: bare brick from the plinth up past the roof (following its slope), with chimney stacks
+                Kit.Wall(wall.Mesh, "brick", f, 0, len, datum, top);
+                Kit.WallTop(wall.Mesh, "brick", f, len, top, RoofAt(e.A) + 0.6f, RoofAt(e.B) + 0.6f);
                 for (float u = len * 0.25f; u < len; u += len * 0.5f)
-                    Kit.Box(trim.Mesh, "brick", f, u - 0.45f, u + 0.45f, top, top + 2.0f, -1.0f, -0.05f);
+                {
+                    float at = RoofAt(e.A + (e.B - e.A) * (u / len));
+                    Kit.Box(trim.Mesh, "brick", f, u - 0.45f, u + 0.45f, top, at + 1.8f, -1.0f, -0.05f);
+                }
                 continue;
             }
 
@@ -207,7 +224,7 @@ public sealed class Kamienica : IStyle
                     Kit.Box(trim.Mesh, "trim", f, prevStreet ? -d : 0, nextStreet ? len + d : len, y0, y1, w0, w1);
                 }
                 if (orn > 0 && levels > 1) Band(datum + sh - 0.12f, datum + sh + 0.12f, 0, 0.12f);
-                Kit.Wall(wall.Mesh, "wall", f, 0, len, top, top + 0.9f);
+                Kit.Wall(wall.Mesh, "wall", f, 0, len, top, top + attic);
                 if (orn == 0) Band(top - 0.2f, top + 0.05f, 0, 0.22f);
                 else if (orn == 1) Band(top - 0.3f, top + 0.15f, 0, 0.4f);
                 else
@@ -215,13 +232,23 @@ public sealed class Kamienica : IStyle
                     Band(top - 0.45f, top - 0.2f, 0, 0.22f);
                     Band(top - 0.2f, top + 0.2f, 0, 0.55f);
                 }
-                Band(top + 0.9f, top + 1.0f, -0.25f, 0.06f);   // attic coping
+                Band(top + attic, top + attic + 0.1f, -0.25f, 0.06f);   // attic coping
             }
-            else Kit.Wall(wall.Mesh, body, f, 0, len, top, top + 0.15f);
+            else
+            {
+                // yard and side walls rise to meet the sloping roof, with a thin band on top
+                Kit.WallTop(wall.Mesh, body, f, len, top, RoofAt(e.A) + 0.15f, RoofAt(e.B) + 0.15f);
+                if (!slope) Kit.Wall(wall.Mesh, body, f, 0, len, top, top + 0.15f);
+            }
         }
 
-        // a flat roof behind the attic, a low parapet round the yard side
         var roof = b.Add(c.Id("roof"), "roof", ModuleTier.Primary);
+        if (slope)
+        {
+            Roofs.Sloped(roof.Mesh, "roof", c.Site.Outer, c.Site.Holes, p => RoofAt(p) + 0.15f);
+            return;
+        }
+        // a flat roof behind the attic, a low parapet round the yard side
         Kit.Slab(roof.Mesh, "roof", c.Site.Outer, c.Site.Holes, top - 0.2f, top + 0.15f, sides: false);
         Kit.Parapet(roof.Mesh, "wall_yard", c.Site.Outer, top + 0.15f, top + 0.5f, 0.2f);
         foreach (var h in c.Site.Holes) Kit.Parapet(roof.Mesh, "wall_yard", h, top + 0.15f, top + 0.5f, 0.2f);

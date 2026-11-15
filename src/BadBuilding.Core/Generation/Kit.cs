@@ -70,6 +70,14 @@ public static class Kit
         Wall(m, role, f, u, u1, oy0, oy1);
     }
 
+    /// <summary>The top of a wall under a sloped roof: from <paramref name="y0"/> up to <paramref name="yA"/> at u = 0
+    /// and <paramref name="yB"/> at u = <paramref name="len"/> (a gable end, or a wall under a mono-pitch roof).</summary>
+    public static void WallTop(Mesh m, string role, Frame f, float len, float y0, float yA, float yB)
+    {
+        if (len < 1e-3f || MathF.Max(yA, yB) - y0 < 0.01f) return;
+        m.AddPolygon(role, [f.P(0, y0), f.P(len, y0), f.P(len, MathF.Max(y0, yB)), f.P(0, MathF.Max(y0, yA))], f.Out);
+    }
+
     /// <summary>Whether u0..u1 overlaps any of the cuts.</summary>
     public static bool Overlaps(IEnumerable<(float U0, float U1)> cuts, float u0, float u1) => cuts.Any(k => k.U1 > u0 + 0.01f && k.U0 < u1 - 0.01f);
 

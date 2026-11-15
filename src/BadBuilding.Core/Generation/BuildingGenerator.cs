@@ -82,26 +82,42 @@ public static class BuildingGenerator
         var levels = r.Levels is { } lv and > 0 ? new Sourced<int>(Math.Clamp(lv, 1, 60), src) : new Sourced<int>(style.InferLevels(c), Source.Inferred);
         float sh = style.StoreyHeight(c);
         float plinth = style.Plinth;
+
+        // the roof first (D13): a pitched roof's rise comes out of a mapped height
+        Sourced<string> roof = r.Roof is { Length: > 0 } rs ? new Sourced<string>(rs, src) : new Sourced<string>(style.InferRoof(c), Source.Inferred);
+        var shape = Roofs.Parse(roof.Value);
+        if (shape == RoofShape.Flat && roof.Value is not ("flat" or ""))
+            c.Building.Report.Add(Severity.Info, "roof.not_supported", $"Mapped roof '{roof.Value}' is drawn flat in version {Version}.", "flat roof");
+        var rect = Roofs.MinRect(c.Site.Outer);
+        if (shape is RoofShape.Gabled or RoofShape.Hipped or RoofShape.Pyramidal && (rect.Fill < Roofs.RectangularEnough || c.Site.Holes.Count > 0))
+        {
+            c.Building.Report.Add(Severity.Info, "roof.complex_footprint",
+                $"A {roof.Value} roof needs a nearly rectangular footprint without courtyards (this one fills {rect.Fill:P0} of its rectangle).", "flat roof");
+            shape = RoofShape.Flat;
+        }
+        float rise = shape switch
+        {
+            RoofShape.Gabled or RoofShape.Hipped or RoofShape.Pyramidal => r.RoofHeight is { } rh and > 0.3f ? rh : Roofs.Rise(rect, style.RoofPitch(c)),
+            RoofShape.Skillion => r.RoofHeight is { } rh2 and > 0.3f ? rh2 : MathF.Min(2.2f, 2f * rect.HalfW * MathF.Tan(style.RoofPitch(c) * MathF.PI / 180f)),
+            _ => 0f,
+        };
+        rise = MathF.Min(rise, 9f);
+        float extra = shape == RoofShape.Flat ? style.RoofExtra : rise;
+
         Sourced<float> height;
         if (r.Height is { } h and > 2f)
         {
             height = new Sourced<float>(h, src);
+            float walls = MathF.Max(2.4f, h - extra * (shape == RoofShape.Flat ? 0f : 1f));
             // a mapped height without levels decides the storeys
-            if (r.Levels is null) levels = new Sourced<int>(Math.Max(1, (int)MathF.Round((h - plinth) / sh)), Source.Inferred);
-            else sh = Math.Clamp((h - plinth) / levels.Value, 2.4f, 6f);
+            if (r.Levels is null) levels = new Sourced<int>(Math.Max(1, (int)MathF.Round((walls - plinth) / sh)), Source.Inferred);
+            else sh = Math.Clamp((walls - plinth) / levels.Value, 2.4f, 6f);
         }
-        else height = new Sourced<float>(plinth + levels.Value * sh + style.RoofExtra, Source.Inferred);
-        Sourced<string> roof;
-        if (r.Roof is { Length: > 0 } rs)
-        {
-            roof = new Sourced<string>(rs, src);
-            if (rs != "flat")
-                c.Building.Report.Add(Severity.Info, "roof.not_supported", $"Mapped roof '{rs}' is drawn flat in version {Version}.", "flat roof");
-        }
-        else roof = new Sourced<string>("flat", Source.Inferred);
+        else height = new Sourced<float>(plinth + levels.Value * sh + extra, Source.Inferred);
         return new BuildingPlan
         {
             Style = style.Id, Levels = levels, Height = height, Roof = roof, Palette = "", StoreyHeight = sh,
+            RoofShape = shape, RoofRise = rise, RoofRect = rect,
             Datum = c.Site.GroundHigh + plinth, GroundLow = c.Site.GroundLow, Edges = c.Site.Edges,
         };
     }

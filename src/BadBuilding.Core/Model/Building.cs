@@ -48,6 +48,11 @@ public sealed record BuildingPlan
     public required Sourced<string> Roof { get; init; }
     public required string Palette { get; init; }
     public float StoreyHeight { get; init; }
+    /// <summary>The roof as built (D13): its shape, its rise from the eaves (or from the top of the walls), and for
+    /// pitched roofs the rectangle it sits on.</summary>
+    public Generation.RoofShape RoofShape { get; init; }
+    public float RoofRise { get; init; }
+    public Generation.Roofs.Rect RoofRect { get; init; }
     /// <summary>Height of the ground floor (the datum, D5) and of the lowest ground under the walls.</summary>
     public float Datum { get; init; }
     public float GroundLow { get; init; }

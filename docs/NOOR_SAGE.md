@@ -10,6 +10,18 @@ Where Sage has a default it says so, and that is what happens unless you say oth
 
 All renders live in [`docs/img`](img/). The newest are below; each question also shows the ones it is about.
 
+### Roofs (your Q6, 15 November 2026)
+
+| | |
+|---|---|
+| ![A gabled house](img/roof_house_gabled.jpg) | ![A hipped villa](img/roof_villa_hipped.jpg) |
+| A house with a gabled roof: eaves over the walls, gable walls closing the ends. | A villa with a hipped roof, in clay tiles. |
+| ![A barn](img/roof_barn.jpg) | ![A real house from OSM](img/roof_real_house.jpg) |
+| A barn: a shallower gabled roof, a big door. | A real house from OSM, roof guessed (marked inferred). |
+
+Kamienice got your mono-pitched roof, falling from the street to the yard, hidden behind the street attic (so the
+photos above don't show it: that's the point). Domes: still drawn flat. The embargo holds. 😇
+
 ### Evidence before confidence (your Q8 and Q9, 14 November 2026)
 
 Real buildings from OSM, chosen by what the map knows about them.
@@ -61,7 +73,17 @@ What decides the look:
 
 ## Open questions
 
-None right now. Thank you, Noor! 💜 No golden domes, promised. 😁
+### Q11 — L-shaped and extended houses
+A house that isn't nearly a rectangle (an L, a T, a house with an extension) gets a flat roof for now. My plan for
+them, from your "houses extended over time": split the footprint into rectangular wings, the main body plus
+extensions, and give each wing its own roof (the main one taller, an extension lower or flat, a garage flat).
+Does that match what you see in Poland, or would you rather have one continuous roof over the L?
+
+*Sage's default:* wings with their own roofs.
+
+---
+
+None other right now. Thank you, Noor! 💜 No golden domes, promised. 😁
 
 ---
 
