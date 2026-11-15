@@ -149,3 +149,40 @@ style decides (PRL flat; kamienica skillion; plain: houses gabled or hipped, bar
 building of house size taken for a house, the rest flat). The rise is roof:height when mapped, else from the style's
 pitch (houses 33–42°, barns and utility 20–28°); a mapped height includes the roof, so the walls get the rest.
 Pitched roofs get tile, slate or sheet colours of their own.
+
+## D14 — Exports follow Noor Interchange v0.1 (Tom, 15 Nov 2026)
+
+Tom asked for BadBuilding's exports to follow Noor Interchange v0.1 (NoorEngine `docs/interchange/NOOR_INTERCHANGE.md`,
+draft of 15 November 2026), without renaming the project yet.
+- **Manifest:** every export also writes `<name>.noor.json`: id, kind `building`, generator, recipe (file, seed,
+  sha256), created, space, bounds (asset space), files with hashes, triangles per LOD, collision `mesh`, marker
+  counts, tags (style, roof shape, OSM type) and provenance (osm, request, inferred, D3). It validates against the
+  schema; a copy lives in `docs/interchange/noor.asset.schema.json` and the tests check every field against it.
+  BadBuilding's own extras sit under `badbuilding` (the building id, the pivot, the validation status).
+  `validation.gltf_validator` is `not_run`: the Khronos validator isn't wired in yet.
+- **Identity:** the recipe now starts with `id` (a UUID), `seed` and `version`. The id is the request's `AssetId` if
+  given, else the one in a recipe already saved under that name (regenerating keeps it), else a name-based UUID (v5)
+  from the building id, so the same OSM building gets the same id on any machine without a stored file.
+- **Pivot:** the spec puts a building's origin at the bottom centre of its footprint with the ground at y = 0. The
+  GLBs are shifted by the pivot (the footprint's box centre at the lowest ground under the walls); the in-memory
+  `Building` and `metadata.json` stay in building (plan) space, so Baltic Drive, which uses the meshes directly, is
+  unchanged.
+- **extras.noor:** every node's extras now hold only `{"noor": {"v": 1, ...}}`. The root has the asset id, kind and lod;
+  parts have `part` from the spec's vocabulary (wall and passage → wall, roof → roof, entrances, gates and wickets →
+  door, balconies → railing, trim, joints and roof rooms → detail), their module id, and the old extras (type, tier,
+  parent, lods, exposure, gate state...) under `props`.
+- **Markers:** the spec has no new marker types without a spec change, so all of BadBuilding's markers become
+  `entrance` with a `kind`: street doors `main`, courtyard doors `service`, shop doors `main` (tag `shop`), the two ends
+  of a gate passage and the wicket `gate` (tags `passage`, `wicket`), the roof access `hatch` (tag `roof_access`). The
+  old kind stays in `props.badbuilding_kind`. Node names are `Marker_Entrance_<local id>`.
+- **Collision:** LOD0 now also carries the bare mass as `<mass id>-col` with `noor.collision = "mesh"`. LOD2 is
+  unchanged (the mass as a drawn mesh).
+- **Kept as before:** the three GLB files, recipe, metadata and validation JSON, byte-identical GLBs for the same
+  request. Readable JSON escaping now ("+Y", not an escaped plus).
+
+**Open, for Noor and Tom:**
+1. The spec wants LODs as sibling nodes `<base>_LOD0..n` in one GLB; BadBuilding still writes three files (listed in
+   the manifest as role `other`). Folding them into one GLB is a follow-up.
+2. In Godot, a `-col` suffix keeps the mesh visible and adds collision (`-colonly` drops the mesh), so the mass would
+   be drawn over the facades. The spec says "-col, not rendered". The gallery hides these nodes by
+   `extras.noor.collision`; an engine importer should do the same, or the spec could switch to `-colonly`.

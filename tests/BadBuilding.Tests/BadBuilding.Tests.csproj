@@ -21,6 +21,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- Noor Interchange v0.1 manifest schema, a copy of NoorEngine's docs/interchange/noor.asset.schema.json (D14) -->
+    <None Include="..\..\docs\interchange\noor.asset.schema.json" Link="noor.asset.schema.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Using Include="Xunit" />
   </ItemGroup>
 

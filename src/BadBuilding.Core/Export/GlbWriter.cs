@@ -10,8 +10,11 @@ namespace BadBuilding.Export;
 /// <summary>
 /// glTF 2.0 binary (.glb), written by hand (the format is small and this keeps the core dependency-free).
 /// One node per module, nested by attachment, each with its pivot at its bounding-box centre; one primitive per
-/// material role; semantic data in node <c>extras</c>; functional markers as empty nodes whose +Z points along the
-/// marker's direction. Y up, metres, +X east, +Z south (D1). Lifted from BadShip's writer and made generic (D2).
+/// material role; functional markers as empty nodes whose +Z points along the marker's direction. Y up, metres, +X east,
+/// +Z south (D1). Lifted from BadShip's writer and made generic (D2).
+/// Noor Interchange v0.1 (D14): the asset's origin is the bottom centre of the footprint (<see cref="Noor.Pivot"/>),
+/// all semantic data sits in <c>extras.noor</c> (parts, markers as <c>entrance</c>), and LOD0 carries the bare mass as
+/// a <c>-col</c> collision node.
 /// </summary>
 public static class GlbWriter
 {
@@ -20,8 +23,12 @@ public static class GlbWriter
 
     /// <param name="include">Which modules to write (all when null): how LODs are made.</param>
     /// <param name="markers">Whether to write the functional marker nodes.</param>
-    public static byte[] Write(Building ship, Func<Module, bool>? include = null, bool markers = true)
+    /// <param name="lod">The level of detail this file is (written into the root's <c>extras.noor</c>).</param>
+    /// <param name="collision">Whether to add the mass modules not otherwise included as <c>-col</c> collision nodes.</param>
+    /// <param name="assetId">The asset's identity (default: <see cref="Noor.AssetId"/>).</param>
+    public static byte[] Write(Building ship, Func<Module, bool>? include = null, bool markers = true, int lod = 0, bool collision = false, Guid? assetId = null)
     {
+        var pivot = Noor.Pivot(ship);
         var bin = new MemoryStream();
         var bufferViews = new List<object>();
         var accessors = new List<object>();
@@ -142,64 +149,87 @@ public static class GlbWriter
         var root = AddNode(new Dictionary<string, object>
         {
             ["name"] = r.Id,
-            ["extras"] = new Dictionary<string, object>
+            ["extras"] = Extras(new Dictionary<string, object?>
             {
-                ["generator"] = "BadBuilding",
-                ["generator_version"] = BuildingGenerator.Version,
-                ["seed"] = r.Seed,
-                ["style"] = ship.Plan?.Style ?? "none",
-                ["units"] = "meters",
-                ["up"] = "+Y",
-                ["east"] = "+X",
-                ["south"] = "+Z",
-            },
+                ["id"] = Noor.Text(assetId ?? Noor.AssetId(r)),
+                ["kind"] = Noor.Kind,
+                ["lod"] = lod,
+                ["props"] = new Dictionary<string, object?>
+                {
+                    ["building_id"] = r.Id,
+                    ["generator"] = "BadBuilding",
+                    ["generator_version"] = BuildingGenerator.Version,
+                    ["seed"] = r.Seed,
+                    ["style"] = ship.Plan?.Style ?? "none",
+                    ["east"] = "+X",
+                    ["south"] = "+Z",
+                    ["pivot_in_building_space"] = new[] { pivot.X, pivot.Y, pivot.Z },
+                },
+            }),
         });
 
         var nodeOf = new Dictionary<string, int>();
         var originOf = new Dictionary<string, Vector3>();
         foreach (var m in ParentsFirst(ship.Modules))
         {
-            if (include != null && !include(m)) continue;
+            bool col = false;
+            if (include != null && !include(m))
+            {
+                // the bare mass doubles as the collision shape (spec 3.5): a "-col" node in the detailed file
+                if (!(collision && m.Type == "mass" && !m.Mesh.IsEmpty)) continue;
+                col = true;
+            }
             var parentNode = m.ParentId != null && nodeOf.TryGetValue(m.ParentId, out var pn) ? pn : root;
-            var parentOrigin = m.ParentId != null && originOf.TryGetValue(m.ParentId, out var po) ? po : Vector3.Zero;
+            // top-level parts are placed relative to the asset's pivot (bottom centre of the footprint)
+            var parentOrigin = m.ParentId != null && originOf.TryGetValue(m.ParentId, out var po) ? po : pivot;
             var origin = m.Mesh.IsEmpty ? parentOrigin : Snap(m.Bounds.Center);
             var t = origin - parentOrigin;
-            var node = new Dictionary<string, object>
+            var props = new Dictionary<string, object?>
             {
-                ["name"] = m.Id,
-                ["extras"] = new Dictionary<string, object?>
-                {
-                    ["id"] = m.Id,
-                    ["type"] = m.Type,
-                    ["tier"] = m.Tier.ToString().ToLowerInvariant(),
-                    ["parent"] = m.ParentId,
-                    ["lods"] = m.Lods,
-                },
+                ["type"] = m.Type,
+                ["tier"] = m.Tier.ToString().ToLowerInvariant(),
+                ["parent"] = m.ParentId,
+                ["lods"] = m.Lods,
             };
             if (m.Extras != null)
-                foreach (var (k, v) in m.Extras) ((Dictionary<string, object?>)node["extras"])[k] = v;
+                foreach (var (k, v) in m.Extras) props[k] = v;
+            var noor = new Dictionary<string, object?> { ["id"] = m.Id };
+            if (col) noor["collision"] = "mesh";
+            else if (Noor.Part(m.Type) is { } part) noor["part"] = part;
+            noor["props"] = props;
+            var name = col ? m.Id + "-col" : m.Id;
+            var node = new Dictionary<string, object>
+            {
+                ["name"] = name,
+                ["extras"] = Extras(noor),
+            };
             if (t != Vector3.Zero) node["translation"] = new[] { t.X, t.Y, t.Z };
-            if (!m.Mesh.IsEmpty) node["mesh"] = WriteMesh(m.Mesh, origin, m.Id);
+            if (!m.Mesh.IsEmpty) node["mesh"] = WriteMesh(m.Mesh, origin, name);
             var idx = AddNode(node);
             children[parentNode].Add(idx);
             nodeOf[m.Id] = idx;
             originOf[m.Id] = origin;
         }
 
-        var markersNode = markers ? AddNode(new Dictionary<string, object> { ["name"] = "markers" }) : -1;
-        if (markers) children[root].Add(markersNode);
-        foreach (var mk in markers ? ship.Markers : [])
+        var markersNode = markers && ship.Markers.Count > 0 ? AddNode(new Dictionary<string, object> { ["name"] = "Markers" }) : -1;
+        if (markersNode >= 0) children[root].Add(markersNode);
+        foreach (var mk in markersNode >= 0 ? ship.Markers : [])
         {
             var q = RotationFromZ(mk.Direction);
+            var (marker, kind, tags) = Noor.MarkerOf(ship, mk);
+            var p = mk.Position - pivot;
+            var noor = new Dictionary<string, object?> { ["marker"] = marker, ["id"] = mk.Id, ["kind"] = kind };
+            if (tags.Length > 0) noor["tags"] = tags;
+            noor["props"] = new Dictionary<string, object?>
+            {
+                ["badbuilding_kind"] = mk.Kind,
+                ["direction"] = new[] { mk.Direction.X, mk.Direction.Y, mk.Direction.Z },
+            };
             var node = new Dictionary<string, object>
             {
-                ["name"] = $"marker.{mk.Id}",
-                ["translation"] = new[] { mk.Position.X, mk.Position.Y, mk.Position.Z },
-                ["extras"] = new Dictionary<string, object>
-                {
-                    ["kind"] = mk.Kind,
-                    ["direction"] = new[] { mk.Direction.X, mk.Direction.Y, mk.Direction.Z },
-                },
+                ["name"] = "Marker_Entrance_" + Local(mk.Id),
+                ["translation"] = new[] { p.X, p.Y, p.Z },
+                ["extras"] = Extras(noor),
             };
             if (q != Quaternion.Identity) node["rotation"] = new[] { q.X, q.Y, q.Z, q.W };
             children[markersNode].Add(AddNode(node));
@@ -273,6 +303,17 @@ public static class GlbWriter
         }
         return result;
     }
+
+    /// <summary><c>extras</c> holding only the versioned Noor block (spec 3.3).</summary>
+    private static Dictionary<string, object> Extras(Dictionary<string, object?> noor)
+    {
+        var block = new Dictionary<string, object?> { ["v"] = Noor.BlockVersion };
+        foreach (var (k, v) in noor) block[k] = v;
+        return new Dictionary<string, object> { ["noor"] = block };
+    }
+
+    /// <summary>A marker id without the building prefix, for readable node names ("entrance.e0.3.2").</summary>
+    private static string Local(string id) => id[(id.LastIndexOf('/') + 1)..];
 
     private static Vector3 Snap(Vector3 v) => new(MathF.Round(v.X, 3), MathF.Round(v.Y, 3), MathF.Round(v.Z, 3));
 

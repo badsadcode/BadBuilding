@@ -27,6 +27,10 @@ public sealed record BuildingRequest
     /// <summary>Identifies the building (e.g. "osm:w123456"): ids of generated parts start with it.</summary>
     public string Id { get; init; } = "building";
 
+    /// <summary>The asset's stable identity (Noor Interchange, D14). Null: derived from <see cref="Id"/>, or kept from
+    /// an earlier recipe when the files are saved over an earlier export.</summary>
+    public Guid? AssetId { get; init; }
+
     /// <summary>The seed (e.g. the OSM id): the same request and seed give the same building.</summary>
     public required ulong Seed { get; init; }
 

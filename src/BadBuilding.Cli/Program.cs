@@ -247,6 +247,8 @@ function show(card) {
   loader.load(card.dataset.glb, g => {
     if (current) scene.remove(current);
     current = g.scene; current.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
+    // collision nodes (Noor Interchange: extras.noor.collision, name ending in -col) are not drawn
+    current.traverse(o => { if (o.userData?.noor?.collision || o.name.endsWith('-col')) o.visible = false; });
     scene.add(current);
     const b = new THREE.Box3().setFromObject(current), c = b.getCenter(new THREE.Vector3()), s = b.getSize(new THREE.Vector3()).length();
     controls.target.copy(c); camera.position.set(c.x + s * 0.7, c.y + s * 0.45, c.z + s * 0.8); controls.update();

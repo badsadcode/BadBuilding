@@ -27,8 +27,14 @@ Interiors come later.
 - **Honest about what it guessed:** every attribute is marked `osm`, `request` or `inferred`.
 - **Fails safely:** degenerate, self-intersecting, tiny or too-thin footprints are reported with a reason and a fallback,
   never built outside the outline.
-- **Out:** GLB (LOD0, LOD1, LOD2 = the bare mass, also the collision shape) with semantic node extras and markers
-  (entrances, roof access); recipe, metadata and validation JSON.
+- **Out, in [Noor Interchange v0.1](https://github.com/badsadcode/NoorEngine/blob/main/docs/interchange/NOOR_INTERCHANGE.md):**
+  - `<name>.glb` (LOD0): origin at the bottom centre of the footprint; parts and markers described in node
+    `extras.noor`; doors, shop doors, gate passages and roof hatches are `entrance` markers; the bare mass is a
+    `-col` collision node;
+  - `<name>.lod1.glb` and `<name>.lod2.glb` (the bare mass);
+  - `<name>.noor.json`, the manifest (validates against `docs/interchange/noor.asset.schema.json`);
+  - `<name>.recipe.json`, with a stable UUID `id`, the `seed` and the `version`;
+  - `<name>.metadata.json` (in building space) and `<name>.validation.json`.
 
 ## Quick start
 
@@ -58,7 +64,8 @@ The gallery shows each building in 3D beside its plan. The plan includes:
 
 ## Conventions
 
-- **Units and axes:** metres, +Y up, +X east, +Z south (north is −Z).
+- **Units and axes:** metres, +Y up, +X east, +Z south (north is −Z). The GLBs are shifted so the footprint's
+  bottom centre is the origin (`pivot_in_building_space` in the manifest and on the root node puts them back).
 - **Lifted, not referenced:** `Rng`, `Mesh`, `Aabb` and the GLB writer come from BadShip 0.31 (see
   [docs/DECISIONS.md](docs/DECISIONS.md)).
 - **Questions for Noor:** [docs/NOOR_SAGE.md](docs/NOOR_SAGE.md), open questions and her answers.
