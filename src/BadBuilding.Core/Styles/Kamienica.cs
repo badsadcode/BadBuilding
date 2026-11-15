@@ -194,17 +194,28 @@ public sealed class Kamienica : IStyle
 
             if (street)
             {
-                // a string course over the ground floor, the cornice under the attic and the attic itself
-                if (orn > 0 && levels > 1) Kit.Box(trim.Mesh, "trim", f, 0, len, datum + sh - 0.12f, datum + sh + 0.12f, 0, 0.12f);
+                // a string course over the ground floor, the cornice under the attic and the attic itself.
+                // Where the next wall is a street front too, each band runs on past the corner by its own depth, so
+                // the bands of two walls meet at an outside corner instead of leaving a notch (Tom: gaps in the gzyms).
+                var ring = plan.Edges.Where(x => x.Ring == e.Ring).ToList();
+                int at = ring.IndexOf(e);
+                bool prevStreet = ring[(at - 1 + ring.Count) % ring.Count].Exposure == Exposure.Street;
+                bool nextStreet = ring[(at + 1) % ring.Count].Exposure == Exposure.Street;
+                void Band(float y0, float y1, float w0, float w1)
+                {
+                    float d = MathF.Max(w1, -w0);
+                    Kit.Box(trim.Mesh, "trim", f, prevStreet ? -d : 0, nextStreet ? len + d : len, y0, y1, w0, w1);
+                }
+                if (orn > 0 && levels > 1) Band(datum + sh - 0.12f, datum + sh + 0.12f, 0, 0.12f);
                 Kit.Wall(wall.Mesh, "wall", f, 0, len, top, top + 0.9f);
-                if (orn == 0) Kit.Box(trim.Mesh, "trim", f, 0, len, top - 0.2f, top + 0.05f, 0, 0.22f);
-                else if (orn == 1) Kit.Box(trim.Mesh, "trim", f, 0, len, top - 0.3f, top + 0.15f, 0, 0.4f);
+                if (orn == 0) Band(top - 0.2f, top + 0.05f, 0, 0.22f);
+                else if (orn == 1) Band(top - 0.3f, top + 0.15f, 0, 0.4f);
                 else
                 {
-                    Kit.Box(trim.Mesh, "trim", f, 0, len, top - 0.45f, top - 0.2f, 0, 0.22f);
-                    Kit.Box(trim.Mesh, "trim", f, 0, len, top - 0.2f, top + 0.2f, 0, 0.55f);
+                    Band(top - 0.45f, top - 0.2f, 0, 0.22f);
+                    Band(top - 0.2f, top + 0.2f, 0, 0.55f);
                 }
-                Kit.Box(trim.Mesh, "trim", f, 0, len, top + 0.9f, top + 1.0f, -0.25f, 0.06f);   // attic coping
+                Band(top + 0.9f, top + 1.0f, -0.25f, 0.06f);   // attic coping
             }
             else Kit.Wall(wall.Mesh, body, f, 0, len, top, top + 0.15f);
         }
