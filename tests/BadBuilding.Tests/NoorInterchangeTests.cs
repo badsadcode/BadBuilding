@@ -6,7 +6,7 @@ using BadBuilding.Model;
 
 namespace BadBuilding.Tests;
 
-/// <summary>Noor Interchange v0.1 (D14): the manifest, the stable id, extras.noor, markers, collision.</summary>
+/// <summary>Noor Interchange v0.2 (D14, D15): the manifest, the stable id, extras.noor, markers, collision.</summary>
 public class NoorInterchangeTests
 {
     private static Ring Rect(float x0, float z0, float x1, float z1) => new([new(x0, z0), new(x1, z0), new(x1, z1), new(x0, z1)]);
@@ -52,11 +52,18 @@ public class NoorInterchangeTests
         var errors = MiniSchema.Validate(schema, manifest);
         Assert.True(errors.Count == 0, string.Join("\n", errors));
 
-        Assert.Equal("0.1", manifest.GetProperty("noor_interchange").GetString());
+        Assert.Equal("0.2", manifest.GetProperty("noor_interchange").GetString());
         Assert.Equal("building", manifest.GetProperty("kind").GetString());
         Assert.Equal("2026-11-15T12:00:00Z", manifest.GetProperty("created").GetString());
         Assert.Equal("mesh", manifest.GetProperty("collision").GetString());
-        Assert.True(manifest.GetProperty("markers").GetProperty("entrance").GetInt32() >= 3);
+        Assert.True(manifest.GetProperty("markers").GetProperty("entrance").GetInt32() >= 2);
+        Assert.Equal(2, manifest.GetProperty("markers").GetProperty("passage").GetInt32());
+        // the lower levels are role "lod" files with their level (v0.2)
+        var lods = manifest.GetProperty("files").EnumerateArray().Where(f => f.GetProperty("role").GetString() == "lod")
+            .ToDictionary(f => f.GetProperty("lod").GetInt32(), f => f.GetProperty("path").GetString());
+        Assert.Equal("court.lod1.glb", lods[1]);
+        Assert.Equal("court.lod2.glb", lods[2]);
+        Assert.Equal(Noor.Text(Noor.Namespace), manifest.GetProperty("badbuilding").GetProperty("id_namespace").GetString());
         // the listed hashes are the files' own
         foreach (var f in manifest.GetProperty("files").EnumerateArray())
             if (f.TryGetProperty("sha256", out var sha))
@@ -67,9 +74,9 @@ public class NoorInterchangeTests
     public void The_mini_schema_checker_rejects_a_broken_manifest()
     {
         var schema = JsonDocument.Parse(File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "noor.asset.schema.json"))).RootElement;
-        var bad = JsonDocument.Parse("""{ "noor_interchange": "1.0", "id": "not-a-uuid", "name": "x", "kind": "spaceship", "generator": { "tool": "Blender" }, "created": "now", "space": { "up": "+Z", "forward": "+Z", "handedness": "right", "units": "meters" }, "files": [] }""").RootElement;
+        var bad = JsonDocument.Parse("""{ "noor_interchange": "1.0", "id": "not-a-uuid", "name": "x", "kind": "spaceship", "generator": { "tool": "Blender" }, "created": "now", "space": { "up": "+Z", "forward": "+Z", "handedness": "right", "units": "meters" }, "files": [ { "path": "x.lod1.glb", "role": "lod" } ] }""").RootElement;
         var errors = MiniSchema.Validate(schema, bad);
-        foreach (var where in new[] { "noor_interchange", "id", "kind", "generator", "space.up", "files" })
+        foreach (var where in new[] { "noor_interchange", "id", "kind", "generator", "space.up", "created", "files[0]" })
             Assert.Contains(errors, e => e.StartsWith(where));
     }
 
@@ -99,27 +106,49 @@ public class NoorInterchangeTests
     }
 
     [Fact]
-    public void Markers_are_entrances_in_extras_noor()
+    public void Markers_are_entrances_and_paired_passages_in_extras_noor()
     {
         var b = BuildingGenerator.Generate(Court());
         var gltf = GltfJson(BuildingFiles.Lod(b, 0));
         var markers = Nodes(gltf).Where(n => NoorOf(n)?.TryGetProperty("marker", out _) == true).ToList();
         Assert.Equal(b.Markers.Count, markers.Count);
-        var kinds = new List<string>();
+        var entranceKinds = new List<string>();
+        var passages = new Dictionary<string, JsonElement>();
         foreach (var m in markers)
         {
             var noor = NoorOf(m)!.Value;
             Assert.Equal(1, noor.GetProperty("v").GetInt32());
-            Assert.Equal("entrance", noor.GetProperty("marker").GetString());
             Assert.False(string.IsNullOrEmpty(noor.GetProperty("id").GetString()));
             Assert.False(m.TryGetProperty("mesh", out _));                       // markers are empty nodes
-            Assert.StartsWith("Marker_Entrance_", m.GetProperty("name").GetString());
             Assert.Equal(["noor"], m.GetProperty("extras").EnumerateObject().Select(p => p.Name));   // nothing left outside noor
-            kinds.Add(noor.GetProperty("kind").GetString()!);
+            switch (noor.GetProperty("marker").GetString())
+            {
+                case "entrance":
+                    Assert.StartsWith("Marker_Entrance_", m.GetProperty("name").GetString());
+                    entranceKinds.Add(noor.GetProperty("kind").GetString()!);
+                    break;
+                case "passage":
+                    Assert.StartsWith("Marker_Passage_", m.GetProperty("name").GetString());
+                    passages[noor.GetProperty("id").GetString()!] = noor;
+                    break;
+                default: Assert.Fail($"unexpected marker {noor.GetProperty("marker")}"); break;
+            }
         }
-        Assert.All(kinds, k => Assert.Contains(k, new[] { "main", "service", "gate", "hatch" }));
-        Assert.Contains("main", kinds);
-        Assert.Contains("gate", kinds);      // the passage into the yard
+        string[] allowed = ["main", "service", "courtyard", "shop", "gate", "wicket", "hatch", "roof"];
+        Assert.All(entranceKinds, k => Assert.Contains(k, allowed));
+        Assert.Contains("main", entranceKinds);          // the street doors
+        Assert.Contains("courtyard", entranceKinds);     // the staircase door into the yard
+        // the brama: two ends, each naming the other, a gate with its width and clear height
+        Assert.Equal(2, passages.Count);
+        foreach (var (id, p) in passages)
+        {
+            var pair = p.GetProperty("pair").GetString()!;
+            Assert.True(passages.ContainsKey(pair), pair);
+            Assert.Equal(id, passages[pair].GetProperty("pair").GetString());
+            Assert.Equal("gate", p.GetProperty("kind").GetString());
+            Assert.InRange(p.GetProperty("width").GetDouble(), 2.0, 6.0);
+            Assert.InRange(p.GetProperty("height").GetDouble(), 2.0, 6.0);
+        }
     }
 
     [Fact]
@@ -144,18 +173,19 @@ public class NoorInterchangeTests
     }
 
     [Fact]
-    public void Lod0_carries_the_mass_as_a_col_node_and_lod2_stays_the_plain_mass()
+    public void Lod0_carries_the_mass_as_a_colonly_node_and_lod2_stays_the_plain_mass()
     {
         var b = BuildingGenerator.Generate(Court());
         var lod0 = Nodes(GltfJson(BuildingFiles.Lod(b, 0))).ToList();
-        var col = lod0.Where(n => n.GetProperty("name").GetString()!.EndsWith("-col")).ToList();
+        Assert.DoesNotContain(lod0, n => n.GetProperty("name").GetString()!.EndsWith("-col"));
+        var col = lod0.Where(n => n.GetProperty("name").GetString()!.EndsWith("-colonly")).ToList();
         Assert.Single(col);
         Assert.Equal("mesh", NoorOf(col[0])!.Value.GetProperty("collision").GetString());
         Assert.True(col[0].TryGetProperty("mesh", out _));
         Assert.False(NoorOf(col[0])!.Value.TryGetProperty("part", out _));
 
         var lod2 = Nodes(GltfJson(BuildingFiles.Lod(b, 2))).ToList();
-        Assert.DoesNotContain(lod2, n => n.GetProperty("name").GetString()!.EndsWith("-col"));
+        Assert.DoesNotContain(lod2, n => n.GetProperty("name").GetString()!.Contains("-col"));
         Assert.Contains(lod2, n => NoorOf(n)?.GetProperty("props").TryGetProperty("type", out var t) == true && t.GetString() == "mass");
         Assert.Equal(2, NoorOf(lod2[0])!.Value.GetProperty("lod").GetInt32());
         // the markers and the collision only in the detailed file
@@ -191,8 +221,8 @@ public class NoorInterchangeTests
 
 /// <summary>
 /// A JSON Schema (2020-12) checker for the keywords noor.asset.schema.json uses: type, required, properties, enum,
-/// const, pattern, minLength, maxLength, minimum, minItems, maxItems, items, additionalProperties, $ref (local), and
-/// format date-time. Errors start with the path ("space.up: ...").
+/// const, pattern, minLength, maxLength, minimum, minItems, maxItems, items, additionalProperties, $ref (local),
+/// allOf, if/then/else and format date-time. Errors start with the path ("space.up: ...").
 /// </summary>
 public static class MiniSchema
 {
@@ -206,6 +236,15 @@ public static class MiniSchema
     private static void Check(JsonElement root, JsonElement s, JsonElement v, string path, List<string> errors)
     {
         string At(string msg) => (path.Length == 0 ? "(root)" : path) + ": " + msg;
+        if (s.TryGetProperty("allOf", out var all))
+            foreach (var sub in all.EnumerateArray()) Check(root, sub, v, path, errors);
+        if (s.TryGetProperty("if", out var cond))
+        {
+            var probe = new List<string>();
+            Check(root, cond, v, path, probe);
+            if (probe.Count == 0 && s.TryGetProperty("then", out var then)) Check(root, then, v, path, errors);
+            else if (probe.Count > 0 && s.TryGetProperty("else", out var els)) Check(root, els, v, path, errors);
+        }
         if (s.TryGetProperty("$ref", out var r))
         {
             var target = root;

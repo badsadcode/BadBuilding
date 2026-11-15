@@ -186,3 +186,24 @@ draft of 15 November 2026), without renaming the project yet.
 2. In Godot, a `-col` suffix keeps the mesh visible and adds collision (`-colonly` drops the mesh), so the mass would
    be drawn over the facades. The spec says "-col, not rendered". The gallery hides these nodes by
    `extras.noor.collision`; an engine importer should do the same, or the spec could switch to `-colonly`.
+
+## D15 — Noor Interchange v0.2 (Sage of NoorEngine's answers, via Tom, 15 Nov 2026)
+
+The three open points of D14 went to the NoorEngine session; the answers became Noor Interchange v0.2 (NoorEngine
+commit bb92bc8, spec section 8). BadBuilding now writes `"noor_interchange": "0.2"`:
+- **Collision:** `extras.noor.collision` is the rule (importers never render such a node). The name hint is now
+  Godot's collision-only suffix: `<mass id>-colonly`. Checked: Godot's importer makes it a static body with no
+  visible mesh.
+- **LODs:** three files stay, now the canonical form: the manifest lists `.lod1.glb` and `.lod2.glb` with role `lod`
+  and their `lod` number (the schema requires it).
+- **Markers:** `entrance` kinds `main` (street door), `courtyard` (yard door), `shop`, `wicket` (the small door in a
+  closed gate), `roof` (roof access). The two ends of a passage through the ground floor are `passage` markers, each
+  naming the other in `pair`, kind `gate` (brama) or `corridor` (a walk-through), with `width` and `height` (clear
+  height). `props.badbuilding_kind` stays as extra information. No `door` markers yet: the spec wants them only for
+  modelled, openable leaves (the gate wings would qualify once they are separate nodes that can swing).
+- **Id namespace:** `6f1d6a52-2c1e-4b8e-9a43-5b0d2e7c9f10`, fixed for BadBuilding and written in the README and the
+  manifest (`badbuilding.id_namespace`).
+- **Tool block:** `badbuilding` (becomes `noorarchitect` after the rename).
+- **Still open:** wire in the Khronos glTF validator (`gltf_validator` is `not_run`) before NoorEngine's ADR-023 is
+  accepted.
+The schema copy in `docs/interchange/` is v0.2. The tests' small schema checker learned `allOf` and `if/then`.

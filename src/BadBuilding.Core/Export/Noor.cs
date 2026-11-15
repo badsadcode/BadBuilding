@@ -7,18 +7,19 @@ using BadBuilding.Model;
 namespace BadBuilding.Export;
 
 /// <summary>
-/// Noor Interchange v0.1 (D14; github.com/badsadcode/NoorEngine, docs/interchange/NOOR_INTERCHANGE.md): the asset's
+/// Noor Interchange v0.2 (D14, D15; github.com/badsadcode/NoorEngine, docs/interchange/NOOR_INTERCHANGE.md): the asset's
 /// stable identity, the vocabulary BadBuilding's parts and markers map onto, and the <c>&lt;name&gt;.noor.json</c>
 /// manifest. Everything Noor-specific inside the GLB sits under <c>extras.noor</c> with <c>v = 1</c>.
 /// </summary>
 public static class Noor
 {
-    public const string Interchange = "0.1";
+    public const string Interchange = "0.2";
     public const int BlockVersion = 1;
     public const string Kind = "building";
 
-    /// <summary>Namespace for name-based (v5) asset ids: the same building id gives the same UUID everywhere.</summary>
-    private static readonly Guid Namespace = new("6f1d6a52-2c1e-4b8e-9a43-5b0d2e7c9f10");
+    /// <summary>BadBuilding's fixed namespace for name-based (v5) asset ids (spec 4: one per tool, written in its docs):
+    /// the same building id gives the same UUID everywhere. Never change it: every derived id depends on it.</summary>
+    public static readonly Guid Namespace = new("6f1d6a52-2c1e-4b8e-9a43-5b0d2e7c9f10");
 
     /// <summary>
     /// The asset's identity: the request's own <see cref="BuildingRequest.AssetId"/> when given (e.g. read back from an
@@ -76,18 +77,38 @@ public static class Noor
     };
 
     /// <summary>
-    /// Spec 3.4: every BadBuilding marker is a way in, so all map onto <c>entrance</c> (no invented marker types) with a
-    /// <c>kind</c> (main, service, gate, hatch) and the original kind as a tag.
+    /// Spec 3.4 (v0.2): ways in are <c>entrance</c> markers with a kind (street door main, yard door courtyard, shop,
+    /// wicket in a closed gate, roof access roof); the two ends of a passage through the ground floor are paired
+    /// <c>passage</c> markers (kind gate for a brama, corridor for a walk-through) with the other end's id, the width
+    /// and the clear height. No <c>door</c> markers yet: BadBuilding does not model openable leaves (D15).
     /// </summary>
-    public static (string Marker, string Kind, string[] Tags) MarkerOf(Building b, Marker m) => m.Kind switch
+    public static (string Marker, string Kind, Dictionary<string, object> Fields) MarkerOf(Building b, Marker m)
     {
-        "entrance" => ("entrance", FacesCourtyard(b, m) ? "service" : "main", []),
-        "shop_entrance" => ("entrance", "main", ["shop"]),
-        "passage" => ("entrance", "gate", ["passage"]),
-        "wicket" => ("entrance", "gate", ["wicket"]),
-        "roof_access" => ("entrance", "hatch", ["roof_access"]),
-        _ => ("entrance", "main", [m.Kind]),
-    };
+        switch (m.Kind)
+        {
+            case "entrance": return ("entrance", FacesCourtyard(b, m) ? "courtyard" : "main", []);
+            case "shop_entrance": return ("entrance", "shop", []);
+            case "wicket": return ("entrance", "wicket", []);
+            case "roof_access": return ("entrance", "roof", []);
+            case "passage":
+            {
+                // ids "<building>/passage.e<edge>.street" and ".courtyard"; the passage module is "<building>/passage.e<edge>"
+                int dot = m.Id.LastIndexOf('.');
+                string baseId = m.Id[..dot], end = m.Id[(dot + 1)..];
+                var fields = new Dictionary<string, object> { ["pair"] = baseId + (end == "street" ? ".courtyard" : ".street") };
+                var module = b.Modules.FirstOrDefault(x => x.Id == baseId && x.Type == "passage");
+                string kind = "gate";
+                if (module?.Extras is { } ex)
+                {
+                    if (ex.TryGetValue("kind", out var k) && k as string != "gate") kind = "corridor";
+                    if (ex.TryGetValue("width", out var w)) fields["width"] = w;
+                    if (ex.TryGetValue("clear_height", out var h)) fields["height"] = h;
+                }
+                return ("passage", kind, fields);
+            }
+            default: return ("entrance", "main", []);
+        }
+    }
 
     /// <summary>A door on a courtyard wall is the service door; on the street it is the main one.</summary>
     private static bool FacesCourtyard(Building b, Marker m)
@@ -100,8 +121,8 @@ public static class Noor
 
     public static string Sha256(byte[] data) => Convert.ToHexString(SHA256.HashData(data)).ToLowerInvariant();
 
-    /// <summary>One file of the export as the manifest lists it.</summary>
-    public sealed record FileEntry(string Path, string Role, string? Sha256);
+    /// <summary>One file of the export as the manifest lists it (<paramref name="Lod"/> for role <c>lod</c>).</summary>
+    public sealed record FileEntry(string Path, string Role, string? Sha256, int? Lod = null);
 
     /// <summary>
     /// The manifest (<c>&lt;name&gt;.noor.json</c>, spec section 4). <paramref name="lodTriangles"/> are LOD0..2;
@@ -139,6 +160,7 @@ public static class Noor
             {
                 var d = new Dictionary<string, object> { ["path"] = f.Path, ["role"] = f.Role };
                 if (f.Sha256 != null) d["sha256"] = f.Sha256;
+                if (f.Lod != null) d["lod"] = f.Lod.Value;
                 return d;
             }).ToList(),
             ["lods"] = lodTriangles.Select((n, i) => new Dictionary<string, object> { ["level"] = i, ["triangles"] = n }).ToList(),
@@ -152,6 +174,7 @@ public static class Noor
             ["badbuilding"] = new Dictionary<string, object?>
             {
                 ["building_id"] = b.Request.Id,
+                ["id_namespace"] = Text(Namespace),
                 ["pivot_in_building_space"] = Round(pivot),
                 ["status"] = b.Report.Status.ToString().ToLowerInvariant(),
             },

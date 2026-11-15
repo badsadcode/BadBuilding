@@ -27,13 +27,15 @@ Interiors come later.
 - **Honest about what it guessed:** every attribute is marked `osm`, `request` or `inferred`.
 - **Fails safely:** degenerate, self-intersecting, tiny or too-thin footprints are reported with a reason and a fallback,
   never built outside the outline.
-- **Out, in [Noor Interchange v0.1](https://github.com/badsadcode/NoorEngine/blob/main/docs/interchange/NOOR_INTERCHANGE.md):**
+- **Out, in [Noor Interchange v0.2](https://github.com/badsadcode/NoorEngine/blob/main/docs/interchange/NOOR_INTERCHANGE.md):**
   - `<name>.glb` (LOD0): origin at the bottom centre of the footprint; parts and markers described in node
-    `extras.noor`; doors, shop doors, gate passages and roof hatches are `entrance` markers; the bare mass is a
-    `-col` collision node;
-  - `<name>.lod1.glb` and `<name>.lod2.glb` (the bare mass);
+    `extras.noor`; street, courtyard and shop doors, wickets and roof access are `entrance` markers, the two ends of
+    a gate passage are paired `passage` markers; the bare mass is a `-colonly` collision node;
+  - `<name>.lod1.glb` and `<name>.lod2.glb` (the bare mass), listed in the manifest as role `lod`;
   - `<name>.noor.json`, the manifest (validates against `docs/interchange/noor.asset.schema.json`);
-  - `<name>.recipe.json`, with a stable UUID `id`, the `seed` and the `version`;
+  - `<name>.recipe.json`, with a stable UUID `id`, the `seed` and the `version`. Unless the request or an earlier
+    recipe gives one, the id is a UUID v5 of the building id under BadBuilding's namespace
+    `6f1d6a52-2c1e-4b8e-9a43-5b0d2e7c9f10` (fixed: never change it);
   - `<name>.metadata.json` (in building space) and `<name>.validation.json`.
 
 ## Quick start

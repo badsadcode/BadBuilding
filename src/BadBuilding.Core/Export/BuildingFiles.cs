@@ -7,7 +7,7 @@ using BadBuilding.Model;
 namespace BadBuilding.Export;
 
 /// <summary>
-/// Everything one building writes: <c>.glb</c> (LOD0, with the bare mass as a <c>-col</c> collision node),
+/// Everything one building writes: <c>.glb</c> (LOD0, with the bare mass as a <c>-colonly</c> collision node),
 /// <c>.lod1.glb</c>, <c>.lod2.glb</c> (the bare mass), <c>.recipe.json</c> (the asset id, seed and version, the request
 /// and every resolved choice with its source, D3), <c>.metadata.json</c> (axes, bounds, edges and their exposure,
 /// markers, materials, in building space), <c>.validation.json</c>, and the Noor Interchange manifest
@@ -53,8 +53,8 @@ public static class BuildingFiles
             new(F(".glb"), "model", Noor.Sha256(glbs[0])),
             new(F(".recipe.json"), "recipe", Noor.Sha256(recipe)),
             new(F(".validation.json"), "validation", Noor.Sha256(validation)),
-            new(F(".lod1.glb"), "other", Noor.Sha256(glbs[1])),
-            new(F(".lod2.glb"), "other", Noor.Sha256(glbs[2])),
+            new(F(".lod1.glb"), "lod", Noor.Sha256(glbs[1]), 1),
+            new(F(".lod2.glb"), "lod", Noor.Sha256(glbs[2]), 2),
             new(F(".metadata.json"), "other", null),
         };
         int Tris(int level) => b.Modules.Where(m => (m.Lods & (1 << level)) != 0).Sum(m => m.Mesh.TriangleCount);

@@ -14,7 +14,7 @@ namespace BadBuilding.Export;
 /// +Z south (D1). Lifted from BadShip's writer and made generic (D2).
 /// Noor Interchange v0.1 (D14): the asset's origin is the bottom centre of the footprint (<see cref="Noor.Pivot"/>),
 /// all semantic data sits in <c>extras.noor</c> (parts, markers as <c>entrance</c>), and LOD0 carries the bare mass as
-/// a <c>-col</c> collision node.
+/// a <c>-colonly</c> collision node (v0.2: the extras flag is the rule, the name the hint for Godot).
 /// </summary>
 public static class GlbWriter
 {
@@ -24,7 +24,7 @@ public static class GlbWriter
     /// <param name="include">Which modules to write (all when null): how LODs are made.</param>
     /// <param name="markers">Whether to write the functional marker nodes.</param>
     /// <param name="lod">The level of detail this file is (written into the root's <c>extras.noor</c>).</param>
-    /// <param name="collision">Whether to add the mass modules not otherwise included as <c>-col</c> collision nodes.</param>
+    /// <param name="collision">Whether to add the mass modules not otherwise included as <c>-colonly</c> collision nodes.</param>
     /// <param name="assetId">The asset's identity (default: <see cref="Noor.AssetId"/>).</param>
     public static byte[] Write(Building ship, Func<Module, bool>? include = null, bool markers = true, int lod = 0, bool collision = false, Guid? assetId = null)
     {
@@ -175,7 +175,7 @@ public static class GlbWriter
             bool col = false;
             if (include != null && !include(m))
             {
-                // the bare mass doubles as the collision shape (spec 3.5): a "-col" node in the detailed file
+                // the bare mass doubles as the collision shape (spec 3.5): a "-colonly" node in the detailed file
                 if (!(collision && m.Type == "mass" && !m.Mesh.IsEmpty)) continue;
                 col = true;
             }
@@ -197,7 +197,7 @@ public static class GlbWriter
             if (col) noor["collision"] = "mesh";
             else if (Noor.Part(m.Type) is { } part) noor["part"] = part;
             noor["props"] = props;
-            var name = col ? m.Id + "-col" : m.Id;
+            var name = col ? m.Id + "-colonly" : m.Id;
             var node = new Dictionary<string, object>
             {
                 ["name"] = name,
@@ -216,10 +216,10 @@ public static class GlbWriter
         foreach (var mk in markersNode >= 0 ? ship.Markers : [])
         {
             var q = RotationFromZ(mk.Direction);
-            var (marker, kind, tags) = Noor.MarkerOf(ship, mk);
+            var (marker, kind, fields) = Noor.MarkerOf(ship, mk);
             var p = mk.Position - pivot;
             var noor = new Dictionary<string, object?> { ["marker"] = marker, ["id"] = mk.Id, ["kind"] = kind };
-            if (tags.Length > 0) noor["tags"] = tags;
+            foreach (var (k, v) in fields) noor[k] = v;
             noor["props"] = new Dictionary<string, object?>
             {
                 ["badbuilding_kind"] = mk.Kind,
@@ -227,7 +227,7 @@ public static class GlbWriter
             };
             var node = new Dictionary<string, object>
             {
-                ["name"] = "Marker_Entrance_" + Local(mk.Id),
+                ["name"] = (marker == "passage" ? "Marker_Passage_" : "Marker_Entrance_") + Local(mk.Id),
                 ["translation"] = new[] { p.X, p.Y, p.Z },
                 ["extras"] = Extras(noor),
             };
