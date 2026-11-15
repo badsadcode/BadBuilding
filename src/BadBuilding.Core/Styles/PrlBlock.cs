@@ -26,7 +26,9 @@ public sealed class PrlBlock : IStyle
         bool housing = t is null or "yes" or "apartments" or "residential" or "dormitory";
         if (!housing || c.Site.Depth < 8f || c.Site.Depth > 22f) return false;
         if (c.Request.Levels is { } lv) return lv >= 4;
-        // unmapped storeys: a long, deep footprint in a block of flats' size range
+        // only a height mapped (common for building=yes): four storeys or more of flats' depth reads as a block
+        if (c.Request.Height is { } h and > 2f) return (h - 1.5f) / DefaultStorey >= 3.6f;
+        // nothing mapped: a long, deep footprint in a block of flats' size range
         return t is "apartments" or "residential" && c.Site.Area > 350f;
     }
 

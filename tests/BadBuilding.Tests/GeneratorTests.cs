@@ -283,6 +283,18 @@ public class GeneratorTests
     }
 
     [Fact]
+    public void A_block_known_only_by_its_height_is_a_PRL_block()
+    {
+        // building=yes, no storeys, 16 storeys' worth of height: Tom's old tower kind
+        var b = BuildingGenerator.Generate(Block() with { Type = "yes", Levels = null, Height = 46f });
+        Assert.Equal("prl_block", b.Plan!.Style);
+        Assert.InRange(b.Plan.Levels.Value, 15, 17);
+        Assert.Equal(Source.Inferred, b.Plan.Levels.Source);
+        // a low one stays plain
+        Assert.NotEqual("prl_block", BuildingGenerator.Generate(Block() with { Type = "yes", Levels = null, Height = 7f }).Plan!.Style);
+    }
+
+    [Fact]
     public void Glb_lods_get_lighter()
     {
         var b = BuildingGenerator.Generate(Block());
