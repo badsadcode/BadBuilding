@@ -126,7 +126,7 @@ public static class Noor
 
     /// <summary>
     /// The manifest (<c>&lt;name&gt;.noor.json</c>, spec section 4). <paramref name="lodTriangles"/> are LOD0..2;
-    /// <paramref name="glbBounds"/> are in asset space (the pivot at the origin).
+    /// The bounds are in asset space (the pivot at the origin).
     /// </summary>
     public static Dictionary<string, object?> Manifest(Building b, Guid id, string name, IReadOnlyList<FileEntry> files, string recipeFile,
         string recipeSha, IReadOnlyList<int> lodTriangles, DateTimeOffset created)

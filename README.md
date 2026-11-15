@@ -37,6 +37,9 @@ Interiors come later.
     recipe gives one, the id is a UUID v5 of the building id under BadBuilding's namespace
     `6f1d6a52-2c1e-4b8e-9a43-5b0d2e7c9f10` (fixed: never change it);
   - `<name>.metadata.json` (in building space) and `<name>.validation.json`.
+- **Godot importer:** [`godot/addons/noor_interchange`](godot/addons/noor_interchange/README.md), a post-import script
+  for any Noor Interchange GLB: collision nodes become hidden static bodies, markers become `Marker3D`s with their data,
+  and the asset id goes on the scene root. Tested headlessly by `tools/godot_import_test.py`.
 
 ## Quick start
 

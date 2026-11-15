@@ -207,3 +207,24 @@ commit bb92bc8, spec section 8). BadBuilding now writes `"noor_interchange": "0.
 - **Still open:** wire in the Khronos glTF validator (`gltf_validator` is `not_run`) before NoorEngine's ADR-023 is
   accepted.
 The schema copy in `docs/interchange/` is v0.2. The tests' small schema checker learned `allOf` and `if/then`.
+
+## D16 — A generic Godot importer for Noor Interchange (Tom, 15 Nov 2026)
+
+`godot/addons/noor_interchange/noor_post_import.gd`, an `EditorScenePostImport` script with no BadBuilding-only
+logic, so any Noor generator's GLBs can use it. It lives here for now, beside the first exporter and its test
+samples; it can move to NoorEngine or a shared addon repository later without changes.
+- **Collision:** any node with `extras.noor.collision` becomes a hidden StaticBody3D with a shape from its mesh
+  (trimesh, convex, or a fitted box, sphere or capsule), and every visual under it is removed. The extras flag is the
+  rule; the name suffixes (`-colonly`, `-convcolonly`, v0.1 `-col`) are only a fallback.
+- **Markers:** every `extras.noor.marker` node becomes a Marker3D. Not only the types Tom listed: any type in the
+  spec's table, since readers must not drop data. It gets metadata `noor` and `noor_marker`, and persistent groups
+  `noor_markers` and `noor_marker_<type>`.
+- **Identity:** the manifest beside the GLB gives the root `noor_asset_id`, `noor_kind`, `noor_name` and so on.
+  `<name>.lodN.glb` reads `<name>.noor.json` and records `noor_lod`. Without a manifest, an `id` on a top-level
+  node is used.
+- **Names stay readable** (spec 3.6): a replaced node takes its predecessor's name. The first test run caught
+  Godot's "@Marker3D@123" auto-names.
+- **Test:** `tools/godot_import_test.py` imports a BadBuilding courtyard block (with its LOD1), a hand-made generic
+  glTF covering every case, and that glTF without a manifest, headlessly through the real Godot importer, then checks
+  them (332 checks with Godot 4.7.2). Not part of `dotnet test`, because it needs a Godot executable.
+Baltic Drive is unaffected: it builds buildings in memory and imports no GLBs.

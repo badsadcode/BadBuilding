@@ -1,0 +1,9 @@
+; A tiny Godot 4 project that holds the Noor Interchange post-import script and its headless test
+; (tools/godot_import_test.py). Copy addons/noor_interchange into any Godot project to use the script.
+
+config_version=5
+
+[application]
+
+config/name="Noor Interchange import test"
+config/features=PackedStringArray("4.4")

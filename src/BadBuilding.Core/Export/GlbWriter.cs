@@ -21,6 +21,7 @@ public static class GlbWriter
     private const int ArrayBuffer = 34962, ElementArrayBuffer = 34963;
     private const int Float = 5126, UnsignedInt = 5125, UnsignedShort = 5123;
 
+    /// <param name="ship">The building to write (the name is BadShip's, where this writer came from).</param>
     /// <param name="include">Which modules to write (all when null): how LODs are made.</param>
     /// <param name="markers">Whether to write the functional marker nodes.</param>
     /// <param name="lod">The level of detail this file is (written into the root's <c>extras.noor</c>).</param>
