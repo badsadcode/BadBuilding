@@ -294,3 +294,18 @@ ours). So a podium no longer blinds the tower over it, and a part on top no long
 of the tower below the podium's roof are hidden inside the podium. Separate buildings (no heights given) work as
 before: a lower neighbour still leaves a bare firewall above it, as in any Warsaw street.
 Test: a tower with a 10 m podium part on the east is glazed there; with a separate neighbour it is a party wall.
+
+## D21 — Noor's cookbook as the reference catalogue; reviewed against the code and the map (19 Nov 2026)
+
+Tom brought Noor's architectural cookbook (`docs/COOKBOOK.md`, 78 building recipes, 25 styles, shared massing, roof
+and facade ingredients) as a guide for what's missing, with "a few different variations for each building" and the
+current level of detail kept. Sage's review is in `docs/COOKBOOK_REVIEW.md`: every entry marked implemented, partial,
+missing, deferred or landmark-only from the source and tests, and weighed against a count of the real map
+(2.59 M buildings in Mazowsze). Findings that change the order of work:
+- only 1,457 buildings have a `start_date` and 31 a `building:architecture`: style has to come from type, size,
+  shape and context; the year is a bonus;
+- 30 % of houses are L- or T-shaped and get a flat roof, because pitched roofs need a nearly rectangular footprint;
+- Baltic Drive folds OSM types into eleven kinds, so schools, garages, greenhouses, fire stations and offices can't
+  be told apart in the library yet.
+The cookbook is a catalogue, not a backlog: families are taken from it one at a time, each with variations, tests
+and a status update in the review.
