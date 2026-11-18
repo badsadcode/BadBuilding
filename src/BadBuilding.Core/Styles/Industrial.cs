@@ -98,7 +98,7 @@ public sealed class Industrial : IStyle
                 break;
             default:
                 // old factory brick: dark, brown-red, sooty (brighter reds read as plastic in the game's light)
-                wall = c.Look.Weighted<string>([("6a3328", 3), ("5e2e24", 2), ("74402e", 2), ("7e4a36", 1)]);
+                wall = c.Look.Weighted<string>([("5a3228", 3), ("4e2c24", 2), ("634030", 2), ("6b4a3a", 1)]);
                 roof = c.Look.Weighted<string>([("3c3a38", 2), ("5a3a2e", 1), ("4c5254", 1)]);
                 m["brick"] = Kit.Mat("brick", wall, 0.9f);
                 break;
