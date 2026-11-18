@@ -309,3 +309,13 @@ missing, deferred or landmark-only from the source and tests, and weighed agains
   be told apart in the library yet.
 The cookbook is a catalogue, not a backlog: families are taken from it one at a time, each with variations, tests
 and a status update in the review.
+
+## D22 — Game first, the general library after (Tom, 19 Nov 2026)
+
+BadBuilding stays what it was meant to be: procedural buildings from a footprint, for many projects, with many types
+and styles in the end. The order of work is set by Baltic Drive: the types and styles its map needs, Mazowsze first,
+then what the other Baltic countries bring (they have styles Mazowsze doesn't). When the game is done, more general
+types and styles for other projects. Not every style exists in Mazowsze, and none is built just to tick off the
+cookbook. What keeps the library general meanwhile: types and styles chosen from the request's facts (no game
+code in the library), regional choices kept in one place so a region preset can change them later (cookbook
+part D), and the Noor Interchange export.
