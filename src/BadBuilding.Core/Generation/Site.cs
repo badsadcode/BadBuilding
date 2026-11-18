@@ -25,7 +25,7 @@ public sealed class Site
     /// <summary>Under 4 m²: built as a plain box without openings.</summary>
     public bool Small { get; private set; }
 
-    public const float PartyTolerance = 0.6f, PartyCover = 0.5f, SliverGap = 4f, StreetReach = 25f;
+    public const float PartSlack = 4f, PartyTolerance = 0.6f, PartyCover = 0.5f, SliverGap = 4f, StreetReach = 25f;
 
     public static Site Analyse(BuildingRequest r, ValidationReport report)
     {
@@ -98,8 +98,11 @@ public sealed class Site
     private void ClassifyEdges(BuildingRequest r)
     {
         var neighbourEdges = new List<(Vector2 A, Vector2 B)>();
+        float ownMin = r.MinHeight ?? 0f, ownTop = r.Height ?? float.MaxValue;
         foreach (var n in r.Neighbours)
         {
+            // another part of the same building counts only where it stands as high as this one (D20)
+            if (n.PartTop is { } nTop && (nTop < ownTop - PartSlack || (n.PartMin ?? 0f) > ownMin + PartSlack)) continue;
             var c = Polygon.Clean(n.Points, ccw: true);
             for (int i = 0; i < c.Count; i++) neighbourEdges.Add((c[i], c[(i + 1) % c.Count]));
         }

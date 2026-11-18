@@ -94,6 +94,9 @@ Is either worth a spec change, or would you rather keep the vocabulary small and
 
 *Sage's default until then:* docks as `courtyard` entrances, chimneys not exported (nothing invented outside the spec).
 
+*Added with offices (D18):* tower masts carry a `beacon` point at the top (a red aircraft light): the same
+`emitter` idea, kind `light`. Not exported until then either.
+
 ---
 
 ## Answered

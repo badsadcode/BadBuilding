@@ -257,3 +257,40 @@ factories he picked "mixed by age".
 Tests: eras by start year, the types that take the style, docks away from the street, chimneys inside the footprint,
 export vocabulary, footprint bounds. In Baltic Drive (D63) the game's building shader draws the three new surface
 roles as ribbed metal, brick courses and roller-door slats.
+
+## D18 — The office style: curtain walls, ribbons and grids; towers with masts (Tom: "Yes, offices", 18 Nov 2026)
+
+Second on Tom's list after industrial (D17).
+
+- **Who:** OSM type `office`; `commercial` from 13 m (or 4 levels); untyped (`yes`) from 60 m (or 18 levels), which
+  is how most Warsaw towers are mapped. Never when the start year is before 1945 or the building is listed: that is
+  a kamienica's evidence.
+- **Facade by era:** before 1990 a concrete grid (2.4 m bays, deep reveals) or ribbon windows; 1990–2001 ribbons or
+  curtain glass; from 2002 curtain glass. Without a year, by height: 60 m and over mostly curtain (8 in 10), lower
+  ones a mix. The curtain is one surface (role `curtain`): the panels, mullions and floor bands are the renderer's
+  job (a pattern, not geometry), which keeps a 200 m tower at a few hundred triangles.
+- **Ground floor:** street walls get a glazed lobby up to 5 m with mullions, doors with canopies and entrance markers.
+  Party and sliver walls stay blank.
+- **Roof:** flat, a parapet; towers a crown 2.5–6 m high (curtain or the second wall colour); one to four plant
+  boxes; from 140 m a mast 15–40 m with a `beacon` marker at the top (not exported: no such kind in the spec).
+- Storey 3.6 m.
+Tests: who is an office, era → facade, a lobby door toward the street and plant on the roof, a mast on a 180 m tower.
+
+## D19 — Parts in the air: `MinHeight` (18 Nov 2026)
+
+Warsaw's towers are mapped as stacks of `building:part`s (Varso: 11 parts up to 274 m), many starting high up
+(`min_height`). A request now carries `MinHeight`; a request with one (over 5 cm) is **raised**:
+- its floor (`Datum`) is the ground's highest point plus `MinHeight`, no plinth, no passages, no doors or lobby;
+- the walls run from there to the top, and a soffit slab (role `soffit`, or `wall`) closes the underside.
+Tests: a part from 193 to 240 m stays above 192 m everywhere, has a soffit and no entrance.
+
+## D20 — Parts of one building only make party walls where they cover each other (18 Nov 2026)
+
+Seen in Baltic Drive: a 71 m office tower was blank on every side, because a 10 m podium part and an 81 m part on top
+of it were counted as neighbours abutting it, and an abutted wall is a party wall from ground to roof. A neighbour
+`Ring` can now say it is **a part of the same building** and how high it stands (`PartMin`, `PartTop`); such a part
+only makes a party wall when it covers this one's height (its top within 4 m of ours and its bottom within 4 m of
+ours). So a podium no longer blinds the tower over it, and a part on top no longer blinds the one below. The walls
+of the tower below the podium's roof are hidden inside the podium. Separate buildings (no heights given) work as
+before: a lower neighbour still leaves a bare firewall above it, as in any Warsaw street.
+Test: a tower with a 10 m podium part on the east is glazed there; with a separate neighbour it is a party wall.

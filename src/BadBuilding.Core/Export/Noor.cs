@@ -82,9 +82,10 @@ public static class Noor
     /// <c>passage</c> markers (kind gate for a brama, corridor for a walk-through) with the other end's id, the width
     /// and the clear height. No <c>door</c> markers yet: BadBuilding does not model openable leaves (D15).
     /// </summary>
-    /// <summary>Markers with no place in the spec's vocabulary yet stay inside BadBuilding (D17: the chimney's top);
+    /// <summary>Markers with no place in the spec's vocabulary yet stay inside BadBuilding (D17: the chimney's top; D18: a
+    /// mast's beacon);
     /// a spec change is proposed in NOOR_SAGE.md rather than exporting them as something they're not.</summary>
-    public static bool Exported(Marker m) => m.Kind is not "chimney";
+    public static bool Exported(Marker m) => m.Kind is not ("chimney" or "beacon");
 
     public static (string Marker, string Kind, Dictionary<string, object> Fields) MarkerOf(Building b, Marker m)
     {

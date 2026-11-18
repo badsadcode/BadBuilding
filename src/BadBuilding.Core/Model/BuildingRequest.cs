@@ -9,7 +9,15 @@ public enum Source { Osm, Request, Inferred }
 public readonly record struct Sourced<T>(T Value, Source Source);
 
 /// <summary>A footprint ring in plan, metres, +X east, +Z south (D1). The last point is not repeated.</summary>
-public sealed record Ring(IReadOnlyList<Vector2> Points);
+public sealed record Ring(IReadOnlyList<Vector2> Points)
+{
+    /// <summary>For a neighbour that is another part of the same building: how high it starts and ends (m above the
+    /// ground, like <see cref="BuildingRequest.MinHeight"/> and <see cref="BuildingRequest.Height"/>). A part only makes
+    /// a party wall where it covers this one's height: a podium doesn't blind the tower over it (D20). Null for
+    /// separate buildings: there a lower neighbour leaves a bare firewall above it, as in any Warsaw street.</summary>
+    public float? PartMin { get; init; }
+    public float? PartTop { get; init; }
+}
 
 /// <summary>A street centre line near the building (plan points), with its half width: decides which walls face the street.</summary>
 public sealed record StreetLine(IReadOnlyList<Vector2> Points, float HalfWidth = 4f);
@@ -45,6 +53,10 @@ public sealed record BuildingRequest
     public string? Roof { get; init; }
     /// <summary>OSM roof:height (m, eaves to ridge), when mapped.</summary>
     public float? RoofHeight { get; init; }
+    /// <summary>A part that starts in the air (OSM <c>min_height</c>, D19): its walls begin this far above the ground
+    /// (<see cref="Height"/> stays the height of its top); no plinth, no lobby, no passages; a closed underside.</summary>
+    public float? MinHeight { get; init; }
+    public bool Raised => MinHeight is > 0.05f;
     public string? HouseNumber { get; init; }
     public IReadOnlyList<Entrance> Entrances { get; init; } = [];
 

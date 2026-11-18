@@ -74,20 +74,20 @@ Roofs come first, because most of these need pitched roofs.
    for the old ones (by start_date), concrete or metal for post-war ones.
 4. **Villas** (wille, przedwojenne i nowe): houses with more presence — hipped or mansard roofs, a terrace, bay windows,
    a garden; pre-war ones need age evidence, like the kamienica.
-5. **Modern offices** (biurowce): curtain-wall glass, ribbon windows, a glazed ground floor, plant rooms on the roof.
-6. **Buildings with parts at different heights** (OSM `building:part` with `height` / `min_height`): one request with
+5. **Modern offices** (biurowce) — done (D18): curtain-wall glass, ribbon windows, a glazed ground floor, plant rooms on the roof.
+6. **Buildings with parts at different heights** — partly: parts in the air (D19) and party walls between parts (D20) work, each part still its own request; (OSM `building:part` with `height` / `min_height`): one request with
    several parts, generated as one building; where a taller part rises above a lower part's roof, that wall is a real
    facade (with a parapet and roof terrace on the lower roof), walls between parts are not drawn, each part gets its
    own roof. Most stepped offices and many PRL complexes are mapped this way.
 7. **Socialist realism** (socrealizm, MDM, early 1950s): monumental stone-clad fronts, arcades over the pavement,
    tall ground floors with shops, heavy cornices and attics, sculpted details; from start_date 1949–1956 or
    building:architecture=socialist_realism.
-8. **Skyscrapers and towers** (wieżowce, over 42 m): today drawn by the game's skyline layer. Glass curtain walls or
+8. **Skyscrapers and towers** (wieżowce, over 42 m) — partly: office towers with curtain walls, crowns and masts (D18); still to come: concrete towers, setbacks. Glass curtain walls or
    concrete grids, a podium, setbacks and a crown; the landmarks (Palace of Culture and the like) stay hand-made
    overrides, not generated.
 
 ### Added by Tom, 18 Nov 2026
-Order agreed: industrial and warehouses (done, D17), modern offices and skyscrapers, buildings in parts, socialist
+Order agreed: industrial and warehouses (done, D17), modern offices and skyscrapers (done, D18–D20), buildings in parts, socialist
 realism. Also wanted:
 - **Brutalism**: raw board-marked concrete, deep window recesses, cantilevered masses, chunky fins and towers; for
   future projects as much as for Baltic Drive (see the "Brutalist Warsaw" preset idea below).

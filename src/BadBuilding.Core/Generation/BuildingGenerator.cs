@@ -26,9 +26,15 @@ public static class BuildingGenerator
         var plan = MakePlan(ctx, style);
         b.Plan = plan;
         ctx.Plan = plan;
-        if (!site.Small) ctx.Passages.AddRange(Passages.Plan(ctx, style.Plinth, style is Kamienica ? 60f : 150f));
+        if (!site.Small && !r.Raised) ctx.Passages.AddRange(Passages.Plan(ctx, style.Plinth, style is Kamienica ? 60f : 150f));
         style.Materials(ctx);
         style.Build(ctx);
+        if (r.Raised)
+        {
+            // the underside of a part in the air (D19)
+            var under = b.Add(ctx.Id("soffit"), "soffit", ModuleTier.Primary);
+            Kit.Slab(under.Mesh, b.Materials.ContainsKey("soffit") ? "soffit" : "wall", site.Outer, site.Holes, plan.Datum - 0.05f, plan.Datum, sides: false);
+        }
         foreach (var p in ctx.Passages)
         {
             string side = b.Materials.ContainsKey("concrete") ? "concrete" : "reveal";
@@ -69,9 +75,11 @@ public static class BuildingGenerator
                 Plain.Name => new Plain(),
                 Kamienica.Name => new Kamienica(),
                 Industrial.Name => new Industrial(),
-                _ => throw new ArgumentException($"Unknown style '{forced}' (styles: {PrlBlock.Name}, {Kamienica.Name}, {Industrial.Name}, {Plain.Name})."),
+                Office.Name => new Office(),
+                _ => throw new ArgumentException($"Unknown style '{forced}' (styles: {PrlBlock.Name}, {Kamienica.Name}, {Industrial.Name}, {Office.Name}, {Plain.Name})."),
             };
         if (Industrial.Fits(c)) return new Industrial();   // (D17) small sheds too: the type says what it is
+        if (!c.Site.Small && Office.Fits(c)) return new Office();   // (D18)
         if (!c.Site.Small && Kamienica.Fits(c)) return new Kamienica();
         if (!c.Site.Small && PrlBlock.Fits(c)) return new PrlBlock();
         return new Plain();
@@ -107,10 +115,12 @@ public static class BuildingGenerator
         float extra = shape == RoofShape.Flat ? style.RoofExtra : rise;
 
         Sourced<float> height;
+        float minH = r.Raised ? r.MinHeight!.Value : 0f;
+        if (r.Raised) plinth = 0f;
         if (r.Height is { } h and > 2f)
         {
             height = new Sourced<float>(h, src);
-            float walls = MathF.Max(2.4f, h - extra * (shape == RoofShape.Flat ? 0f : 1f));
+            float walls = MathF.Max(2.4f, h - minH - extra * (shape == RoofShape.Flat ? 0f : 1f));
             // a mapped height without levels decides the storeys
             if (r.Levels is null) levels = new Sourced<int>(Math.Max(1, (int)MathF.Round((walls - plinth) / sh)), Source.Inferred);
             else sh = Math.Clamp((walls - plinth) / levels.Value, 2.4f, 6f);
@@ -120,7 +130,8 @@ public static class BuildingGenerator
         {
             Style = style.Id, Levels = levels, Height = height, Roof = roof, Palette = "", StoreyHeight = sh,
             RoofShape = shape, RoofRise = rise, RoofRect = rect,
-            Datum = c.Site.GroundHigh + plinth, GroundLow = c.Site.GroundLow, Edges = c.Site.Edges,
+            // a raised part (D19): its floor at min_height, and nothing below it (the plinth strip sits at the floor)
+            Datum = c.Site.GroundHigh + (r.Raised ? minH : plinth), GroundLow = r.Raised ? c.Site.GroundHigh + minH : c.Site.GroundLow, Edges = c.Site.Edges,
         };
     }
 
