@@ -228,3 +228,32 @@ samples; it can move to NoorEngine or a shared addon repository later without ch
   glTF covering every case, and that glTF without a manifest, headlessly through the real Godot importer, then checks
   them (332 checks with Godot 4.7.2). Not part of `dotnet test`, because it needs a Godot executable.
 Baltic Drive is unaffected: it builds buildings in memory and imports no GLBs.
+
+## D17 — The industrial style: factories and warehouses in three eras (Tom, 18 Nov 2026)
+
+Tom's order for the missing types: industrial and warehouses, then offices and skyscrapers, buildings in parts,
+socialist realism; and added brutalism (for future projects as well), garages, small shacks and cottages. For
+factories he picked "mixed by age".
+
+- **Who:** OSM types industrial, warehouse, manufacture, factory, works, hangar, depot take the style, small sheds
+  too (the type says what it is).
+- **Era:** the mapped start year (before 1945 brick, to 1990 concrete, after metal); without one, from the size and
+  the seed: over 4,000 m² mostly metal sheds; 800–4,000 m² a mix; small ones lean concrete and brick.
+- **Metal** (logistics park): ribbed cladding (surface role `cladding`) over a 0.8 m concrete plinth, a high ribbon of
+  windows on 60 %, flat or shallow gabled roofs (8–13°), a thin edge.
+- **Concrete** (PRL): grey panels with a column every 6 m, a high ribbon of windows, flat or saw-tooth roofs.
+- **Brick** (pre-war): role `brick`, a 4.5 m bay grid of pilasters, a tall window per bay and storey, a cornice band,
+  gabled (18–25°), flat or saw-tooth roofs; small works can have two or three storeys; half of those over 700 m²
+  have a brick chimney 14–26 m above the roof, tapered in three stages, standing inside the footprint.
+- **Docks** (concrete and metal): on the longest open wall that doesn't face the street, a run of roller doors (role
+  `roller`, 3 m wide, 3.6 m high) with a canopy over them.
+- **Saw-tooth roofs:** teeth across the hall every ~9 m, a sloped solid face and a vertical glazed one, on nearly
+  rectangular halls only.
+- **Export within the spec (Noor Interchange v0.2):** loading docks go out as `entrance` kind `courtyard`
+  (`props.badbuilding_kind = loading_dock`); the chimney's top marker isn't exported. Two new kinds proposed to Noor
+  (NOOR_SAGE.md Q12) instead of exporting things as what they aren't.
+- Slight departures from "nothing outside the footprint": pilasters and columns stand 0.18 m proud, dock canopies 2.2
+  m out (as entrance canopies already did).
+Tests: eras by start year, the types that take the style, docks away from the street, chimneys inside the footprint,
+export vocabulary, footprint bounds. In Baltic Drive (D63) the game's building shader draws the three new surface
+roles as ribbed metal, brick courses and roller-door slats.

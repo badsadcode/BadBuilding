@@ -212,9 +212,10 @@ public static class GlbWriter
             originOf[m.Id] = origin;
         }
 
-        var markersNode = markers && ship.Markers.Count > 0 ? AddNode(new Dictionary<string, object> { ["name"] = "Markers" }) : -1;
+        var exported = ship.Markers.Where(Noor.Exported).ToList();
+        var markersNode = markers && exported.Count > 0 ? AddNode(new Dictionary<string, object> { ["name"] = "Markers" }) : -1;
         if (markersNode >= 0) children[root].Add(markersNode);
-        foreach (var mk in markersNode >= 0 ? ship.Markers : [])
+        foreach (var mk in markersNode >= 0 ? exported : [])
         {
             var q = RotationFromZ(mk.Direction);
             var (marker, kind, fields) = Noor.MarkerOf(ship, mk);

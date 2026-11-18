@@ -68,8 +68,10 @@ public static class BuildingGenerator
                 PrlBlock.Name => new PrlBlock(),
                 Plain.Name => new Plain(),
                 Kamienica.Name => new Kamienica(),
-                _ => throw new ArgumentException($"Unknown style '{forced}' (styles: {PrlBlock.Name}, {Kamienica.Name}, {Plain.Name})."),
+                Industrial.Name => new Industrial(),
+                _ => throw new ArgumentException($"Unknown style '{forced}' (styles: {PrlBlock.Name}, {Kamienica.Name}, {Industrial.Name}, {Plain.Name})."),
             };
+        if (Industrial.Fits(c)) return new Industrial();   // (D17) small sheds too: the type says what it is
         if (!c.Site.Small && Kamienica.Fits(c)) return new Kamienica();
         if (!c.Site.Small && PrlBlock.Fits(c)) return new PrlBlock();
         return new Plain();

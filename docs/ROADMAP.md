@@ -68,9 +68,9 @@ open or closed gates, courtyard access validation (D7, D8).
 Roofs come first, because most of these need pitched roofs.
 1. **Single-family houses** (domki jednorodzinne): the most common building in Mazowsze. Gabled or hipped roofs
    from the footprint's minimum rectangle, 1–2 storeys plus an attic, porch, garage, fence line.
-2. **Warehouses and sheds** (magazyny): big simple boxes, loading docks and roller doors on the yard side, few
+2. **Warehouses and sheds** (magazyny) — first cut done with 3 (D17): big simple boxes, loading docks and roller doors on the yard side, few
    windows, shallow roofs, ribbed metal cladding.
-3. **Industrial and factories** (zakłady): halls with saw-tooth or shallow roofs, high ribbon windows, chimneys, brick
+3. **Industrial and factories** (zakłady) — first cut done (D17, three eras: brick, concrete, metal): halls with saw-tooth or shallow roofs, high ribbon windows, chimneys, brick
    for the old ones (by start_date), concrete or metal for post-war ones.
 4. **Villas** (wille, przedwojenne i nowe): houses with more presence — hipped or mansard roofs, a terrace, bay windows,
    a garden; pre-war ones need age evidence, like the kamienica.
@@ -85,6 +85,15 @@ Roofs come first, because most of these need pitched roofs.
 8. **Skyscrapers and towers** (wieżowce, over 42 m): today drawn by the game's skyline layer. Glass curtain walls or
    concrete grids, a podium, setbacks and a crown; the landmarks (Palace of Culture and the like) stay hand-made
    overrides, not generated.
+
+### Added by Tom, 18 Nov 2026
+Order agreed: industrial and warehouses (done, D17), modern offices and skyscrapers, buildings in parts, socialist
+realism. Also wanted:
+- **Brutalism**: raw board-marked concrete, deep window recesses, cantilevered masses, chunky fins and towers; for
+  future projects as much as for Baltic Drive (see the "Brutalist Warsaw" preset idea below).
+- **Garages**: rows of PRL lock-up garages (blaszaki and brick boxes, tilting doors), single garages beside houses.
+- **Small shacks**: allotment sheds, kiosks, huts, the corrugated-iron lean-to.
+- **Cottages**: small old village houses (chałupy), timber or plastered, steep roofs.
 
 ## Milestone 3 — interiors on demand
 

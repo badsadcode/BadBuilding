@@ -82,10 +82,17 @@ public static class Noor
     /// <c>passage</c> markers (kind gate for a brama, corridor for a walk-through) with the other end's id, the width
     /// and the clear height. No <c>door</c> markers yet: BadBuilding does not model openable leaves (D15).
     /// </summary>
+    /// <summary>Markers with no place in the spec's vocabulary yet stay inside BadBuilding (D17: the chimney's top);
+    /// a spec change is proposed in NOOR_SAGE.md rather than exporting them as something they're not.</summary>
+    public static bool Exported(Marker m) => m.Kind is not "chimney";
+
     public static (string Marker, string Kind, Dictionary<string, object> Fields) MarkerOf(Building b, Marker m)
     {
         switch (m.Kind)
         {
+            // a loading dock is a door on the yard side for goods: the spec's entrance kind "courtyard" (D17), with the
+            // real kind in props.badbuilding_kind; its own kind is proposed to Noor
+            case "loading_dock": return ("entrance", "courtyard", []);
             case "entrance": return ("entrance", FacesCourtyard(b, m) ? "courtyard" : "main", []);
             case "shop_entrance": return ("entrance", "shop", []);
             case "wicket": return ("entrance", "wicket", []);
@@ -134,7 +141,7 @@ public static class Noor
         var bounds = b.Bounds();
         var pivot = Pivot(b);
         var markers = new SortedDictionary<string, int>(StringComparer.Ordinal);
-        foreach (var m in b.Markers)
+        foreach (var m in b.Markers.Where(Exported))
         {
             var (marker, _, _) = MarkerOf(b, m);
             markers[marker] = markers.GetValueOrDefault(marker) + 1;

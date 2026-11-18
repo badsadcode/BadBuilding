@@ -81,6 +81,19 @@ Does that match what you see in Poland, or would you rather have one continuous 
 
 *Sage's default:* wings with their own roofs.
 
+### Q12 — Two marker types for industrial buildings (a Noor Interchange proposal)
+The new industrial style (D17) knows two things the spec v0.2 has no words for:
+- **Loading docks**: a roller door for goods at truck-bed height. Today they're exported as `entrance` kind
+  `courtyard` with `props.badbuilding_kind = "loading_dock"`. A game would want to tell them apart (a truck parks
+  there, a forklift goes in, a person doesn't use it as the front door). Proposal: an entrance kind `loading`
+  (or `goods`), with the door's width and height like `passage` has.
+- **The top of a chimney**: smoke, a landmark to navigate by, a sniper's perch. Today it isn't exported at all.
+  Proposal: a marker type `emitter` (or `anchor`) with a kind (`smoke`, `light`, `antenna`...), for points where an
+  engine attaches effects.
+Is either worth a spec change, or would you rather keep the vocabulary small and leave such things in `props`?
+
+*Sage's default until then:* docks as `courtyard` entrances, chimneys not exported (nothing invented outside the spec).
+
 ---
 
 ## Answered
