@@ -319,3 +319,16 @@ types and styles for other projects. Not every style exists in Mazowsze, and non
 cookbook. What keeps the library general meanwhile: types and styles chosen from the request's facts (no game
 code in the library), regional choices kept in one place so a region preset can change them later (cookbook
 part D), and the Noor Interchange export.
+
+## D23 — Not tied to OSM (Tom, 19 Nov 2026)
+
+OSM is the first source, not the only one. Today the request speaks a slightly OSM-flavoured language (`Type` takes
+OSM `building=*` values, `Roof` OSM `roof:shape` values, `FromOsm` marks provenance). The rule from here on: the
+request is BadBuilding's own vocabulary, and each data source gets an adapter that translates into it, on the
+caller's side (Baltic Drive's map adapter is the OSM one). Other likely sources: national registries (Poland's
+BDOT10k and EGiB, Estonia's EHR, Latvia's and Lithuania's cadastres), Overture Maps, hand authoring in an editor.
+Some of them carry exactly what OSM lacks (build years, use codes, storeys, materials). The vocabulary grows when
+a family needs a fact: new request fields or new values with a written meaning, never a raw tag dictionary the
+styles read directly. OSM values stay accepted as aliases, so nothing breaks. Not done yet: renaming
+`FromOsm` to a source name and documenting the type and roof values as BadBuilding's own list. Both happen with the
+next change that touches the request (carrying the real type through, cookbook review step 1).
