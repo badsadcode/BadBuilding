@@ -455,3 +455,23 @@ No gym hall is invented where the footprint doesn't show one.
 Tests: the fire station's tall doors toward the road, sign, level floor, and hose towers inside the footprint; the
 school's levels, raised entrance toward the street and windows; the kindergarten's height and accent.
 Looked at in Baltic Drive: the fire station on Limanowskiego in Grodzisk Mazowiecki, a school in Osiedle Jantar.
+
+## D30 — Contemporary blocks of flats (Tom: "Yes, apartments", 19 Nov 2026)
+
+Warsaw's new estates ("deweloperka", cookbook R025–R026) were drawn as PRL slabs. Style `Apartments`:
+- rendered walls (white, light grey, warm white, beige, greige) and a second finish on some: wood-look boards on every
+  fourth bay, graphite panels on every fourth bay, a graphite top floor, or a brick-slip ground floor;
+- big windows (up to 1.8 m, a mullion), low ones with a glass guard (a French balcony) on the top floor;
+- balconies standing out 1.4 m with frosted glass railings on a metal top rail on every second or third bay (every
+  bay on a few), or loggias cut 1.3 m into the wall (four in ten);
+- on the street side, on a little over half, a glazed ground floor of shop and service units (shop_entrance markers);
+- entrances under canopies, one per ~28 m of the main wall; a slab edge over the ground floor; a flat roof behind a
+  0.6 m parapet with a metal coping, a lift overrun and a ventilation box.
+**Which blocks:** a mapped year decides (from 1992 contemporary, before PRL). Without one (most), the shape: odds of
+0.3, +0.25 for a footprint deeper than 14.5 m (−0.1 under 12.5 m), +0.2 for an outline that isn't nearly a
+rectangle, +0.1 for more than ten corners, +0.25 for six to nine storeys, −0.12 for four, five, ten or eleven
+(the PRL standards), clamped to 0.05–0.9 and rolled once per building. Walled-in undated buildings stay with the
+tenement and block styles; listed ones never qualify.
+Tests: the year decides; undated deep seven-storey blocks are mostly contemporary and 12 m five-storey slabs mostly
+PRL; railings, entrances and footprint bounds over five seeds. The PRL test block is now dated (1975).
+Looked at in Baltic Drive: the new estates by Szamoty (Ursus/Piastów).

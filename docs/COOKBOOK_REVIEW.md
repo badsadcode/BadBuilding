@@ -76,7 +76,7 @@ game's extract and pack, then a map rebuild (~52 min).
 | R022 | Corner kamienica | partial | bands meet at corners | a corner treatment (chamfer is out: footprint) — corner shop, corner balcony |
 | R023 | Courtyard tenement | implemented | passages and bramy (D7) | — |
 | R024 | Post-war infill | partial | goes to `Plain`/`PrlBlock` | fine for now |
-| R025 | Contemporary apartments | missing | **drawn as PRL** by `PrlBlock` | a "deweloperka" subfamily: rendered plaster, glass balconies, top floor set back look, underground garage ramp later |
+| R025 | Contemporary apartments | implemented (D30) | **drawn as PRL** by `PrlBlock` | a "deweloperka" subfamily: rendered plaster, glass balconies, top floor set back look, underground garage ramp later |
 | R026 | Contemporary residential tower | missing | `Office` from 60 m or `PrlBlock` | with R025 |
 | R027 | Dormitory | missing | `PrlBlock` | later |
 | R028 | Converted factory (lofts) | deferred | — | needs authoring intent |
@@ -204,7 +204,7 @@ By what you see most while driving, then by shared leverage:
    buildings in every village.
 5. *(done, D28)* **Garages and shacks** (R014, R013, R012, R011): Tom's list; small and quick once roofs and types are in.
 6. *(done, D29)* **Village civic**: fire station (R049), school and kindergarten (R044).
-7. **Contemporary apartments** (R025): Warsaw's new estates stop looking like PRL blocks.
+7. *(done, D30)* **Contemporary apartments** (R025): Warsaw's new estates stop looking like PRL blocks.
 8. Then the city styles: **socialist realism** (R019, S09), **brutalism** as a modifier over existing types (S12–S14).
 
 Each new family keeps today's detail level: real geometry for openings, reveals, sills and porches, materials by

@@ -12,7 +12,7 @@ public class GeneratorTests
 
     private static BuildingRequest Block(string id = "test:block", ulong seed = 7) => new()
     {
-        Id = id, Seed = seed, Outer = Rect(-30, -6, 30, 6), Type = "apartments", Levels = 5,
+        Id = id, Seed = seed, Outer = Rect(-30, -6, 30, 6), Type = "apartments", Levels = 5, StartYear = 1975,   // dated: an undated slab may be contemporary (D30)
         Streets = [new StreetLine([new(-60, 20), new(60, 20)])],
     };
 

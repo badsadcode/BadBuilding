@@ -80,7 +80,8 @@ public static class BuildingGenerator
                 Farm.Name => new Farm(c),
                 Garages.Name => new Garages(c),
                 Civic.Name => new Civic(c),
-                _ => throw new ArgumentException($"Unknown style '{forced}' (styles: {PrlBlock.Name}, {Kamienica.Name}, {Industrial.Name}, {Office.Name}, {House.Name}, {Farm.Name}, {Garages.Name}, {Civic.Name}, {Plain.Name})."),
+                Apartments.Name => new Apartments(),
+                _ => throw new ArgumentException($"Unknown style '{forced}' (styles: {PrlBlock.Name}, {Kamienica.Name}, {Industrial.Name}, {Office.Name}, {House.Name}, {Farm.Name}, {Garages.Name}, {Civic.Name}, {Apartments.Name}, {Plain.Name})."),
             };
         if (Industrial.Fits(c)) return new Industrial();   // (D17) small sheds too: the type says what it is
         if (Farm.Fits(c)) return new Farm(c);   // (D27)
@@ -88,6 +89,7 @@ public static class BuildingGenerator
         if (Civic.Fits(c)) return new Civic(c);   // (D29)
         if (!c.Site.Small && Office.Fits(c)) return new Office();   // (D18)
         if (House.Fits(c)) return new House(c);   // (D26)
+        if (Apartments.Fits(c)) return new Apartments();   // (D30) contemporary blocks, before the tenement and PRL
         if (!c.Site.Small && Kamienica.Fits(c)) return new Kamienica();
         if (!c.Site.Small && PrlBlock.Fits(c)) return new PrlBlock();
         return new Plain();
