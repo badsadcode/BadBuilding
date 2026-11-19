@@ -436,3 +436,22 @@ allotment_house:
 Tests: a garage row's door per bay toward the road in more than one colour; a single garage's wide door; an
 allotment hut's door and window; footprint bounds for every kind.
 Looked at in Baltic Drive: garage rows at Ksawerów, the allotment gardens by Górnicza (Praga-Południe).
+
+## D29 — Fire stations, schools and kindergartens (Tom: "Fire stations, schools", 19 Nov 2026)
+
+Style `Civic` (cookbook R044, R049), for the types fire_station, school, kindergarten (Baltic Drive also gives an
+untyped building with amenity=fire_station or amenity=school these types, its D72):
+- **fire station** (remiza OSP; 1,470 in Mazowsze with the amenity ones): storeys of 3.9 m (the ground floor holds
+  the engines), a level floor (5 cm plinth); on the side toward the road one to three vehicle doors 3.4 × 3.5 m every
+  4.6 m (red, sometimes white), a staff door beside them, a red sign band over the doors; windows upstairs; on six in
+  ten of those over 120 m² a 3 m square hose-drying tower inside the footprint at the end away from the doors, 4–6 m
+  over the roof, with slit windows and a pyramid cap (the type itself is the evidence for the tower);
+- **school**: two or three storeys of 3.6 m on a 0.6 m raised ground floor, a classroom window per 3.6 m bay (up to
+  2.6 m wide, two mullions and a transom), the main entrance up steps under a wide canopy with a glazed light over the
+  door; the PRL "tysiąclatka" look (grey or white plaster, brick plinth) or renovated (pale walls, one accent colour on
+  the bands, parapet and entrance), mostly flat roofs with a parapet;
+- **kindergarten**: one or two storeys, smaller windows set lower, cheerful walls and frames, an accent colour.
+No gym hall is invented where the footprint doesn't show one.
+Tests: the fire station's tall doors toward the road, sign, level floor, and hose towers inside the footprint; the
+school's levels, raised entrance toward the street and windows; the kindergarten's height and accent.
+Looked at in Baltic Drive: the fire station on Limanowskiego in Grodzisk Mazowiecki, a school in Osiedle Jantar.

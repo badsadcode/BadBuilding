@@ -102,9 +102,9 @@ game's extract and pack, then a map rebuild (~52 min).
 
 | ID | Recipe | Status | Today | Next step |
 |---|---|---|---|---|
-| R044 | School / kindergarten | missing | `civic` → `Plain` | **5,051 in the region**: long wings, big classroom windows, marked entrance, gym hall if the footprint allows |
+| R044 | School / kindergarten | implemented (D29) | `civic` → `Plain` | **5,051 in the region**: long wings, big classroom windows, marked entrance, gym hall if the footprint allows |
 | R045–R048 | University, hospital, clinic, town hall | missing | `Plain` | later |
-| R049 | Fire station (OSP) | missing | `Plain` | **1,099, nearly every village**: tall vehicle doors to the road, hose tower if parts/height allow |
+| R049 | Fire station (OSP) | implemented (D29) | `Plain` | **1,099, nearly every village**: tall vehicle doors to the road, hose tower if parts/height allow |
 | R050–R054 | Police, library, culture, cinema, sports hall | missing | `Plain` | later |
 | R055 | Church / chapel | landmark-only | Baltic Drive keeps churches classic | big churches hand-made; wayside chapels procedural later |
 | R056–R058 | Modern church, market hall, museum | missing | — | later |
@@ -203,7 +203,7 @@ By what you see most while driving, then by shared leverage:
 4. *(done, D27)* **Farm buildings and outbuildings** (R072 barn, R077 outbuilding, R075 greenhouse): half a million small
    buildings in every village.
 5. *(done, D28)* **Garages and shacks** (R014, R013, R012, R011): Tom's list; small and quick once roofs and types are in.
-6. **Village civic**: fire station (R049), school and kindergarten (R044).
+6. *(done, D29)* **Village civic**: fire station (R049), school and kindergarten (R044).
 7. **Contemporary apartments** (R025): Warsaw's new estates stop looking like PRL blocks.
 8. Then the city styles: **socialist realism** (R019, S09), **brutalism** as a modifier over existing types (S12–S14).
 
