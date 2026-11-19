@@ -57,10 +57,10 @@ game's extract and pack, then a map rebuild (~52 min).
 | R008 | Modern villa | missing | — | later |
 | R009 | Extended / mixed-age house | missing | — | comes almost for free with L-shaped roofs (a wing at another pitch) |
 | R010 | Urban infill house | partial | party walls, `Plain` | fine for now |
-| R011 | Allotment hut | partial | `Plain` shed | small-hut subfamily: porch, one window, timber/corrugated |
-| R012 | Shack / lean-to | missing | — | skillion roof, patched cladding (Tom's "small shacks") |
-| R013 | Single garage | partial | `Plain` with a wide door | door toward the road, no windows |
-| R014 | Garage row (blaszaki) | partial | `Plain`, a door or two | **one up-and-over door per bay along the long side**, mono-pitch roof (Tom's "garages") |
+| R011 | Allotment hut | implemented (D28) | `Plain` shed | small-hut subfamily: porch, one window, timber/corrugated |
+| R012 | Shack / lean-to | implemented (D28) | — | skillion roof, patched cladding (Tom's "small shacks") |
+| R013 | Single garage | implemented (D28) | `Plain` with a wide door | door toward the road, no windows |
+| R014 | Garage row (blaszaki) | implemented (D28) | `Plain`, a door or two | **one up-and-over door per bay along the long side**, mono-pitch roof (Tom's "garages") |
 
 ### A2. Urban housing
 
@@ -202,7 +202,7 @@ By what you see most while driving, then by shared leverage:
    chimneys, eaves, steps, basement windows. Houses are most of Mazowsze.
 4. *(done, D27)* **Farm buildings and outbuildings** (R072 barn, R077 outbuilding, R075 greenhouse): half a million small
    buildings in every village.
-5. **Garages and shacks** (R014, R013, R012, R011): Tom's list; small and quick once roofs and types are in.
+5. *(done, D28)* **Garages and shacks** (R014, R013, R012, R011): Tom's list; small and quick once roofs and types are in.
 6. **Village civic**: fire station (R049), school and kindergarten (R044).
 7. **Contemporary apartments** (R025): Warsaw's new estates stop looking like PRL blocks.
 8. Then the city styles: **socialist realism** (R019, S09), **brutalism** as a modifier over existing types (S12–S14).

@@ -420,3 +420,19 @@ halls; long ones barns or livestock; small ones outbuildings). Skins: brick, gre
 Tests: type and size pick the kind; the barn's doors, the cowshed's high windows and vent, the mono-pitch roof, the
 greenhouse; footprint bounds.
 Looked at in Baltic Drive: Zielanówek (Tłuszcz), Serock.
+
+## D28 — Garages, garage rows, allotment huts and shacks (Tom: "Yes, garages", 19 Nov 2026)
+
+Style `Garages` (cookbook R011–R014; Tom's "garages, small shacks"), for the types garage, garages, shed, hut and
+allotment_house:
+- **garage**: one box, a mono-pitch (most), low gable or flat roof, a 2.4 m up-and-over door on the side facing
+  the road; skins: PRL sheet metal (blaszak: green, grey, blue, rust-brown), brick or plaster;
+- **garage row** (garages over 30 m², or a long garage over 45 m²): a door per ~3.1 m bay along the side facing the
+  access road, each door its own colour, brick piers between them, a fascia, a tar-paper roof falling to the back;
+- **allotment hut**: painted planks, boards or plaster (green, blue, brown, cream), a gable (most) or mono-pitch
+  roof, a door and a framed window, a porch on two posts on half;
+- **shack** (sheds and huts, six in ten): planks or sheet with patches of other sheet and planks nailed over,
+  a mono-pitch roof of rusty sheet, a door, maybe a window.
+Tests: a garage row's door per bay toward the road in more than one colour; a single garage's wide door; an
+allotment hut's door and window; footprint bounds for every kind.
+Looked at in Baltic Drive: garage rows at Ksawerów, the allotment gardens by Górnicza (Praga-Południe).
