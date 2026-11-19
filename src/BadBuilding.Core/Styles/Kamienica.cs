@@ -153,10 +153,14 @@ public sealed class Kamienica : IStyle
                 // a firewall: bare brick from the plinth up past the roof (following its slope), with chimney stacks
                 Kit.Wall(wall.Mesh, "brick", f, 0, len, datum, top);
                 Kit.WallTop(wall.Mesh, "brick", f, len, top, RoofAt(e.A) + 0.6f, RoofAt(e.B) + 0.6f);
-                for (float u = len * 0.25f; u < len; u += len * 0.5f)
+                // stacks only on a real tenement's firewall (3+ storeys, 6 m+ long), one per ~10 m, set into the wall
+                // (Tom's dump on Daniłowiczowska: two-storey houses with a row of big brick boxes on every short wall)
+                int stacks = levels >= 3 && len >= 6f ? Math.Max(1, (int)(len / 10f)) : 0;
+                for (int si = 0; si < stacks; si++)
                 {
+                    float u = len * (si + 0.5f) / stacks;
                     float at = RoofAt(e.A + (e.B - e.A) * (u / len));
-                    Kit.Box(trim.Mesh, "brick", f, u - 0.45f, u + 0.45f, top, at + 1.8f, -1.0f, -0.05f);
+                    Kit.Box(trim.Mesh, "brick", f, u - 0.4f, u + 0.4f, top, at + 1.3f, -0.6f, -0.05f);
                 }
                 continue;
             }

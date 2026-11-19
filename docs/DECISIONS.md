@@ -347,3 +347,6 @@ next change that touches the request (carrying the real type through, cookbook r
   the slope of its roof, stuck through the walls of the parts above (the Błękitny Wieżowiec on Plac Bankowy).
 Tests: a capped base gets a flat roof; a roof-only part stays under its top with no eaves; a raised part is never a
 kamienica.
+- **Fewer, smaller chimney stacks on firewalls** (addendum, same day): a kamienica's party wall only carries stacks
+  when it is a real tenement's firewall (3+ storeys, 6 m+ long), one per ~10 m, 0.8 × 0.6 m. Two-storey buildings on
+  Daniłowiczowska had a row of big brick boxes on every short wall.
