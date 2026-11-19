@@ -138,7 +138,7 @@ public sealed class Plain : IStyle
         if (plan.RoofShape is RoofShape.Gabled or RoofShape.Hipped or RoofShape.Pyramidal)
         {
             // a pitched roof over the footprint's rectangle (D13): eaves over the walls, gables closing the ends
-            Roofs.Pitched(roof.Mesh, "roof", "soffit", "wall", plan.RoofRect, plan.RoofShape, top, plan.RoofRise, (utility ? 0.25f : 0.45f) * plan.Eaves);
+            Roofs.Pitched(roof.Mesh, "roof", "soffit", "wall", plan, top, (utility ? 0.25f : 0.45f) * plan.Eaves);
             // under the roof the walls stop at the eaves; seal the top so the roof space is closed from below
             Kit.Slab(roof.Mesh, "soffit", c.Site.Outer, c.Site.Holes, top - 0.05f, top, sides: false);
             return;

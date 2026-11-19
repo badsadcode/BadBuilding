@@ -329,9 +329,10 @@ public class GeneratorTests
     }
 
     [Fact]
-    public void An_L_shaped_house_falls_back_to_a_flat_roof_and_says_why()
+    public void A_house_with_a_slanted_corner_falls_back_to_a_flat_roof_and_says_why()
     {
-        var b = BuildingGenerator.Generate(House("gabled") with { Outer = new Ring([new(0, 0), new(12, 0), new(12, 4), new(4, 4), new(4, 12), new(0, 12)]) });
+        // (an L-shaped one gets its roof in wings now, D25: RoofWingTests)
+        var b = BuildingGenerator.Generate(House("gabled") with { Outer = new Ring([new(0, 0), new(14, 0), new(14, 4), new(6, 14), new(0, 14)]) });
         Assert.Equal(RoofShape.Flat, b.Plan!.RoofShape);
         Assert.Contains(b.Report.Issues, i => i.Code == "roof.complex_footprint");
     }

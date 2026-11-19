@@ -124,7 +124,12 @@ public static class BuildingGenerator
             c.Building.Report.Add(Severity.Info, "roof.capped", "Another part of the building stands on this one's roof.", "flat roof");
             shape = RoofShape.Flat;
         }
-        if (shape is RoofShape.Gabled or RoofShape.Hipped or RoofShape.Pyramidal && (rect.Fill < Roofs.RectangularEnough || c.Site.Holes.Count > 0))
+        // a footprint that isn't nearly a rectangle: split into wings when it's rectilinear (D25)
+        List<Roofs.Wing>? wings = null;
+        if (shape is RoofShape.Gabled or RoofShape.Hipped or RoofShape.Pyramidal && rect.Fill < Roofs.RectangularEnough && c.Site.Holes.Count == 0)
+            wings = Roofs.Wings(c.Site.Outer, rect, style.RoofPitch(c), r.RoofHeight is { } wr and > 0.3f ? wr : null);
+        if (wings != null) c.Building.Report.Add(Severity.Info, "roof.wings", $"A {roof.Value} roof in {wings.Count} wings over a footprint that isn't a rectangle.");
+        if (wings == null && shape is RoofShape.Gabled or RoofShape.Hipped or RoofShape.Pyramidal && (rect.Fill < Roofs.RectangularEnough || c.Site.Holes.Count > 0))
         {
             c.Building.Report.Add(Severity.Info, "roof.complex_footprint",
                 $"A {roof.Value} roof needs a nearly rectangular footprint without courtyards (this one fills {rect.Fill:P0} of its rectangle).", "flat roof");
@@ -132,7 +137,7 @@ public static class BuildingGenerator
         }
         float rise = shape switch
         {
-            RoofShape.Gabled or RoofShape.Hipped or RoofShape.Pyramidal => r.RoofHeight is { } rh and > 0.3f ? rh : Roofs.Rise(rect, style.RoofPitch(c)),
+            RoofShape.Gabled or RoofShape.Hipped or RoofShape.Pyramidal => wings != null ? wings.Max(w => w.Rise) : r.RoofHeight is { } rh and > 0.3f ? rh : Roofs.Rise(rect, style.RoofPitch(c)),
             RoofShape.Skillion => r.RoofHeight is { } rh2 and > 0.3f ? rh2 : MathF.Min(2.2f, 2f * rect.HalfW * MathF.Tan(style.RoofPitch(c) * MathF.PI / 180f)),
             _ => 0f,
         };
@@ -143,7 +148,8 @@ public static class BuildingGenerator
         if (shape != RoofShape.Flat && span - rise < 2.4f)
         {
             rise = span - 2.4f;
-            if (rise < 0.5f) { shape = RoofShape.Flat; rise = 0f; }
+            if (rise < 0.5f) { shape = RoofShape.Flat; rise = 0f; wings = null; }
+            else if (wings != null) { float k = rise / wings.Max(w => w.Rise); wings = wings.Select(w => w with { Rise = w.Rise * k }).ToList(); }
         }
         float extra = shape == RoofShape.Flat ? style.RoofExtra : rise;
 
@@ -164,7 +170,7 @@ public static class BuildingGenerator
         return new BuildingPlan
         {
             Style = style.Id, Levels = levels, Height = height, Roof = roof, Palette = "", StoreyHeight = sh,
-            RoofShape = shape, RoofRise = rise, RoofRect = rect,
+            RoofShape = shape, RoofRise = rise, RoofRect = rect, RoofWings = shape == RoofShape.Flat || wings == null ? [] : wings,
             // a raised part (D19): its floor at min_height, and nothing below it (the plinth strip sits at the floor)
             Eaves = r.Neighbours.Any(n => n.PartTop != null) ? 0f : 1f,
             Datum = c.Site.GroundHigh + (r.Raised ? minH : plinth), GroundLow = r.Raised ? c.Site.GroundHigh + minH : c.Site.GroundLow, Edges = c.Site.Edges,

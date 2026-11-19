@@ -214,7 +214,7 @@ public sealed class Industrial : IStyle
         var roof = b.Add(c.Id("roof"), "roof", ModuleTier.Primary);
         if (plan.RoofShape is RoofShape.Gabled or RoofShape.Hipped or RoofShape.Pyramidal)
         {
-            Roofs.Pitched(roof.Mesh, "roof", "soffit", skin, plan.RoofRect, plan.RoofShape, top, plan.RoofRise, (era == Era.Brick ? 0.3f : 0.15f) * plan.Eaves);
+            Roofs.Pitched(roof.Mesh, "roof", "soffit", skin, plan, top, (era == Era.Brick ? 0.3f : 0.15f) * plan.Eaves);
             Kit.Slab(roof.Mesh, "soffit", c.Site.Outer, c.Site.Holes, top - 0.05f, top, sides: false);
         }
         else

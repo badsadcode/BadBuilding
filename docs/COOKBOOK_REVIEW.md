@@ -165,7 +165,7 @@ game's extract and pack, then a map rebuild (~52 min).
 | M02 | Slab with repeating bays | implemented | `PrlBlock` |
 | M03 | Point tower | partial | |
 | M04 | Courtyard / perimeter | implemented | D7 passages |
-| M05 | Multi-wing (L/T/U) | partial | walls fine; **roofs fall back to flat** (see RF08) |
+| M05 | Multi-wing (L/T/U) | implemented | walls, and roofs in wings (D25) |
 | M06 | Stepped / multipart | partial | parts in the air (D19), party walls by height (D20); each part still its own request |
 | M07 | Podium + tower | partial | from parts only |
 | M08 | Industrial hall | implemented | D17 |
@@ -178,7 +178,7 @@ game's extract and pack, then a map rebuild (~52 min).
 | RF05 | Mansard / gambrel | missing | drawn as gabled |
 | RF06 | Half-hip | missing | drawn as hipped; common on Polish houses |
 | RF07 | Saw-tooth | implemented | D17 |
-| RF08 | Roof joins on L/T/U footprints | **missing** | **30 % of houses get a flat roof** |
+| RF08 | Roof joins on L/T/U footprints | implemented (D25) | rectilinear footprints in up to four wings with valleys; slanted corners still flat |
 | RF09 | Roof terrace | missing | |
 | RF10 | Domes, spires, vaults | landmark-only | |
 | C3 | Exposure classes | implemented | street, courtyard, side, party, sliver |
@@ -195,7 +195,7 @@ By what you see most while driving, then by shared leverage:
 1. **Carry the real OSM type into the library** (Baltic Drive extract → pack → adapter: the raw `building` value and
    `amenity`). Small code, one map rebuild. Without it, schools, fire stations, garages, greenhouses and offices can't
    be told apart, so every type recipe below waits on this.
-2. **Roofs on L-, T- and U-shaped footprints** (RF08, M05): split the footprint into rectangles, roof each, join
+2. *(done, D25)* **Roofs on L-, T- and U-shaped footprints** (RF08, M05): split the footprint into rectangles, roof each, join
    them with valleys. 225,000 houses get their roof back; every pitched-roof family after this needs it.
 3. **The house family** (R001 chałupa, R003 kostka, R004 contemporary, R005–R006 paired and terraced): one `House`
    style with subfamilies chosen by footprint, size, storeys, rural or town context; 3–5 variations each; porches,

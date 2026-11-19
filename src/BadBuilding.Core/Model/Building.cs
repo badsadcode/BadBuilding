@@ -53,6 +53,8 @@ public sealed record BuildingPlan
     public Generation.RoofShape RoofShape { get; init; }
     public float RoofRise { get; init; }
     public Generation.Roofs.Rect RoofRect { get; init; }
+    /// <summary>A pitched roof over a footprint that isn't a rectangle, as rectangular wings (D25); empty otherwise.</summary>
+    public IReadOnlyList<Generation.Roofs.Wing> RoofWings { get; init; } = [];
     /// <summary>Height of the ground floor (the datum, D5) and of the lowest ground under the walls.</summary>
     public float Datum { get; init; }
     public float GroundLow { get; init; }

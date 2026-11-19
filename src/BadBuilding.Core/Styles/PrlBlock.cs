@@ -163,7 +163,7 @@ public sealed class PrlBlock : IStyle
         if (plan.RoofShape is RoofShape.Gabled or RoofShape.Hipped or RoofShape.Pyramidal)
         {
             // only when the map says so (some blocks got pitched roofs added later)
-            Roofs.Pitched(roof.Mesh, "roof", "concrete", "wall", plan.RoofRect, plan.RoofShape, top, plan.RoofRise, 0.3f * plan.Eaves);
+            Roofs.Pitched(roof.Mesh, "roof", "concrete", "wall", plan, top, 0.3f * plan.Eaves);
             Kit.Slab(roof.Mesh, "concrete", c.Site.Outer, c.Site.Holes, top - 0.05f, top, sides: false);
             return;
         }

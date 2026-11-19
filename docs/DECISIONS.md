@@ -350,3 +350,23 @@ kamienica.
 - **Fewer, smaller chimney stacks on firewalls** (addendum, same day): a kamienica's party wall only carries stacks
   when it is a real tenement's firewall (3+ storeys, 6 m+ long), one per ~10 m, 0.8 × 0.6 m. Two-storey buildings on
   Daniłowiczowska had a row of big brick boxes on every short wall.
+
+## D25 — Pitched roofs on L-, T- and U-shaped footprints, in wings (19 Nov 2026)
+
+The cookbook review (D21) found 30 % of Mazowsze's houses got a flat roof: pitched roofs needed a nearly rectangular
+footprint. Now a rectilinear footprint is split into **wings**:
+- laid on its own grid (the minimum rectangle's axes, cut at every corner, corners within 0.4 m merged); it counts as
+  rectilinear when the grid's inside cells match its area within 6 %;
+- covered by at most four maximal rectangles (greedy: the biggest holding a still uncovered cell); none narrower
+  than 2 m, else flat as before;
+- the **widest** wing is the main roof (the tallest ridge); a wing crossing it is cut back to the main ridge, and that
+  end runs into the main roof (no hip, no overhang, its gable hidden under the main slopes), so the two meet in
+  valleys; the other ends are outer ends, hipped or gabled as the roof is;
+- one pitch for the whole roof: each wing's rise is the main rise scaled by its width (a mapped roof height sets the
+  main rise), so narrower wings have lower ridges; the walls stop at the eaves as before.
+A pyramidal roof over wings is drawn hipped. Slanted corners, courtyards and more than four wings stay flat.
+`Roofs.Pitched(mesh, …, plan, eave, overhang)` draws whatever the plan holds; Plain, PRL and industrial use it.
+Tests: L and T houses, gabled and hipped, roofed in two wings within the footprint plus the eaves and under the
+mapped height; the stem of a T meets the bar without a hip and with a lower ridge; a slanted corner still goes flat.
+Looked at in Baltic Drive: the houses of Kępa Gocławska (Marokańska, Libijska), L- and T-shaped, now with hips,
+gables and valleys.
