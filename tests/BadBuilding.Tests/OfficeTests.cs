@@ -1,5 +1,6 @@
 using System.Numerics;
 using BadBuilding.Generation;
+using RoofShape = BadBuilding.Generation.RoofShape;
 using BadBuilding.Model;
 using BadBuilding.Styles;
 
@@ -80,5 +81,33 @@ public class OfficeTests
         }
         Assert.True(Glazed(podium with { PartMin = 0, PartTop = 10 }), "the tower's wall over a low podium part");
         Assert.False(Glazed(podium), "a separate neighbour still makes a party wall");
+    }
+
+    [Fact]
+    public void A_part_under_another_part_gets_a_flat_roof()
+    {
+        // the base of a tower mapped with a hipped roof, the tower standing on it from 8 m (Tom's dump on Fangora)
+        var tower = Rect(-20, -12, 20, 12) with { PartMin = 8, PartTop = 26 };
+        var b = BuildingGenerator.Generate(Req("yes", 8) with { Roof = "hipped", RoofHeight = 3.4f, Neighbours = [tower] });
+        Assert.Equal(RoofShape.Flat, b.Plan!.RoofShape);
+        Assert.Contains(b.Report.Issues, i => i.Code == "roof.capped");
+    }
+
+    [Fact]
+    public void A_roof_only_part_stays_under_its_mapped_top_with_no_eaves()
+    {
+        // 25 to 32 m with a 7 m gabled roof, against another part of the building (Al. Jerozolimskie)
+        var next = Rect(20, -12, 50, 12) with { PartMin = 0, PartTop = 32 };
+        var b = BuildingGenerator.Generate(Req("yes", 32, min: 25) with { Roof = "gabled", RoofHeight = 7f, Neighbours = [next] });
+        Assert.True(b.Bounds().Max.Y <= 32.05f, $"top at {b.Bounds().Max.Y:0.00}");
+        Assert.Equal(0f, b.Plan!.Eaves);
+        Assert.True(b.Bounds().Max.X <= 20.05f, "nothing pokes out past the footprint");
+    }
+
+    [Fact]
+    public void A_raised_part_is_never_a_kamienica()
+    {
+        var b = BuildingGenerator.Generate(Req("apartments", 21, min: 15) with { Neighbours = [Rect(20, -12, 50, 12)] });
+        Assert.NotEqual(Kamienica.Name, b.Plan!.Style);
     }
 }

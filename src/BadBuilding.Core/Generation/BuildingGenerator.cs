@@ -85,6 +85,24 @@ public static class BuildingGenerator
         return new Plain();
     }
 
+    /// <summary>A part of the same building starts within 1 m of <paramref name="top"/> and covers at least half of
+    /// this footprint (sampled on a grid over its rectangle).</summary>
+    private static bool Capped(Context c, Roofs.Rect rect, float top)
+    {
+        var above = c.Request.Neighbours.Where(n => n.PartMin is { } m && MathF.Abs(m - top) < 1f).ToList();
+        if (above.Count == 0) return false;
+        int inside = 0, covered = 0;
+        for (int i = 0; i < 6; i++)
+            for (int k = 0; k < 6; k++)
+            {
+                var p = rect.At(((i + 0.5f) / 6f * 2f - 1f) * rect.HalfL, ((k + 0.5f) / 6f * 2f - 1f) * rect.HalfW);
+                if (!Polygon.Contains(c.Site.Outer, p)) continue;
+                inside++;
+                if (above.Any(n => Polygon.Contains(n.Points, p))) covered++;
+            }
+        return inside > 0 && covered * 2 >= inside;
+    }
+
     private static BuildingPlan MakePlan(Context c, IStyle style)
     {
         var r = c.Request;
@@ -99,6 +117,13 @@ public static class BuildingGenerator
         if (shape == RoofShape.Flat && roof.Value is not ("flat" or ""))
             c.Building.Report.Add(Severity.Info, "roof.not_supported", $"Mapped roof '{roof.Value}' is drawn flat in version {Version}.", "flat roof");
         var rect = Roofs.MinRect(c.Site.Outer);
+        // another part of the building starts at this one's top over most of it: this one's roof is that part's floor,
+        // so flat, whatever the map says (D24, Tom's dump on Fangora: a tower floating over a hipped roof)
+        if (shape != RoofShape.Flat && r.Height is { } top0 && Capped(c, rect, top0))
+        {
+            c.Building.Report.Add(Severity.Info, "roof.capped", "Another part of the building stands on this one's roof.", "flat roof");
+            shape = RoofShape.Flat;
+        }
         if (shape is RoofShape.Gabled or RoofShape.Hipped or RoofShape.Pyramidal && (rect.Fill < Roofs.RectangularEnough || c.Site.Holes.Count > 0))
         {
             c.Building.Report.Add(Severity.Info, "roof.complex_footprint",
@@ -112,6 +137,14 @@ public static class BuildingGenerator
             _ => 0f,
         };
         rise = MathF.Min(rise, 9f);
+        // a roof taller than the mapped height leaves room for (a roof-only part: 25 to 32 m with a 7 m roof): lower it
+        // to keep 2.4 m of wall under it, rather than let it rise past the mapped top (D24)
+        float span = (r.Height ?? float.MaxValue) - (r.Raised ? r.MinHeight!.Value : 0f);
+        if (shape != RoofShape.Flat && span - rise < 2.4f)
+        {
+            rise = span - 2.4f;
+            if (rise < 0.5f) { shape = RoofShape.Flat; rise = 0f; }
+        }
         float extra = shape == RoofShape.Flat ? style.RoofExtra : rise;
 
         Sourced<float> height;
@@ -123,7 +156,9 @@ public static class BuildingGenerator
             float walls = MathF.Max(2.4f, h - minH - extra * (shape == RoofShape.Flat ? 0f : 1f));
             // a mapped height without levels decides the storeys
             if (r.Levels is null) levels = new Sourced<int>(Math.Max(1, (int)MathF.Round((walls - plinth) / sh)), Source.Inferred);
-            else sh = Math.Clamp((walls - plinth) / levels.Value, 2.4f, 6f);
+            // the storeys fill the walls exactly, so the roof sits at the mapped height (D24: a whole storey rounded up
+            // lifted a roof 0.6 m past it)
+            sh = Math.Clamp((walls - plinth) / levels.Value, 2.4f, 6f);
         }
         else height = new Sourced<float>(plinth + levels.Value * sh + extra, Source.Inferred);
         return new BuildingPlan
@@ -131,6 +166,7 @@ public static class BuildingGenerator
             Style = style.Id, Levels = levels, Height = height, Roof = roof, Palette = "", StoreyHeight = sh,
             RoofShape = shape, RoofRise = rise, RoofRect = rect,
             // a raised part (D19): its floor at min_height, and nothing below it (the plinth strip sits at the floor)
+            Eaves = r.Neighbours.Any(n => n.PartTop != null) ? 0f : 1f,
             Datum = c.Site.GroundHigh + (r.Raised ? minH : plinth), GroundLow = r.Raised ? c.Site.GroundHigh + minH : c.Site.GroundLow, Edges = c.Site.Edges,
         };
     }

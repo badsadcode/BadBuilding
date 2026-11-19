@@ -31,6 +31,7 @@ public sealed class Kamienica : IStyle
     public static bool Fits(BuildingGenerator.Context c)
     {
         if (c.Request.StartYear is >= 1945) return false;
+        if (c.Request.Raised) return false;   // a tenement is a whole building from the street up, not a piece high on a tower (D24)
         var t = c.Request.Type;
         bool kind = t is null or "yes" or "apartments" or "residential" or "commercial" or "retail" or "office" or "hotel";
         if (!kind || c.Site.Depth < 6f || c.Site.Depth > 30f) return false;

@@ -57,6 +57,9 @@ public sealed record BuildingPlan
     public float Datum { get; init; }
     public float GroundLow { get; init; }
     public IReadOnlyList<WallEdge> Edges { get; init; } = [];
+    /// <summary>How far pitched-roof eaves reach out, as a share of the style's overhang: 0 for a part of a bigger
+    /// building, whose eaves would poke through the walls of the parts around it (D24).</summary>
+    public float Eaves { get; init; } = 1f;
 }
 
 /// <summary>The generated building: its parts, markers, materials, the plan and the validation report.</summary>

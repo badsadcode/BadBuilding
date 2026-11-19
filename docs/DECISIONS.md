@@ -332,3 +332,18 @@ a family needs a fact: new request fields or new values with a written meaning, 
 styles read directly. OSM values stay accepted as aliases, so nothing breaks. Not done yet: renaming
 `FromOsm` to a source name and documenting the type and roof values as BadBuilding's own list. Both happen with the
 next change that touches the request (carrying the real type through, cookbook review step 1).
+
+## D24 — Parts that sit on parts, roofs that fit the mapped height (Tom's dumps, 19 Nov 2026)
+
+- **A part under another part has a flat roof.** When a part of the same building starts within 1 m of this one's
+  top and covers at least half of it, this roof is that part's floor: flat, whatever the map says (`roof.capped` in
+  the report). On Fangora a tower stood on a base mapped with a hipped roof, and floated over the hip with a gap.
+- **A pitched roof never rises past the mapped height.** Where the mapped span leaves less than 2.4 m of wall under
+  the roof (a "roof-only" part from 25 to 32 m with a 7 m roof), the roof is lowered to fit; under 0.5 m it goes flat.
+  And the storeys now fill the walls exactly (before, a storey rounded up could lift the roof 0.6 m past the top).
+- **No eaves on parts.** A part with other parts around it gets no eaves overhang (`BuildingPlan.Eaves` = 0): its
+  eaves poked through a neighbouring part's wall as a red stripe on Al. Jerozolimskie.
+- **No kamienica high on a tower.** A raised part never takes the kamienica style: its brick firewall tops, cut to
+  the slope of its roof, stuck through the walls of the parts above (the Błękitny Wieżowiec on Plac Bankowy).
+Tests: a capped base gets a flat roof; a roof-only part stays under its top with no eaves; a raised part is never a
+kamienica.
