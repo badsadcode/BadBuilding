@@ -370,3 +370,32 @@ Tests: L and T houses, gabled and hipped, roofed in two wings within the footpri
 mapped height; the stem of a T meets the bar without a hip and with a lower ridge; a slanted corner still goes flat.
 Looked at in Baltic Drive: the houses of Kępa Gocławska (Marokańska, Libijska), L- and T-shaped, now with hips,
 gables and valleys.
+
+## D26 — The house family (Tom: "Yes, houses", 19 Nov 2026)
+
+Houses are most of Mazowsze (742,000 typed, and most of the 1.1 M untyped buildings of house size). One style,
+`House`, five families (cookbook R001–R006), each with variations:
+- **cottage** (chałupa): one storey, gable roof 40–48°, small windows with a cross frame; whitewashed (white, cream,
+  grey or blue wash) with painted trims (blue, sky, green) on three in four, open shutters on some; or dark
+  weathered **timber planks** on a third, white trims sometimes; gables always **boarded**; eternit, old clay, rusty
+  or dark roofs; a chimney on the ridge. Tom picked all three traditional details.
+- **kostka**: nearly square, two storeys on a 1 m plinth with basement windows, a low hipped roof (12–20°) or a flat
+  one, a band between the floors, the door up steps under a canopy, a balcony on six in ten. Tom's "real-life mix":
+  55 % original dash plaster (grey, beige, dun), 45 % pastel insulation.
+- **modern**: one or two storeys, gable, hip or flat roof at 30–40°, anthracite (or white, brown) frames, a mullion
+  instead of a cross, floor-length windows downstairs on the garden side, a garage door on the street on some; white,
+  light grey, beige, or the warmer colours Polish houses come in (sand, light yellow, salmon, pale green, ochre).
+- **semi-detached** and **terraced**: the kostka (45 %) or modern look on a unit with one or two shared walls; those
+  stay blind and the door goes elsewhere.
+**Choice:** the type (`terrace`, `semidetached_house`) or the number of party walls first; a mapped year (before 1945
+cottage, to 1990 kostka, after modern); else the footprint: near-square, 60–170 m² and not one storey → kostka or
+modern; elongated, under 130 m² and not two storeys → mostly cottage; one storey under 140 m² → cottage or modern;
+otherwise mostly modern. Untyped or "residential" buildings of house size (35–220 m², ≤ 2 storeys, ≤ 10.5 m) with
+no party wall are houses too; a walled-in one is still a town house's job.
+**Attics:** a house's mapped levels count the attic under a pitched roof (Polish mapping: building:levels=3 for two
+floors and rooms in the roof), so from three mapped levels the walls hold one fewer; every outer gable tall enough
+gets an attic window.
+Details stay within a metre of the walls (canopies, steps, balconies, sills, shutters); everything else inside the
+footprint. Tests: the year picks the family; cottage, kostka and semi-detached signatures; footprint bounds over five
+seeds; variety over twenty seeds; three levels under a gable are two floors and an attic.
+Looked at in Baltic Drive: Kępa Gocławska, Grądy (Błonie), Serock.

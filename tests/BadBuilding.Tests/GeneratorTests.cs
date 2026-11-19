@@ -309,7 +309,7 @@ public class GeneratorTests
         Assert.Equal(roof == "gabled" ? RoofShape.Gabled : RoofShape.Hipped, b.Plan!.RoofShape);
         var pts = b.Modules.Single(m => m.Type == "roof").Mesh.Positions;
         float topY = pts.Max(p => p.Y);
-        Assert.True(topY > b.Plan.Datum + 2 * b.Plan.StoreyHeight + 2.5f, $"ridge at {topY}");
+        Assert.True(topY > b.Plan.Datum + 2 * b.Plan.StoreyHeight + 0.8f, $"ridge at {topY}");   // (a kostka's low hip rises ~1.5 m, D26)
         // the ridge runs east-west (the 12 m side), so the highest points spread along X, not Z
         var ridge = pts.Where(p => p.Y > topY - 0.01f).ToList();
         Assert.True(ridge.Max(p => p.X) - ridge.Min(p => p.X) >= ridge.Max(p => p.Z) - ridge.Min(p => p.Z));
@@ -324,7 +324,8 @@ public class GeneratorTests
         Assert.Contains(b.Plan!.RoofShape, new[] { RoofShape.Gabled, RoofShape.Hipped });
         Assert.Equal(Source.Inferred, b.Plan.Roof.Source);
         var mapped = BuildingGenerator.Generate(House("gabled", 9f));
-        float top = mapped.Modules.SelectMany(m => m.Mesh.Positions).Max(p => p.Y);
+        // (the mapped height is the ridge's: a chimney may stand over it)
+        float top = mapped.Modules.Where(m => m.Type != "chimney").SelectMany(m => m.Mesh.Positions).Max(p => p.Y);
         Assert.InRange(top, 8.5f, 9.6f);
     }
 

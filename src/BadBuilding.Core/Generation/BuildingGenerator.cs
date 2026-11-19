@@ -76,10 +76,12 @@ public static class BuildingGenerator
                 Kamienica.Name => new Kamienica(),
                 Industrial.Name => new Industrial(),
                 Office.Name => new Office(),
-                _ => throw new ArgumentException($"Unknown style '{forced}' (styles: {PrlBlock.Name}, {Kamienica.Name}, {Industrial.Name}, {Office.Name}, {Plain.Name})."),
+                House.Name => new House(c),
+                _ => throw new ArgumentException($"Unknown style '{forced}' (styles: {PrlBlock.Name}, {Kamienica.Name}, {Industrial.Name}, {Office.Name}, {House.Name}, {Plain.Name})."),
             };
         if (Industrial.Fits(c)) return new Industrial();   // (D17) small sheds too: the type says what it is
         if (!c.Site.Small && Office.Fits(c)) return new Office();   // (D18)
+        if (House.Fits(c)) return new House(c);   // (D26)
         if (!c.Site.Small && Kamienica.Fits(c)) return new Kamienica();
         if (!c.Site.Small && PrlBlock.Fits(c)) return new PrlBlock();
         return new Plain();
@@ -152,6 +154,11 @@ public static class BuildingGenerator
             else if (wings != null) { float k = rise / wings.Max(w => w.Rise); wings = wings.Select(w => w with { Rise = w.Rise * k }).ToList(); }
         }
         float extra = shape == RoofShape.Flat ? style.RoofExtra : rise;
+
+        // a house's mapped levels count the attic under a pitched roof (the usual Polish mapping: a two-storey house
+        // with rooms in the roof is building:levels=3): the walls hold one fewer (D26)
+        if (style is Styles.House && r.Levels is >= 3 && levels.Source != Source.Inferred && shape is RoofShape.Gabled or RoofShape.Hipped)
+            levels = new Sourced<int>(levels.Value - 1, levels.Source);
 
         Sourced<float> height;
         float minH = r.Raised ? r.MinHeight!.Value : 0f;

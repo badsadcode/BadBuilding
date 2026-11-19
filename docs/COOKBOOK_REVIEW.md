@@ -47,12 +47,12 @@ game's extract and pack, then a map rebuild (~52 min).
 
 | ID | Recipe | Status | Today | Smallest useful next step |
 |---|---|---|---|---|
-| R001 | Mazovian cottage (chałupa) | partial | `Plain`: gabled/hipped house, plain windows | a rural house subfamily: steep gable, porch, chimney, timber or whitewash |
+| R001 | Mazovian cottage (chałupa) | implemented (D26) | `Plain`: gabled/hipped house, plain windows | a rural house subfamily: steep gable, porch, chimney, timber or whitewash |
 | R002 | Interwar suburban house | missing | `Plain` | subfamily of the house family, needs evidence or a preset |
-| R003 | PRL kostka | missing | `Plain` | **house subfamily**: near-square 2-storey cube, hipped/flat roof, raised entrance with steps, basement windows |
-| R004 | Contemporary detached house | partial | `Plain` | subfamily: bigger garden glazing, clean eaves, optional garage wing |
-| R005 | Semi-detached (bliźniak) | partial | party wall blank (D4), doors anywhere | mirrored halves: doors and porches away from the shared wall |
-| R006 | Terraced row (szeregowiec) | partial | party walls blank | per-unit doors and small porches on the street side |
+| R003 | PRL kostka | implemented (D26) | `Plain` | **house subfamily**: near-square 2-storey cube, hipped/flat roof, raised entrance with steps, basement windows |
+| R004 | Contemporary detached house | implemented (D26) | `Plain` | subfamily: bigger garden glazing, clean eaves, optional garage wing |
+| R005 | Semi-detached (bliźniak) | implemented (D26) | party wall blank (D4), doors anywhere | mirrored halves: doors and porches away from the shared wall |
+| R006 | Terraced row (szeregowiec) | implemented (D26) | party walls blank | per-unit doors and small porches on the street side |
 | R007 | Pre-war villa | missing | — | with evidence only (rare: 1,457 start dates in the region) |
 | R008 | Modern villa | missing | — | later |
 | R009 | Extended / mixed-age house | missing | — | comes almost for free with L-shaped roofs (a wing at another pitch) |
@@ -192,12 +192,12 @@ game's extract and pack, then a map rebuild (~52 min).
 
 By what you see most while driving, then by shared leverage:
 
-1. **Carry the real OSM type into the library** (Baltic Drive extract → pack → adapter: the raw `building` value and
+1. *(done, Baltic Drive D72)* **Carry the real OSM type into the library** (Baltic Drive extract → pack → adapter: the raw `building` value and
    `amenity`). Small code, one map rebuild. Without it, schools, fire stations, garages, greenhouses and offices can't
    be told apart, so every type recipe below waits on this.
 2. *(done, D25)* **Roofs on L-, T- and U-shaped footprints** (RF08, M05): split the footprint into rectangles, roof each, join
    them with valleys. 225,000 houses get their roof back; every pitched-roof family after this needs it.
-3. **The house family** (R001 chałupa, R003 kostka, R004 contemporary, R005–R006 paired and terraced): one `House`
+3. *(done, D26)* **The house family** (R001 chałupa, R003 kostka, R004 contemporary, R005–R006 paired and terraced): one `House`
    style with subfamilies chosen by footprint, size, storeys, rural or town context; 3–5 variations each; porches,
    chimneys, eaves, steps, basement windows. Houses are most of Mazowsze.
 4. **Farm buildings and outbuildings** (R072 barn, R077 outbuilding, R075 greenhouse): half a million small
