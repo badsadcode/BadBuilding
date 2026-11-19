@@ -127,12 +127,12 @@ game's extract and pack, then a map rebuild (~52 min).
 
 | ID | Recipe | Status | Today | Next step |
 |---|---|---|---|---|
-| R072 | Barn (stodoła) | partial | `Plain` barn: gabled 20–28° | big doors on the long side, timber or brick, few windows |
-| R073 | Modern farm shed | partial | `Plain` | reuse `Industrial` metal on large farm footprints |
-| R074 | Stable / cowshed | partial | `Plain` | row of small vents, doors |
-| R075 | Greenhouse | missing | `Plain` | glass walls and roof with ribs: 4,659, many in the fruit belt south of Warsaw |
+| R072 | Barn (stodoła) | implemented (D27) | `Plain` barn: gabled 20–28° | big doors on the long side, timber or brick, few windows |
+| R073 | Modern farm shed | implemented (D27, hall) | `Plain` | reuse `Industrial` metal on large farm footprints |
+| R074 | Stable / cowshed | implemented (D27) | `Plain` | row of small vents, doors |
+| R075 | Greenhouse | implemented (D27) | `Plain` | glass walls and roof with ribs: 4,659, many in the fruit belt south of Warsaw |
 | R076 | Silo | missing | tower | needs evidence |
-| R077 | Farm outbuilding | partial | `Plain` | **550,000 of them**: a door, a vent, a few material families (brick, block, timber) |
+| R077 | Farm outbuilding | implemented (D27) | `Plain` | **550,000 of them**: a door, a vent, a few material families (brick, block, timber) |
 | R078 | Rural shop | partial | `Plain` | later |
 
 ## 2. Styles (Part B)
@@ -200,7 +200,7 @@ By what you see most while driving, then by shared leverage:
 3. *(done, D26)* **The house family** (R001 chałupa, R003 kostka, R004 contemporary, R005–R006 paired and terraced): one `House`
    style with subfamilies chosen by footprint, size, storeys, rural or town context; 3–5 variations each; porches,
    chimneys, eaves, steps, basement windows. Houses are most of Mazowsze.
-4. **Farm buildings and outbuildings** (R072 barn, R077 outbuilding, R075 greenhouse): half a million small
+4. *(done, D27)* **Farm buildings and outbuildings** (R072 barn, R077 outbuilding, R075 greenhouse): half a million small
    buildings in every village.
 5. **Garages and shacks** (R014, R013, R012, R011): Tom's list; small and quick once roofs and types are in.
 6. **Village civic**: fire station (R049), school and kindergarten (R044).

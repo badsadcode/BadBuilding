@@ -399,3 +399,24 @@ Details stay within a metre of the walls (canopies, steps, balconies, sills, shu
 footprint. Tests: the year picks the family; cottage, kostka and semi-detached signatures; footprint bounds over five
 seeds; variety over twenty seeds; three levels under a gable are two floors and an attic.
 Looked at in Baltic Drive: Kępa Gocławska, Grądy (Błonie), Serock.
+
+## D27 — Farm buildings and outbuildings (Tom: "Farm buildings", 19 Nov 2026)
+
+Half a million of Mazowsze's buildings (outbuilding 288,000, farm_auxiliary 262,000, plus barns, cowsheds, stables,
+sties, greenhouses) were the generic style's flat boxes. Style `Farm`, five kinds (cookbook R072–R077):
+- **outbuilding** (under 45 m², or by chance in between): one storey of 2.5 m, a mono-pitch roof (half), a low gable
+  or flat one; a door (a wider double one on the bigger), a small window on six in ten;
+- **barn** (stodoła): walls 3.6–4.8 m, gable 30–40°, wrota up to 4.2 × 3.8 m in vertical boards with a frame and
+  braces on a long side (and the opposite one on half), a hay-loft door up in a gable; brick and block barns get
+  boarded gables;
+- **livestock** (cowshed, stable, sty; obora, chlewnia): low and long, a row of small windows high on the long
+  walls every 2.6 m, one or two doors, one or two ventilation stacks on the ridge over 60 m²;
+- **hall** (over 450–600 m²): ribbed metal on a 0.6 m concrete plinth, an 8–14° gable, one to three roller doors,
+  a ribbon of high windows;
+- **greenhouse**: milky panes on ribs every 1.2 m, walls and a 25–32° roof.
+Types decide first (greenhouse; cowshed, stable, sty → livestock; barn), then size and shape (over 450 m² mostly
+halls; long ones barns or livestock; small ones outbuildings). Skins: brick, grey block, whitewash, horizontal planks
+(outbuildings), vertical boards (barns, nearly half); roofs eternit (most), green, red-brown, dark or rusty sheet.
+Tests: type and size pick the kind; the barn's doors, the cowshed's high windows and vent, the mono-pitch roof, the
+greenhouse; footprint bounds.
+Looked at in Baltic Drive: Zielanówek (Tłuszcz), Serock.
