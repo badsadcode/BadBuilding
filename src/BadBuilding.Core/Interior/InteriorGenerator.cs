@@ -42,6 +42,9 @@ public static class InteriorGenerator
     /// <summary>The interior of a building, or null when its footprint doesn't suit a staircase block.</summary>
     public static InteriorModel? Generate(Shell shell) => Generate(shell, out _);
 
+    /// <summary>Whether interiors are furnished (NoorFengShui, D38).</summary>
+    public static bool Furnish = true;
+
     /// <summary>As <see cref="Generate(Shell)"/>, saying why not when there's no interior.</summary>
     public static InteriorModel? Generate(Shell shell, out string why)
     {
@@ -143,6 +146,7 @@ public static class InteriorGenerator
                 Top = F(s.Levels),
                 StoreyHeight = s.StoreyHeight,
                 Levels = s.Levels,
+                Seed = s.Seed,
             };
             _look = Rng.Stream(s.Seed, "interior");
             Materials();
@@ -234,6 +238,7 @@ public static class InteriorGenerator
                 Why = runs.Count == 0 ? $"footprint {uHi - uLo:0.0} m long: nowhere 8.5 m deep behind a door wall" : string.Join("; ", whys);
                 return null;
             }
+            if (Furnish) NoorFengShui.Furnish(_m);
             Validate();
             return _m;
         }
@@ -635,6 +640,8 @@ public static class InteriorGenerator
                 Box(alongU, MathF.Min(facade, inner), MathF.Max(facade, inner), px, a1, y0, y1);
                 foreach (var h in holes)
                 {
+                    // what the rooms will be furnished around (D38)
+                    _m.Apertures.Add(new Aperture(st, alongU, inner, h.A0, h.A1, h.Y0, h.Y1, h.Kind, h.Kind == "loggia" ? facade + sign * LoggiaD : inner));
                     var room = alongU ? RoomAt((h.A0 + h.A1) * 0.5f, inner + sign * 0.1f) : RoomAt(inner + sign * 0.1f, (h.A0 + h.A1) * 0.5f);
                     string role = WallRole(room?.Kind, room?.Flat);
                     if (role == "") continue;

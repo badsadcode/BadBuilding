@@ -602,3 +602,23 @@ Tom's dumps from inside: "balconies are not balconies", "gaps near the windows a
 * The roomy sizes of D34 had left narrow blocks with no flats at all (a 13 m point block: 9 rooms, all stairwell): a
   section now takes the tight staircase (2.9 m) and a 1.6 m hall when the roomy one would leave a flat beside it
   narrower than 4.6 m but the tight one wouldn't. That block has its 63 rooms back.
+
+## D38 — NoorFengShui: furniture placed the way people place it (Tom and Noor: "we need NoorFengShui", 20 Nov 2026)
+`Interior/NoorFengShui.cs`, run at the end of `InteriorGenerator.Generate` (switch: `InteriorGenerator.Furnish`).
+* Programmes by room kind: bedroom (a double bed if the room is 3 m wide, else a single; a bedside table each side;
+  a wardrobe; a desk with its chair over 10 m²; a bookshelf over 14 m²), living room (sofa, the TV unit on the wall it
+  faces, a coffee table between, bookshelf, armchair, a dining table with chairs from 18 m²), kitchen (a counter along
+  the longest free wall with the sink under a window and the cooker away from it, wall cupboards not over windows, the
+  fridge at its end, a table with chairs from 7 m²), bathroom (a bath, or a shower if it won't fit; toilet; basin with
+  a mirror cabinet; washing machine), hall (shoe cabinet, coat rack), storage (shelves).
+* Rules: against a wall, back to it; never in a doorway, the swing before it, a balcony door or before a loggia's glass;
+  tall pieces never before a window, low ones only under a sill at least their height; a bed's head never under a
+  window. After each piece the floor is flooded at walking width (0.1 m cells, 0.3 m half-width from the wall gap):
+  every door must reach every other and the front of every piece you use, else the piece goes elsewhere or not at all.
+* Built from boxes in seeded colours (`f_wood`, `f_fabric`, `f_kitchen`...), one physics box per piece, and a
+  `loot_<kind>` marker where things could be kept (drawer, wardrobe, fridge, cupboard, medicine, shelf).
+* The interior records its outer openings per room (`InteriorModel.Apertures`); openings that only clip a room's edge
+  block that wall but are not its doors (one was, with its front outside the room, and the kitchen stayed empty).
+* Placeholder looks: the boxes are for swapping to real models by kind later (Synty or hand-made), Tom's call.
+Test: furniture in at least 80 % of living rooms, bedrooms, kitchens and bathrooms; every piece inside its room and
+clear of the others; no bed under a window; loot markers. A 15-storey block plans in ~0.3 s on a worker.

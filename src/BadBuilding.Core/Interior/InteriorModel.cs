@@ -28,6 +28,16 @@ public sealed record Room(string Id, string Kind, int Storey, string? Flat, IRea
     public float Area => Rects.Sum(r => (r.Max.X - r.Min.X) * (r.Max.Y - r.Min.Y));
 }
 
+/// <summary>An opening in an outer wall as a room sees it (D38): on a storey, on the line of the wall's inner face
+/// (v when <see cref="AlongU"/>, else u), from A0 to A1 along it, Y0 to Y1 high; kind as the facade made it ("glass",
+/// "glass_block", "door", "balcony_door", "shut", "loggia"). A loggia's <see cref="Back"/> is the line of its glass
+/// back wall (it cuts into the room up to there); for the rest it equals <see cref="Line"/>.</summary>
+public sealed record Aperture(int Storey, bool AlongU, float Line, float A0, float A1, float Y0, float Y1, string Kind, float Back);
+
+/// <summary>A piece of furniture (D38): its kind, room, footprint in the frame (u, v), height, the way its front faces
+/// (in the frame: one of ±u, ±v), and the floor it stands on.</summary>
+public sealed record FurnitureItem(string Id, string Kind, string Room, Vector2 Min, Vector2 Max, float Height, Vector2 Facing, float Floor);
+
 /// <summary>A doorway between two rooms (or "outside"), building space: the middle of its sill, the direction it is
 /// passed through, its clear width and height.</summary>
 public sealed record Doorway(string Id, string From, string To, Vector3 Position, Vector3 Normal, float Width, float Height);
@@ -48,6 +58,9 @@ public sealed class InteriorModel
     public List<Room> Rooms { get; } = [];
     public List<Doorway> Doors { get; } = [];
     public List<Marker> Markers { get; } = [];
+    public List<Aperture> Apertures { get; } = [];
+    public List<FurnitureItem> Furniture { get; } = [];
+    public ulong Seed { get; init; }
     public List<EntranceDoor> Entrances { get; } = [];
     /// <summary>Balconies you can step out onto (D35), with the storey's floor height in their position.</summary>
     public List<BalconySite> Balconies { get; } = [];
@@ -69,6 +82,7 @@ public sealed class InteriorModel
         sb.Append(",\"doors\":[").Append(string.Join(",", Doors.Select(d => { var (u, v) = Frame.Local(new Vector2(d.Position.X, d.Position.Z)); return $"{{\"storey\":{StoreyAt(d.Position.Y + 0.1f)},\"u\":{F(u)},\"v\":{F(v)},\"w\":{F(d.Width)},\"along\":{(MathF.Abs(Vector3.Dot(d.Normal, Frame.AxisV)) > 0.5f ? "true" : "false")}}}"; }))).Append(']');
         sb.Append(",\"report\":\"").Append(string.Join("; ", Report.Issues.Select(i => i.Code + " " + i.Message)).Replace("\"", "'")).Append("\"");
         sb.Append(",\"metrics\":{").Append(string.Join(",", Report.Metrics.Select(kv => $"\"{kv.Key}\":{F((float)kv.Value)}"))).Append("}");
+        sb.Append(",\"furniture\":[").Append(string.Join(",", Furniture.Select(x => $"[{StoreyAt(x.Floor + 0.1f)},{F(x.Min.X)},{F(x.Min.Y)},{F(x.Max.X)},{F(x.Max.Y)},\"{x.Kind}\"]"))).Append(']');
         sb.Append(",\"openings\":[").Append(string.Join(",", Openings.Select(o => $"[{o.Side},{F(o.A0)},{F(o.A1)},{F(o.Y0)},{F(o.Y1)},\"{o.Kind}\"]"))).Append(']');
         return sb.Append('}').ToString();
     }

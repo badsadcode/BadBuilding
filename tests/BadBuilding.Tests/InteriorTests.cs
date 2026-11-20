@@ -128,4 +128,37 @@ public class InteriorTests
         Assert.Contains(m.Rooms, r => r.Kind == "storage");
         Assert.DoesNotContain(m.Report.Issues, i => i.Severity == Validation.Severity.Error);
     }
+
+    [Fact]
+    public void Rooms_are_furnished_by_the_rules()
+    {
+        var (_, _, m) = Make(Slab(seed: 9));
+        Assert.True(m.Furniture.Count > 100, $"{m.Furniture.Count} pieces");
+        foreach (var kind in new[] { "living", "bedroom", "kitchen", "bathroom" })
+            Assert.True(m.Rooms.Where(r => r.Kind == kind).Count(r => m.Furniture.Any(f => f.Room == r.Id)) >= m.Rooms.Count(r => r.Kind == kind) * 0.8,
+                $"{kind}: too many empty");
+        foreach (var r in m.Rooms)
+        {
+            var items = m.Furniture.Where(f => f.Room == r.Id).ToList();
+            var q = r.Rects[0];
+            foreach (var f in items)
+            {
+                // inside its room, clear of every other piece
+                Assert.True(f.Min.X >= q.Min.X - 0.01f && f.Max.X <= q.Max.X + 0.01f && f.Min.Y >= q.Min.Y - 0.01f && f.Max.Y <= q.Max.Y + 0.01f, $"{f.Id} outside");
+                foreach (var g in items)
+                    if (!ReferenceEquals(f, g)) Assert.False(f.Min.X < g.Max.X && g.Min.X < f.Max.X && f.Min.Y < g.Max.Y && g.Min.Y < f.Max.Y, $"{f.Id} overlaps {g.Id}");
+            }
+            // no bed with its head under a window
+            foreach (var bed in items.Where(f => f.Kind.StartsWith("bed")))
+                foreach (var ap in m.Apertures.Where(a => a.Storey == r.Storey && a.Kind == "glass"))
+                {
+                    bool headOnLine = ap.AlongU ? MathF.Abs((bed.Facing.Y > 0 ? bed.Min.Y : bed.Max.Y) - ap.Line) < 0.15f && bed.Facing.Y != 0
+                                                : MathF.Abs((bed.Facing.X > 0 ? bed.Min.X : bed.Max.X) - ap.Line) < 0.15f && bed.Facing.X != 0;
+                    float b0 = ap.AlongU ? bed.Min.X : bed.Min.Y, b1 = ap.AlongU ? bed.Max.X : bed.Max.Y;
+                    Assert.False(headOnLine && ap.A1 > b0 && ap.A0 < b1, $"{bed.Id} under a window");
+                }
+        }
+        Assert.Contains(m.Markers, x => x.Kind == "loot_fridge");
+        Assert.DoesNotContain(m.Report.Issues, i => i.Severity == Validation.Severity.Error);
+    }
 }
