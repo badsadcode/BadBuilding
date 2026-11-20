@@ -158,7 +158,12 @@ public sealed class Apartments : IStyle
                     }
                     if (balconyBay && s > 0 || balconyBay && s == 0 && !street)
                     {
-                        if (_loggias) Loggia(wall.Mesh, trim.Mesh, f, body, u0, u1, y0, y1, uc, bw);
+                        if (_loggias)
+                        {
+                            Loggia(wall.Mesh, trim.Mesh, f, body, u0, u1, y0, y1, uc, bw);
+                            // where it is, for interiors (D36): the middle of its mouth on the facade, at the floor
+                            b.Markers.Add(new Marker(c.Id($"loggia.e{e.Ring}.{e.Index}.{bi}.{s}"), "loggia", f.P(uc, y0, 0), f.Out, new Vector2(u1 - u0 - 0.5f, LoggiaDepth)));
+                        }
                         else
                         {
                             float hw = MathF.Min(0.8f, bw * 0.3f);
@@ -211,11 +216,13 @@ public sealed class Apartments : IStyle
     }
 
     /// <summary>A loggia cut 1.3 m into the wall: the window wall at the back, a glass guard at the front.</summary>
+    public const float LoggiaDepth = 1.3f;
+
     private static void Loggia(Mesh wall, Mesh trim, Kit.Frame f, string body, float u0, float u1, float y0, float y1, float uc, float bw)
     {
         float a = u0 + 0.25f, z = u1 - 0.25f;
-        Kit.WallWithOpening(wall, body, body, "glass", f, u0, u1, y0, y1, a, z, y0, y1 - 0.3f, 1.3f);
-        Kit.Box(trim, "frame", f, uc - 0.03f, uc + 0.03f, y0, y1 - 0.3f, -1.29f, -1.25f);
+        // the glass wall at the back opens (D36): someone inside can step out into the loggia
+        Kit.WallWithOpening(wall, body, body, "balcony_door", f, u0, u1, y0, y1, a, z, y0, y1 - 0.3f, LoggiaDepth);
         Kit.Box(trim, "rail_glass", f, a, z, y0, y0 + 1.05f, -0.08f, -0.05f);
         Kit.Box(trim, "railing", f, a, z, y0 + 1.05f, y0 + 1.1f, -0.09f, -0.04f);
     }

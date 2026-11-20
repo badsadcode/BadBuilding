@@ -12,7 +12,11 @@ public sealed record EntranceDoor(string Id, Vector3 Position, Vector3 Out);
 
 /// <summary>A balcony of the exterior (D35): the middle of its door on the facade line at the floor, which way is out,
 /// its width along the wall and how far it stands out (0: a door out to the garden on the ground floor).</summary>
-public sealed record BalconySite(Vector3 Position, Vector3 Out, float Width, float Depth);
+public sealed record BalconySite(Vector3 Position, Vector3 Out, float Width, float Depth)
+{
+    /// <summary>A loggia (D36): cut into the building instead of standing out; <see cref="Depth"/> is how far in.</summary>
+    public bool Loggia { get; init; }
+}
 
 /// <summary>
 /// What an interior needs to know about a building (D33), kept small so a game can hold one for every building near
@@ -60,7 +64,8 @@ public sealed record Shell
             Levels = plan.Levels.Value,
             Entrances = doors,
             Openings = OpeningsOf(b),
-            Balconies = b.Markers.Where(m => m.Kind == "balcony").Select(m => new BalconySite(m.Position, m.Direction, m.Size.X, m.Size.Y)).ToList(),
+            Balconies = b.Markers.Where(m => m.Kind is "balcony" or "loggia")
+                                 .Select(m => new BalconySite(m.Position, m.Direction, m.Size.X, m.Size.Y) { Loggia = m.Kind == "loggia" }).ToList(),
         };
     }
 

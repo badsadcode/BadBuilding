@@ -191,9 +191,20 @@ public static class InteriorGenerator
                     // a door with no staircase behind it stays shut: drawn as a door, solid
                     string kind = o.Kind;
                     // a balcony door is a way out onto its balcony, when the exterior says there is one (D35)
-                    if (kind == "balcony_door" && !s.Balconies.Any(bs => Vector2.Distance(new Vector2(bs.Position.X, bs.Position.Z), (o.A + o.B) * 0.5f) < 0.8f && MathF.Abs(bs.Position.Y - o.Y0) < 0.3f)) kind = "glass";
+                    if (kind == "balcony_door" && !s.Balconies.Any(bs => !bs.Loggia && Vector2.Distance(new Vector2(bs.Position.X, bs.Position.Z), (o.A + o.B) * 0.5f) < 0.8f && MathF.Abs(bs.Position.Y - o.Y0) < 0.3f)) kind = "glass";
                     if (kind == "door" && !mine.Any(e => Vector2.Distance(new Vector2(e.Position.X, e.Position.Z), (o.A + o.B) * 0.5f) < 1.2f)) kind = "shut";
                     _segOpen.Add((side, a0, a1, o.Y0, o.Y1, kind));
+                }
+                // loggias (D36): a recess in the wall from the floor to 0.3 m under the next, the glass at its back
+                foreach (var lg in s.Balconies.Where(b => b.Loggia))
+                {
+                    var (lu, lv) = _f.Local(new Vector2(lg.Position.X, lg.Position.Z));
+                    bool inU = lu > _uMin && lu < _uMax, inV = lv > _vF && lv < _depth;
+                    int side = inU && MathF.Abs(lv - _vF) < 0.4f ? 0 : inU && MathF.Abs(lv - _depth) < 0.4f ? 1
+                             : inV && MathF.Abs(lu - _uMin) < 0.4f ? 2 : inV && MathF.Abs(lu - _uMax) < 0.4f ? 3 : -1;
+                    if (side < 0) continue;
+                    float along = side < 2 ? lu : lv;
+                    _segOpen.Add((side, along - lg.Width * 0.5f, along + lg.Width * 0.5f, lg.Position.Y, lg.Position.Y + s.StoreyHeight - 0.3f, "loggia"));
                 }
                 _m.Openings.AddRange(_segOpen);
 
@@ -238,6 +249,7 @@ public static class InteriorGenerator
             mm["door_leaf"] = Kit.Mat("door_leaf", _look.Weighted<string>([("9a7a55", 2), ("d9d4c6", 1), ("6b5240", 1)]), 0.6f);
             mm["window"] = Kit.Mat("window", "9fb9c8", 0.04f, 0.15f, 0.32f);
             mm["glass_block"] = Kit.Mat("glass_block", "c9d8da", 0.3f, 0f, 0.55f);
+            mm["loggia_floor"] = Kit.Mat("loggia_floor", "8b8984", 0.9f);
         }
 
         private string WallRole(string? kind, string? flat) => kind switch
@@ -466,6 +478,7 @@ public static class InteriorGenerator
                 var xs = new SortedSet<float>();
                 foreach (var (a0, a1) in spans) { xs.Add(a0); xs.Add(a1); }
                 foreach (var r in _rooms) foreach (var q in r.Rects) { xs.Add(alongU ? q.Min.X : q.Min.Y); xs.Add(alongU ? q.Max.X : q.Max.Y); }
+                foreach (var lg in Loggias(f)) { if (alongU == (lg.Side >= 2)) { xs.Add(lg.Back0); xs.Add(lg.Back1); } }
                 var pts = xs.ToList();
                 var doors = _doors.Where(dp => dp.AlongU == alongU && MathF.Abs(dp.C - cc) < 0.01f).ToList();
                 var segs = new List<(float A0, float A1, RoomPlan? Neg, RoomPlan? Pos)?>();
@@ -474,6 +487,8 @@ public static class InteriorGenerator
                     float a0 = pts[i], a1 = pts[i + 1];
                     float am = (a0 + a1) * 0.5f;
                     if (a1 - a0 < 0.02f || !spans.Any(sp => am > sp.Item1 && am < sp.Item2)) { segs.Add(null); continue; }
+                    // no room wall out in a loggia's open air (D36)
+                    if (InLoggia(f, alongU ? am : cc, alongU ? cc : am)) { segs.Add(null); continue; }
                     var neg = alongU ? RoomAt(am, cc - 0.1f) : RoomAt(cc - 0.1f, am);
                     var pos = alongU ? RoomAt(am, cc + 0.1f) : RoomAt(cc + 0.1f, am);
                     segs.Add(neg == null && pos == null || neg != null && ReferenceEquals(neg, pos) ? null : (a0, a1, neg, pos));
@@ -571,6 +586,17 @@ public static class InteriorGenerator
                         if (p1 - p0 < 0.01f) continue;
                         if (role != "") Face(role, alongU, inner, x0, x1, MathF.Max(p0, f), MathF.Min(p1, c), normal, f);
                     }
+                    if (hole is { Kind: "loggia" })
+                    {
+                        // the room's wall stands at the loggia's back, all glass (it opens, like a balcony door), and the
+                        // loggia's floor is concrete, not the room's parquet; the exterior draws its sides and ceiling
+                        float backL = facade + sign * (LoggiaD - 0.01f);
+                        Face("window", alongU, backL, x0, x1, f, hole.Y1, normal, f);
+                        if (role != "") Face(role, alongU, backL, x0, x1, hole.Y1, c, normal, f);   // over the glass, to the ceiling
+                        float l0 = MathF.Min(facade, backL), l1 = MathF.Max(facade, backL);
+                        if (alongU) HQuad("loggia_floor", x0, x1, l0, l1, f + 0.004f, true); else HQuad("loggia_floor", l0, l1, x0, x1, f + 0.004f, true);
+                        continue;
+                    }
                     if (hole == null || role == "") continue;
                     // the reveal back to the glass (or, for the entrance, to the exterior's own reveal)
                     bool door = hole.Kind is "door" or "balcony_door";
@@ -585,7 +611,7 @@ public static class InteriorGenerator
                 }
                 // physics: the whole wall, glass and all, with only the street doors left open
                 float px = a0;
-                foreach (var h in holes.Where(h => h.Kind is "door" or "balcony_door").OrderBy(h => h.A0))
+                foreach (var h in holes.Where(h => h.Kind is "door" or "balcony_door" or "loggia").OrderBy(h => h.A0))
                 {
                     Box(alongU, MathF.Min(facade, inner), MathF.Max(facade, inner), px, h.A0, y0, y1);
                     Box(alongU, MathF.Min(facade, inner), MathF.Max(facade, inner), h.A0, h.A1, h.Y1, y1);
@@ -598,11 +624,55 @@ public static class InteriorGenerator
                     string role = WallRole(room?.Kind, room?.Flat);
                     if (role == "") continue;
                     float w0 = MathF.Min(facade, inner), w1 = MathF.Max(facade, inner);
+                    if (h.Kind == "loggia")
+                    {
+                        // the recess's sides seen from the rooms beside it, its floor and front rail, and their physics
+                        float backL = facade + sign * LoggiaD, s0 = MathF.Min(inner, backL), s1 = MathF.Max(inner, backL);
+                        var left = alongU ? RoomAt(h.A0 - 0.2f, inner + sign * 0.6f) : RoomAt(inner + sign * 0.6f, h.A0 - 0.2f);
+                        var right = alongU ? RoomAt(h.A1 + 0.2f, inner + sign * 0.6f) : RoomAt(inner + sign * 0.6f, h.A1 + 0.2f);
+                        EndFace(WallRole(left?.Kind, left?.Flat) is { Length: > 0 } rl ? rl : role, alongU, s0, s1, h.A0, f, h.Y1, -1, f);
+                        EndFace(WallRole(right?.Kind, right?.Flat) is { Length: > 0 } rr ? rr : role, alongU, s0, s1, h.A1, f, h.Y1, +1, f);
+                        Box(alongU, s0, s1, h.A0 - 0.12f, h.A0, f, h.Y1);
+                        Box(alongU, s0, s1, h.A1, h.A1 + 0.12f, f, h.Y1);
+                        Box(alongU, MathF.Min(facade, inner), MathF.Max(facade, inner), h.A0, h.A1, f - 0.25f, f);
+                        Box(alongU, MathF.Min(facade, facade + sign * 0.1f), MathF.Max(facade, facade + sign * 0.1f), h.A0, h.A1, f, f + 1.15f);
+                        float mid = (h.A0 + h.A1) * 0.5f;
+                        var at = alongU ? _f.P(mid, f, facade) : _f.P(facade, f, mid);
+                        _m.Balconies.Add(new BalconySite(at, alongU ? _f.AxisV * -sign : _f.AxisU * -sign, h.A1 - h.A0, LoggiaD) { Loggia = true });
+                        continue;
+                    }
                     if (h.Kind == "balcony_door" && st >= 0) Balcony(side, facade, sign, h, f);
-                    EndFace(role, alongU, w0, w1, h.A0, h.Y0, h.Y1, -1, f);
-                    EndFace(role, alongU, w0, w1, h.A1, h.Y0, h.Y1, +1, f);
+                    // the jambs face into the opening
+                    EndFace(role, alongU, w0, w1, h.A0, h.Y0, h.Y1, +1, f);
+                    EndFace(role, alongU, w0, w1, h.A1, h.Y0, h.Y1, -1, f);
                 }
             }
+        }
+
+        private const float LoggiaD = 1.3f;
+
+        /// <summary>This storey's loggias in the section (D36): the side, the span along it, and the band across it they
+        /// cut out of the rooms (from the facade to their back).</summary>
+        private IEnumerable<(int Side, float A0, float A1, float Back0, float Back1)> Loggias(float f)
+        {
+            foreach (var o in _segOpen)
+            {
+                if (o.Kind != "loggia" || MathF.Abs(o.Y0 - f) > 0.4f) continue;
+                float facade = o.Side switch { 0 => _vF, 1 => _depth, 2 => _uMin, _ => _uMax };
+                float sign = o.Side is 0 or 2 ? 1f : -1f;
+                float b0 = MathF.Min(facade, facade + sign * LoggiaD), b1 = MathF.Max(facade, facade + sign * LoggiaD);
+                yield return (o.Side, o.A0, o.A1, b0, b1);
+            }
+        }
+
+        private bool InLoggia(float f, float u, float v)
+        {
+            foreach (var lg in Loggias(f))
+            {
+                float along = lg.Side < 2 ? u : v, across = lg.Side < 2 ? v : u;
+                if (along > lg.A0 && along < lg.A1 && across > lg.Back0 - 0.01f && across < lg.Back1 + Half) return true;
+            }
+            return false;
         }
 
         /// <summary>A balcony outside a balcony door (D35): the exterior draws it; the interior gives it a floor and
@@ -612,7 +682,7 @@ public static class InteriorGenerator
             bool alongU = side < 2;
             float mid = (h.A0 + h.A1) * 0.5f;
             var at = alongU ? _f.P(mid, f, facade) : _f.P(facade, f, mid);
-            var site = s.Balconies.Where(b => MathF.Abs(b.Position.Y - f) < 0.4f).OrderBy(b => Vector2.Distance(new Vector2(b.Position.X, b.Position.Z), new Vector2(at.X, at.Z))).FirstOrDefault();
+            var site = s.Balconies.Where(b => !b.Loggia && MathF.Abs(b.Position.Y - f) < 0.4f).OrderBy(b => Vector2.Distance(new Vector2(b.Position.X, b.Position.Z), new Vector2(at.X, at.Z))).FirstOrDefault();
             if (site == null || Vector2.Distance(new Vector2(site.Position.X, site.Position.Z), new Vector2(at.X, at.Z)) > 0.8f) return;
             _m.Balconies.Add(site with { Position = at });
             if (site.Depth < 0.3f) return;   // a garden door: the ground is the floor

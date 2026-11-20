@@ -580,3 +580,14 @@ Tom's dumps from inside: "balconies are not balconies", "gaps near the windows a
   front of the exterior's own. They stopped 0.21 m in before, and the contemporary blocks' reveals end at 0.15 m: a
   crack round every window and balcony door.
 * Not yet: loggias (their glass is 1.3 m in, behind the interior's outer wall, which stays blind there).
+
+## D36 — Loggias you can step into (Tom: "make the loggias work too", 20 Nov 2026)
+* The contemporary flats' loggias leave a `loggia` marker (the middle of the mouth on the facade at the floor, out,
+  Size = width and 1.3 m depth); their glass back wall is `balcony_door` (it opens) and lost its middle mullion. Kept
+  out of the Noor export, like balconies.
+* The interior steps its outer wall back round each loggia: the room's wall is the glass at the loggia's back
+  (passable), with the room's paint above it to the ceiling; the recess's sides get faces towards the rooms beside it;
+  room walls that would cross the loggia's open air stop at its back; the loggia gets a concrete floor over the room's,
+  and physics: its floor, a front rail 1.15 m high, and side walls. Loggias are listed with the balconies (`Loggia`).
+* Also: the jambs of windows and doors in the outer walls faced into the wall; they face into the opening now.
+* Not yet: a loggia that falls in front of a staircase opens off the stairwell.

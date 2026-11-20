@@ -85,7 +85,7 @@ public static class Noor
     /// <summary>Markers with no place in the spec's vocabulary yet stay inside BadBuilding (D17: the chimney's top; D18: a
     /// mast's beacon);
     /// a spec change is proposed in NOOR_SAGE.md rather than exporting them as something they're not.</summary>
-    public static bool Exported(Marker m) => m.Kind is not ("chimney" or "beacon" or "balcony");
+    public static bool Exported(Marker m) => m.Kind is not ("chimney" or "beacon" or "balcony" or "loggia");
 
     public static (string Marker, string Kind, Dictionary<string, object> Fields) MarkerOf(Building b, Marker m)
     {
