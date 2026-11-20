@@ -73,6 +73,10 @@ public static class Samples
         var st = new[] { new StreetLine(street) };
         yield return new("synthetic_slab", true, "long PRL slab, street to the south",
             Req("syn:slab", R(-60, -6, 60, -6, 60, 6, -60, 6), "apartments", 11) with { Streets = st }, S);
+        yield return new("synthetic_deep", true, "deep PRL slab (17 m), street to the south",
+            Req("syn:deep", R(-25, -8.5f, 25, -8.5f, 25, 8.5f, -25, 8.5f), "apartments", 5) with { Streets = st }, S);
+        yield return new("synthetic_stepped", true, "stepped slab: three sections, the middle one 1.5 m deeper at the back",
+            Req("syn:stepped", R(-36, -6, 36, -6, 36, 6, 12, 6, 12, 7.5f, -12, 7.5f, -12, 6, -36, 6), "apartments", 5) with { Streets = st }, S);
         yield return new("synthetic_l", true, "L-shaped block",
             Req("syn:l", R(-30, -6, 20, -6, 20, 30, 8, 30, 8, 6, -30, 6), "apartments", 5) with { Streets = st }, S);
         yield return new("synthetic_courtyard", true, "perimeter block with a courtyard hole",

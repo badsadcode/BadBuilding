@@ -97,6 +97,10 @@ realism. Also wanted:
 
 ## Milestone 3 — interiors on demand
 
+First cut (D33, 20 Nov 2026): staircase blocks (`prl_block`, `apartments`), stepped slabs in sections, deep slabs with
+storage, the facade's windows taken as they are; used in Baltic Drive (D81). Next: corridor blocks and point towers,
+kamienica (staircase from the gate, enfilades), shops on the ground floor, balconies, furniture and loot markers.
+
 Port BadShip's interior generator (stair core and lift aligned on every storey, corridor, room programme, wall
 openings, window handshake, reachability) to polygon footprints, with Noor's believability rules (§4): flats reached
 from shared circulation, never through another flat; living rooms and bedrooms on windows; wet rooms inside; no

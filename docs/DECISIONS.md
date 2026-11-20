@@ -529,3 +529,32 @@ Tests: the tag; seventies concrete civic often, flats never without the preset; 
 but not a listed one or a house; all five grammars over forty seeds within a metre of the footprint.
 Looked at in Baltic Drive with the preset: Ksawerów's office blocks (bands and blank ends), Plac Konstytucji (MDM
 untouched).
+
+## D33 — Interiors on demand, first archetype: the staircase block (Tom: "Interiors", 20 Nov 2026)
+Milestone 3 starts with the commonest Warsaw building, the block of flats with staircases (klatkowiec), for the
+`prl_block` and `apartments` styles. Two new pieces, both in `Interior/`:
+* `Shell.Of(building)`: what an interior needs, small enough for a game to keep one for every block near the player
+  (outline, storeys, datum, entrance doors, and every opening the facade made, read back from the infill quads that
+  `Kit.WallWithOpening` puts at the back of each hole). Exteriors are generated first and far more often, so the
+  window handshake runs this way round: the interior takes the facade's windows where they are.
+* `InteriorGenerator.Generate(shell)`: the plan and its geometry. The wall with the most doors sets the frame. The
+  outline is sampled across that wall; runs where its front stays on one line and it is 8.5–20 m deep become
+  sections (a stepped slab gives several; steps and slanted ends are left solid). Each door on a section's front
+  gets a staircase repeated on every storey: a landing at the door, a dog-leg stair (two flights of about 8 steps,
+  a spine wall between them, a half landing at the back), a rail on the top floor. Two flats per landing, reached
+  from the landing only: a hall with a short corridor, bathroom and kitchen on the door side, living room and
+  bedrooms on the far side; the left flat also takes the room behind the staircase. Deep blocks (over 7.5 m behind
+  the staircase) get a corridor along the back rooms and storage between, the hall running straight through.
+  Flats narrower than 3.5 m stay sealed voids; doors with no staircase behind them stay shut (D11's fallback).
+* Game scale (D11): doors 1.1 × 2.15 m, halls 1.5 m, stairs 1.33 m wide, ceilings at storey height minus 0.2 m.
+* Output (`InteriorModel`): one mesh by material role (the staircase's oil-painted lamperia and whitewash, terrazzo,
+  plaster, two wallpapers, kitchen paint, tiles, parquet, lino; colours seeded per building; open door leaves),
+  physics boxes (walls and window glass solid, flights as ramps through the step nosings, a step and a ramp up to
+  each street door from the lowest ground, jambs beside it), rooms with stable ids
+  (`<building>/interior/s<storey>/c<staircase>/<L|R>/<kind><n>`), doorways, room markers, and a report:
+  every room reachable from the street door (doorways and stairs), no flat through another.
+* Layouts are invented, believable, never the real buildings' plans (D11). Not yet: kamienica, corridor blocks, point
+  towers with flats all round the core, shops on the ground floor, balconies you can step onto, furniture, loot.
+Tests: staircases and flats on every storey, reachability, windows following the facade, rooms inside the outline,
+same shell same interior, L-blocks planned in their arm, stepped slabs in sections, storage in deep slabs. The CLI
+`interior` command writes a plan as JSON (`InteriorModel.PlanJson`).

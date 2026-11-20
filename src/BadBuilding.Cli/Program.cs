@@ -12,6 +12,8 @@ namespace BadBuilding.Cli;
 ///     every sample (real and synthetic) through the generator, its files, and an HTML page with a 3D view and a plan
 ///     per building: footprint, neighbours, streets, wall exposure, entrances, attributes with their sources, warnings.
 /// badbuilding generate --samples ... --case long_prl_slab [--index 0] [--seed N] [--stage-seed facade=3] --out dir
+/// badbuilding interior --samples ... --case long_prl_slab [--index 0] --out plan.json
+///     the interior (D33) of one sample as JSON: rooms (rectangles in the interior frame), doorways, colliders.
 /// badbuilding stress [--count 500]
 ///     random footprints: no exceptions, no non-finite vertices, nothing outside the outline.
 /// </summary>
@@ -28,6 +30,7 @@ public static class Program
             "gallery" => Gallery(opt),
             "generate" => GenerateOne(opt),
             "stress" => Stress(opt),
+            "interior" => InteriorPlan(opt),
             _ => Fail($"unknown command {args[0]}"),
         };
     }
@@ -50,6 +53,22 @@ public static class Program
 
     private static Dictionary<string, ulong> StageSeeds(Dictionary<string, List<string>> o) =>
         o.TryGetValue("stage-seed", out var v) ? v.Select(s => s.Split('=')).ToDictionary(p => p[0], p => ulong.Parse(p[1])) : new();
+
+    private static int InteriorPlan(Dictionary<string, List<string>> o)
+    {
+        var samples = Samples.Load(Get(o, "samples", "samples/warsaw.json"));
+        var c = Get(o, "case", "long_prl_slab");
+        var s = samples.Where(x => x.Case == c).ElementAtOrDefault(int.Parse(Get(o, "index", "0")));
+        if (s == null) return Fail($"no sample case '{c}'");
+        var b = BuildingGenerator.Generate(s.Request);
+        var shell = BadBuilding.Interior.Shell.Of(b);
+        if (shell == null) return Fail($"{c}: no shell (style {b.Plan?.Style})");
+        var m = BadBuilding.Interior.InteriorGenerator.Generate(shell, out var why);
+        if (m == null) return Fail($"{c}: no interior: {why}");
+        File.WriteAllText(Get(o, "out", "out/interior.json"), m.PlanJson(b.Plan!.Style));
+        Console.WriteLine($"{c}: {m.Rooms.Count} rooms, {m.Doors.Count} doors, {m.Colliders.Count} colliders, {m.Mesh.TriangleCount} triangles; {m.Report.Status}");
+        return 0;
+    }
 
     private static int GenerateOne(Dictionary<string, List<string>> o)
     {
