@@ -130,6 +130,13 @@ public static class Samples
             Req("syn:cerkiew_m", R(-15, -7, 15, -7, 15, 7, -15, 7), "church") with { Streets = st, Religion = "christian", Denomination = "polish_orthodox", Material = "brick" }, S);
         yield return new("synthetic_cerkiew_cross", true, "Orthodox church with a wider middle (a cross-shaped plan)",
             Req("syn:cerkiew_x", R(-10, -3.5f, -3, -3.5f, -3, -6, 3, -6, 3, -3.5f, 10, -3.5f, 10, 3.5f, 3, 3.5f, 3, 6, -3, 6, -3, 3.5f, -10, 3.5f), "church") with { Streets = st, Preset = "podlasie", Religion = "christian", Denomination = "orthodox" }, S);
+        // mosques (D42): Kruszyniany's kind (long, towers), Bohoniki's (square, lantern), a modern one
+        yield return new("synthetic_mosque_long", true, "Tatar mosque, 12 × 17 m, historic (Kruszyniany's kind)",
+            Req("syn:mosque_l", R(-8.5f, -6, 8.5f, -6, 8.5f, 6, -8.5f, 6), "mosque") with { Streets = st, Religion = "muslim", Heritage = true, Preset = "podlasie" }, S);
+        yield return new("synthetic_mosque_square", true, "Tatar mosque, 13 × 14 m, historic (Bohoniki's kind)",
+            Req("syn:mosque_s", R(-7, -6.5f, 7, -6.5f, 7, 6.5f, -7, 6.5f), "mosque") with { Streets = st, Religion = "muslim", Heritage = true, Preset = "podlasie" }, S);
+        yield return new("synthetic_mosque_modern", true, "modern mosque, 19 × 34 m",
+            Req("syn:mosque_m", R(-17, -9.5f, 17, -9.5f, 17, 9.5f, -17, 9.5f), "mosque") with { Streets = st, Religion = "muslim" }, S);
         yield return new("synthetic_bowtie", true, "self-intersecting outline: must be rejected",
             Req("syn:bowtie", R(-10, -10, 10, 10, 10, -10, -10, 10), "yes", 2), S);
         yield return new("synthetic_tiny", true, "0.6 m² footprint: must be rejected",

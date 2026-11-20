@@ -266,7 +266,7 @@ public sealed class Orthodox : IStyle
 
     // ---- pieces --------------------------------------------------------------------------------------------------------
 
-    private static Vector2 Dir(float ang, Vector2 east)
+    internal static Vector2 Dir(float ang, Vector2 east)
     {
         var north = new Vector2(east.Y, -east.X);
         return east * MathF.Cos(ang) + north * MathF.Sin(ang);
@@ -283,7 +283,7 @@ public sealed class Orthodox : IStyle
     }
 
     /// <summary>An octagonal prism (a drum), faces outward.</summary>
-    private static void Octagon(Mesh m, string role, Vector2 centre, float r, float y0, float y1, Vector2 east)
+    internal static void Octagon(Mesh m, string role, Vector2 centre, float r, float y0, float y1, Vector2 east)
     {
         for (int k = 0; k < 8; k++)
         {
@@ -317,7 +317,7 @@ public sealed class Orthodox : IStyle
     }
 
     /// <summary>A four-sided tented roof from a square's corners up to an apex, with an overhang.</summary>
-    private static void PyramidRoof(Mesh m, Vector2[] sq, Vector2 c, float y0, float apex, float overhang)
+    internal static void PyramidRoof(Mesh m, Vector2[] sq, Vector2 c, float y0, float apex, float overhang)
     {
         var top = new Vector3(c.X, apex, c.Y);
         for (int k = 0; k < 4; k++)

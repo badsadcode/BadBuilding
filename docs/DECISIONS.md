@@ -671,3 +671,23 @@ About 2,300–2,900 triangles. Tests: three orthodox denominations are cerkwie; 
 not; an orthodox synagogue is not; onion and cross above the ridge, within a metre, the door at the west; mostly
 wooden in Podlasie; deterministic (151 pass). Not yet: churches mapped in parts (towers and domes as
 building:part, like Warsaw's cathedral) keep the old meshes; Catholic churches; the Tatar mosques.
+
+## D42 — Mosques: Podlasie's Tatar mosques, and modern ones (Tom: "Tatar mosques", 20 Nov)
+A `mosque` style for a building the map calls a mosque: `religion=muslim` on a mosque, place of worship or untyped
+building, or `building=mosque` with no religion said (Warsaw's Wilanów mosque is tagged only that); not an office
+(`office=religion`) or a tomb. From photographs of the two Tatar mosques that stand (Wikimedia Commons):
+* **long** (Kruszyniany's kind, a footprint at least 1.25 times as long as wide): vertical boards painted green (or
+  grey-green), a gabled roof; at the front end two tall square towers on the corners with arched windows, a white
+  cornice and small dark cupolas; an arched (barrel) porch at the door; a small cupola on the ridge behind the
+  middle; pointed arches over the side windows;
+* **square** (Bohoniki's kind): horizontal boards in plain wood (or weathered grey, or green), a hipped roof, an
+  octagonal lantern in the middle with small windows and a dark dome, a little gabled porch with posts;
+* **modern** (not historic, not mapped as wood, not small in Podlasie): white, cream or sand plaster, a dome on a
+  drum over the hall (green, gilded, white or blue), and on a mosque over 200 m² a slim minaret at the back corner
+  with a balcony and a pointed cap;
+* every dome and cupola has a gilded finial: a spike, two balls and a crescent opening upward.
+Tatar when historic (heritage), mapped as wood, or under 400 m² in Podlasie. The front: the street end for the long
+kind, the street side for the others; the door in the middle bay of that wall, windows beside it.
+1,600–3,500 triangles. Tests: the two kinds by footprint, the map's word (building=mosque counts; a church, an office
+or an untyped building doesn't), finials, within a metre, a minaret on a big modern one (157 pass).
+The Orthodox style's drum and pyramid helpers are now shared (internal).
