@@ -81,13 +81,15 @@ public static class BuildingGenerator
                 Garages.Name => new Garages(c),
                 Civic.Name => new Civic(c),
                 Apartments.Name => new Apartments(),
-                _ => throw new ArgumentException($"Unknown style '{forced}' (styles: {PrlBlock.Name}, {Kamienica.Name}, {Industrial.Name}, {Office.Name}, {House.Name}, {Farm.Name}, {Garages.Name}, {Civic.Name}, {Apartments.Name}, {Plain.Name})."),
+                SocRealism.Name => new SocRealism(),
+                _ => throw new ArgumentException($"Unknown style '{forced}' (styles: {PrlBlock.Name}, {Kamienica.Name}, {Industrial.Name}, {Office.Name}, {House.Name}, {Farm.Name}, {Garages.Name}, {Civic.Name}, {Apartments.Name}, {SocRealism.Name}, {Plain.Name})."),
             };
         if (Industrial.Fits(c)) return new Industrial();   // (D17) small sheds too: the type says what it is
         if (Farm.Fits(c)) return new Farm(c);   // (D27)
         if (Garages.Fits(c)) return new Garages(c);   // (D28)
         if (Civic.Fits(c)) return new Civic(c);   // (D29)
         if (!c.Site.Small && Office.Fits(c)) return new Office();   // (D18)
+        if (SocRealism.Fits(c)) return new SocRealism();   // (D31) before the tenement, the new blocks and PRL
         if (House.Fits(c)) return new House(c);   // (D26)
         if (Apartments.Fits(c)) return new Apartments();   // (D30) contemporary blocks, before the tenement and PRL
         if (!c.Site.Small && Kamienica.Fits(c)) return new Kamienica();
@@ -176,7 +178,8 @@ public static class BuildingGenerator
             height = new Sourced<float>(h, src);
             float walls = MathF.Max(2.4f, h - minH - extra * (shape == RoofShape.Flat ? 0f : 1f));
             // a mapped height without levels decides the storeys
-            if (r.Levels is null) levels = new Sourced<int>(Math.Max(1, (int)MathF.Round((walls - plinth) / sh)), Source.Inferred);
+            // mapped levels that can't fit the mapped span (a part tagged with the whole building's storeys) give way to it
+            if (r.Levels is null || r.Levels.Value * 2.4f > walls - plinth + 0.5f) levels = new Sourced<int>(Math.Max(1, (int)MathF.Round((walls - plinth) / sh)), Source.Inferred);
             // the storeys fill the walls exactly, so the roof sits at the mapped height (D24: a whole storey rounded up
             // lifted a roof 0.6 m past it)
             sh = Math.Clamp((walls - plinth) / levels.Value, 2.4f, 6f);

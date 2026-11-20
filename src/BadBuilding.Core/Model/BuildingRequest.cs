@@ -17,6 +17,9 @@ public sealed record Ring(IReadOnlyList<Vector2> Points)
     /// separate buildings: there a lower neighbour leaves a bare firewall above it, as in any Warsaw street.</summary>
     public float? PartMin { get; init; }
     public float? PartTop { get; init; }
+    /// <summary>For a separate neighbouring building: its height when known (D31: a long wall against a much lower
+    /// neighbour, like a shop pavilion along a block's front, is a facade above it, not a firewall).</summary>
+    public float? Top { get; init; }
 }
 
 /// <summary>A street centre line near the building (plan points), with its half width: decides which walls face the street.</summary>
@@ -66,6 +69,9 @@ public sealed record BuildingRequest
     public bool Heritage { get; init; }
     /// <summary>OSM building:architecture, when mapped.</summary>
     public string? Architecture { get; init; }
+    /// <summary>The wall material when known ("brick", "sandstone", "stone", "concrete", "wood", "glass"…); evidence for
+    /// a style (D31: sandstone on a big block of the early fifties' size is socialist realism).</summary>
+    public string? Material { get; init; }
     /// <summary>Mapped shops (shop=* and shop-like amenity nodes) in or at the building, plan points. Null = not known;
     /// when given, they decide where shop fronts go instead of a guess (D10).</summary>
     public IReadOnlyList<Vector2>? Shops { get; init; }

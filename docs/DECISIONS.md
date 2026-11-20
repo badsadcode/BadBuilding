@@ -475,3 +475,35 @@ tenement and block styles; listed ones never qualify.
 Tests: the year decides; undated deep seven-storey blocks are mostly contemporary and 12 m five-storey slabs mostly
 PRL; railings, entrances and footprint bounds over five seeds. The PRL test block is now dated (1975).
 Looked at in Baltic Drive: the new estates by Szamoty (Ursus/Piastów).
+
+## D31 — Socialist realism, and party walls that need a neighbour behind them (Tom: "Bad building time", 20 Nov 2026)
+
+Style `SocRealism` (cookbook R019, S09; MDM, Plac Konstytucji, Marszałkowska), tuned on Tom's Street View photos of
+Marszałkowska 34 and 49 and Plac Konstytucji 5:
+- one even grey sandstone (grey, pale, warm grey, weathered); the courtyard side plain render;
+- a rusticated base of two storeys on blocks of six or more (one below): shops with big glass between stone piers,
+  doors under stone lintels; on some long fronts an **arcade** 3 m deep behind **paired columns with capitals**,
+  steps up to it, the shop fronts at the back, closed ends;
+- above the base **windows in pairs** with a stone surround round the pair, a sill and a cap (heavier on the first
+  floor over the base); **small stone balconies with balustrades** every third bay on two rows; colossal pilasters
+  every second bay on some; relief panels on others;
+- string courses over the base and under the top floor, a deep cornice, and an attic **balustrade with pedestals**.
+**Evidence**, in order: an architecture tag; a mapped year 1949–1956; **stone or sandstone as the mapped material**
+(new request fact `Material`, D23's vocabulary growing when a family needs it: MDM's pieces are tagged sandstone),
+which also lets pieces in the air take the style (no base, shops or arcade up there); otherwise a block of five to
+nine storeys, over 900 m², facing an avenue (a street of half width 5.5 m or more: dual carriageways come as two
+ways), a perimeter block or a long frontage: always when listed (MDM is listed and mostly undated), else by a roll
+shared by the district (the caller's "district" seed), so a quarter goes one way. A listed undated building under
+seven storeys and 1,500 m² stays the kamienica's.
+**Fixes found on Plac Konstytucji** (they apply to every style):
+- storeys never overrule a part's mapped span (a 24–28 m piece tagged with the whole block's 9 levels stacked 21 m
+  of wall);
+- parts of a building make party walls by height **overlap** (a piece on top of another isn't blinded by it);
+- **a party wall needs a neighbour on its outside** (checked 0.8 m out at three points along it) and not also on its
+  inside (footprints that overlap on the map are behind nothing); and a wall of 20 m or more against a separate
+  neighbour under 60 % of its height is a facade above it (a shop pavilion along a block's front), while short sides
+  keep their firewalls. Neighbour rings carry a separate building's height (`Ring.Top`).
+Tests: a 1952 block is socialist realism; undated avenue blocks often, never on a narrow street; a rich front and a
+plain courtyard; footprint bounds; a top piece keeps its span and isn't blinded; a low pavilion leaves a facade, a
+tall neighbour a firewall.
+Not yet: one block on the east of Plac Konstytucji still shows a blank wall (overlapping pieces; to isolate).

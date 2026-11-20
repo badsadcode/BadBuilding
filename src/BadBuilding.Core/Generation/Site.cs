@@ -102,7 +102,13 @@ public sealed class Site
         foreach (var n in r.Neighbours)
         {
             // another part of the same building counts only where it stands as high as this one (D20)
-            if (n.PartTop is { } nTop && (nTop < ownTop - PartSlack || (n.PartMin ?? 0f) > ownMin + PartSlack)) continue;
+            // (D24 addendum: by overlap, so a piece sitting on top of another isn't blinded by it: the MDM block's 24–28 m
+            // top piece over pieces ending at 25 m came out blank on every side)
+            if (n.PartTop is { } nTop)
+            {
+                float span = MathF.Min(ownTop, 1000f) - ownMin, overlap = MathF.Min(nTop, ownTop) - MathF.Max(n.PartMin ?? 0f, ownMin);
+                if (overlap < MathF.Max(span - PartSlack, span * 0.75f)) continue;
+            }
             var c = Polygon.Clean(n.Points, ccw: true);
             for (int i = 0; i < c.Count; i++) neighbourEdges.Add((c[i], c[(i + 1) % c.Count]));
         }
@@ -111,7 +117,29 @@ public sealed class Site
             for (int i = 0; i < ring.Count; i++)
             {
                 var a = ring[i]; var b = ring[(i + 1) % ring.Count];
-                Edges.Add(new WallEdge(ringIndex, i, a, b, Classify(a, b, ringIndex > 0, neighbourEdges, r.Streets)));
+                var x = Classify(a, b, ringIndex > 0, neighbourEdges, r.Streets);
+                // a party wall needs a neighbour on its outside (D31): footprints that overlap on the map (an outline-sized
+                // part and a facade part over it; an old outline and a newer one of the same block) made each other's
+                // walls blank, standing in front of each other on Plac Konstytucji. Checked just outside the wall at a
+                // quarter, the middle and three quarters; with nothing there, the wall is seen as the street sees it.
+                if (x == Exposure.Party && ringIndex == 0)
+                {
+                    var dir = Vector2.Normalize(b - a); var outv = new Vector2(-dir.Y, dir.X);
+                    bool behind = false;
+                    float len = Vector2.Distance(a, b);
+                    foreach (float t in new[] { 0.25f, 0.5f, 0.75f })
+                    {
+                        var q = a + (b - a) * t + outv * 0.8f;
+                        var qi = a + (b - a) * t - outv * 0.8f;
+                        // a long wall against a separate neighbour under 60 % of this one's height has its facade above it;
+                        // a neighbour that also covers the inside overlaps this building on the map and is behind nothing
+                        if (r.Neighbours.Any(n => Polygon.Contains(n.Points, q) && !Polygon.Contains(n.Points, qi)
+                            && !(len >= 20f && n.PartTop == null && n.Top is { } nt && r.Height is { } h && nt < 0.6f * h)))
+                        { behind = true; break; }
+                    }
+                    if (!behind) x = Classify(a, b, false, [], r.Streets);
+                }
+                Edges.Add(new WallEdge(ringIndex, i, a, b, x));
             }
         }
         Walk(Outer, 0);

@@ -110,4 +110,25 @@ public class OfficeTests
         var b = BuildingGenerator.Generate(Req("apartments", 21, min: 15) with { Neighbours = [Rect(20, -12, 50, 12)] });
         Assert.NotEqual(Kamienica.Name, b.Plan!.Style);
     }
+
+    [Fact]
+    public void A_top_piece_keeps_its_mapped_span_and_is_not_blinded_by_the_pieces_under_it()
+    {
+        // the MDM block south of Plac Konstytucji: a piece from 24 to 28 m tagged levels=9, on pieces reaching 25 m
+        var under = Rect(-20, -12, 20, 12) with { PartMin = 6, PartTop = 25 };
+        var b = BuildingGenerator.Generate(Req("yes", 28, min: 24) with { Levels = 9, Neighbours = [under] });
+        Assert.True(b.Bounds().Max.Y <= 29.5f, $"top at {b.Bounds().Max.Y:0.0}");
+        Assert.DoesNotContain(b.Plan!.Edges, e => e.Exposure == Exposure.Party);
+    }
+
+    [Fact]
+    public void A_low_pavilion_along_a_long_front_leaves_it_a_facade_but_a_tall_neighbour_still_makes_a_firewall()
+    {
+        // a 21 m block 40 m long; a 10 m shop pavilion against its north wall (Plac Konstytucji)
+        var pavilion = Rect(-20, 12, 20, 18) with { Top = 10f };
+        var b = BuildingGenerator.Generate(Req("apartments", 21) with { Neighbours = [pavilion] });
+        Assert.DoesNotContain(b.Plan!.Edges, e => e.Exposure == Exposure.Party);
+        var tall = BuildingGenerator.Generate(Req("apartments", 21) with { Neighbours = [pavilion with { Top = 20f }] });
+        Assert.Contains(tall.Plan!.Edges, e => e.Exposure == Exposure.Party);
+    }
 }

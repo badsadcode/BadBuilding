@@ -70,7 +70,7 @@ game's extract and pack, then a map rebuild (~52 min).
 | R016 | Point tower (punktowiec) | partial | `PrlBlock` treats it as a slab | one core, balconies on several faces (roadmap item) |
 | R017 | Corridor block | missing | — | later |
 | R018 | 1950s brick block | missing | — | with socialist realism (same era) |
-| R019 | Socialist realism | missing | — | **roadmap, Tom's list**: MDM fronts, high plinth, cornice, arcades where the site allows |
+| R019 | Socialist realism | implemented (D31) | — | **roadmap, Tom's list**: MDM fronts, high plinth, cornice, arcades where the site allows |
 | R020 | Modest kamienica | implemented | `Kamienica` ornament 0–1 | — |
 | R021 | Ornate kamienica | implemented | ornament 2 with evidence only (D10) | — |
 | R022 | Corner kamienica | partial | bands meet at corners | a corner treatment (chamfer is out: footprint) — corner shop, corner balcony |
@@ -145,7 +145,7 @@ game's extract and pack, then a map rebuild (~52 min).
 | S04 | Kamienica eclectic | implemented | `Kamienica` |
 | S05–S07 | Neoclassical, Secession, Art Deco | missing | evidence is rare (31 architecture tags) |
 | S08 | Interwar functionalism | missing | later |
-| S09 | Socialist realism | missing | roadmap, Tom's list |
+| S09 | Socialist realism | implemented (D31) | roadmap, Tom's list |
 | S10 | PRL panel | implemented | `PrlBlock` |
 | S11 | PRL functional | partial | `Industrial` concrete, `Office` grid |
 | S12–S14 | Brutalism (civic, residential, industrial) | missing | Tom's list; best as a modifier over existing types (P05) |
