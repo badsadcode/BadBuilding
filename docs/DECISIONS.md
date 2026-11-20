@@ -622,3 +622,9 @@ Tom's dumps from inside: "balconies are not balconies", "gaps near the windows a
 * Placeholder looks: the boxes are for swapping to real models by kind later (Synty or hand-made), Tom's call.
 Test: furniture in at least 80 % of living rooms, bedrooms, kitchens and bathrooms; every piece inside its room and
 clear of the others; no bed under a window; loot markers. A 15-storey block plans in ~0.3 s on a worker.
+
+## D39 — Furniture shapes kept apart, so a game can swap in models (Tom, 20 Nov 2026)
+Tom: "I want to be able to swap the assets with any model". Each `FurnitureItem` now carries its own generated shape
+(`Shape`, building space, by material role) instead of adding it to the interior's mesh, and says whether it stands
+against a wall (`AgainstWall`). A game draws the shape for the kinds it has no model for and places its own model on
+the footprint for the rest; the physics boxes and loot markers stay the library's.

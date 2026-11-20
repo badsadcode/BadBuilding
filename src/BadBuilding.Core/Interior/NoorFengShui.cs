@@ -410,7 +410,8 @@ public static class NoorFengShui
     {
         string id = $"{w.Room.Id}/f{n}.{p.Kind}";
         float f = w.Floor;
-        m.Furniture.Add(new FurnitureItem(id, p.Kind, w.Room.Id, new Vector2(p.R.U0, p.R.V0), new Vector2(p.R.U1, p.R.V1), p.H, p.Facing, f));
+        var item = new FurnitureItem(id, p.Kind, w.Room.Id, new Vector2(p.R.U0, p.R.V0), new Vector2(p.R.U1, p.R.V1), p.H, p.Facing, f) { AgainstWall = p.Edge >= 0 };
+        m.Furniture.Add(item);
         var c = p.R.Centre;
         // physics: one box for the piece
         m.Colliders.Add(new Collider(m.Frame.P(c.X, f + p.H * 0.5f, c.Y), new Vector3(p.R.W * 0.5f, p.H * 0.5f, p.R.H * 0.5f), m.Frame.AxisU, Vector3.UnitY));
@@ -430,7 +431,7 @@ public static class NoorFengShui
             float u0, u1, v0, v1;
             if (alongU) { u0 = p.R.U0 + a0; u1 = p.R.U0 + a1; v0 = wallLine + sgn * d0; v1 = wallLine + sgn * d1; }
             else { v0 = p.R.V0 + a0; v1 = p.R.V0 + a1; u0 = wallLine + sgn * d0; u1 = wallLine + sgn * d1; }
-            BoxMesh(m, role, MathF.Min(u0, u1), MathF.Max(u0, u1), MathF.Min(v0, v1), MathF.Max(v0, v1), f + y0, f + y1);
+            BoxMesh(m.Frame, item.Shape, role, MathF.Min(u0, u1), MathF.Max(u0, u1), MathF.Min(v0, v1), MathF.Max(v0, v1), f + y0, f + y1);
         }
         switch (p.Kind)
         {
@@ -568,10 +569,9 @@ public static class NoorFengShui
     }
 
     /// <summary>A box in the frame (no underside), faces outward.</summary>
-    private static void BoxMesh(InteriorModel m, string role, float u0, float u1, float v0, float v1, float y0, float y1)
+    private static void BoxMesh(Frame F, Geometry.Mesh mesh, string role, float u0, float u1, float v0, float v1, float y0, float y1)
     {
         if (u1 - u0 < 1e-3f || v1 - v0 < 1e-3f || y1 - y0 < 1e-3f) return;
-        var F = m.Frame; var mesh = m.Mesh;
         Vector3 P(float u, float y, float v) => F.P(u, y, v);
         mesh.AddQuad(role, P(u0, y1, v0), P(u1, y1, v0), P(u1, y1, v1), P(u0, y1, v1), Vector3.UnitY);
         mesh.AddQuad(role, P(u0, y0, v0), P(u1, y0, v0), P(u1, y1, v0), P(u0, y1, v0), -F.AxisV);

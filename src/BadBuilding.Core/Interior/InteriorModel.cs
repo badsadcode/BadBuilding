@@ -36,7 +36,16 @@ public sealed record Aperture(int Storey, bool AlongU, float Line, float A0, flo
 
 /// <summary>A piece of furniture (D38): its kind, room, footprint in the frame (u, v), height, the way its front faces
 /// (in the frame: one of ±u, ±v), and the floor it stands on.</summary>
-public sealed record FurnitureItem(string Id, string Kind, string Room, Vector2 Min, Vector2 Max, float Height, Vector2 Facing, float Floor);
+public sealed record FurnitureItem(string Id, string Kind, string Room, Vector2 Min, Vector2 Max, float Height, Vector2 Facing, float Floor)
+{
+    /// <summary>The piece's own generated shape (D39), building space, by material role: a stand-in a game draws
+    /// unless it has a model of its own for this kind (then it places that model on the footprint instead).</summary>
+    public Geometry.Mesh Shape { get; } = new();
+
+    /// <summary>Which way the piece's back is: the wall it stands against (one of ±u, ±v in the frame), or none for
+    /// a free-standing table (then <see cref="Facing"/> is just its long side's normal).</summary>
+    public bool AgainstWall { get; init; } = true;
+}
 
 /// <summary>A doorway between two rooms (or "outside"), building space: the middle of its sill, the direction it is
 /// passed through, its clear width and height.</summary>
