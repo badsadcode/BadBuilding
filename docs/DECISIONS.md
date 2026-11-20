@@ -506,4 +506,4 @@ seven storeys and 1,500 m² stays the kamienica's.
 Tests: a 1952 block is socialist realism; undated avenue blocks often, never on a narrow street; a rich front and a
 plain courtyard; footprint bounds; a top piece keeps its span and isn't blinded; a low pavilion leaves a facade, a
 tall neighbour a firewall.
-Not yet: one block on the east of Plac Konstytucji still shows a blank wall (overlapping pieces; to isolate).
+The blank wall left on the east of Plac Konstytucji was the game's doing (an inner piece drawn too); fixed there, Baltic Drive D78.
