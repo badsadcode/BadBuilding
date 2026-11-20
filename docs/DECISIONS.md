@@ -648,5 +648,5 @@ From photographs (Wikimedia Commons) and the Wikipedia article on the decoration
 * **Cost:** about 1,700–2,400 triangles per house (a plain cottage ~550, a modern house ~650).
 * `godot/test/shoot.gd`: photographs exported GLBs in a row (loads them at run time, hides the "-colonly" mass).
 Tests: most podlasie houses are cottages; no podlasie dress without the preset; details within a metre and the door
-on a long side (140 pass). Gallery samples `synthetic_podlasie` (10 seeds). Tom to judge the look; open questions for
-him: the colours and how often each, how rich the carving, verandas (glazed porches), fences and benches.
+on a long side (140 pass). Gallery samples `synthetic_podlasie` (10 seeds). Tom (20 Nov): "this looks amazing... good enough"; the look
+stands. Possible later: glazed verandas, fences and benches.
