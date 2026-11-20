@@ -133,7 +133,10 @@ public sealed class Apartments : IStyle
                 float u0 = bi * bw, u1 = u0 + bw, uc = (u0 + u1) * 0.5f;
                 // a column of the second finish: every fourth bay from the second, on long walls
                 bool column = _accent is Accent.TimberColumns or Accent.GraphiteColumns && bays >= 4 && bi % 4 == 1;
-                bool balconyBay = bays >= 2 && bi % _pattern == (_pattern == 1 ? 0 : 1) && bw >= 2.6f && !column;
+                // not in front of a staircase: the stairwell gets ordinary windows (D37; the interior's staircase is 3.8 m
+                // wide behind each door)
+                bool stairBay = doors.Any(d => d.Edge == ei && d.U + 2.1f > u0 && d.U - 2.1f < u1);
+                bool balconyBay = bays >= 2 && bi % _pattern == (_pattern == 1 ? 0 : 1) && bw >= 2.6f && !column && !stairBay;
                 for (int s = 0; s < levels; s++)
                 {
                     float y0 = datum + s * sh, y1 = y0 + sh;

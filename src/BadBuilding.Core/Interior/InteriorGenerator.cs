@@ -33,8 +33,10 @@ public static class InteriorGenerator
     private const float Inset = 0.012f;        // the interior's openings, inside the exterior's (no cracks, no flicker)
     // roomy (Tom, 20 Nov: "very cramped"): a 3.8 m staircase with 1.75 m flights, 2.1 m halls, 1.9 m corridors;
     // the landing, flights and half landing shrink toward the tight sizes only where the block is too shallow
-    private const float CoreHalf = 1.9f, Bath = 2.5f;
-    private const float Hall = 2.1f, Corridor = 1.9f, MinFlat = 4.6f, RoomTarget = 5f, MinRoom = 3.2f;
+    private const float Bath = 2.5f;
+    private const float Corridor = 1.9f, RoomTarget = 5f, MinRoom = 3.2f;
+    // narrow blocks (D37): where the roomy staircase would leave no flat beside it, the tight one and a narrower hall
+    private static readonly (float Core, float Hall, float MinFlat) RoomyPlan = (1.9f, 2.1f, 4.6f), TightPlan = (1.45f, 1.6f, 3.6f);
     private static readonly (float Landing, float Run, float Half) Roomy = (2.0f, 2.7f, 1.9f), Tight = (1.3f, 2.3f, 1.3f);
 
     /// <summary>The interior of a building, or null when its footprint doesn't suit a staircase block.</summary>
@@ -62,6 +64,7 @@ public static class InteriorGenerator
         private int _coreBase, _sections;
         private float _vF;                                    // the section's front line (v)
         private float Landing, StairRun, HalfLanding;          // this section's staircase (roomy where it fits)
+        private float CoreHalf, Hall, MinFlat;                 // this section's staircase width, hall, narrowest flat
         private readonly List<(int Side, float A0, float A1, float Y0, float Y1, string Kind)> _segOpen = [];
         private InteriorModel _m = null!;
         private Rng _look = null!;
@@ -164,6 +167,7 @@ public static class InteriorGenerator
                 _dc = _v0 + Landing + StairRun + HalfLanding;
 
                 // the staircases: the entrances on this section's front, far enough apart and clear of the ends
+                (CoreHalf, Hall, MinFlat) = TightPlan;
                 _cores.Clear();
                 var mine = new List<EntranceDoor>();
                 foreach (var e in s.Entrances.OrderBy(e => _f.Local(new Vector2(e.Position.X, e.Position.Z)).U))
@@ -175,6 +179,17 @@ public static class InteriorGenerator
                     if (fits && (_cores.Count == 0 || u - _cores[^1] >= 7.5f)) { _cores.Add(u); mine.Add(e); }
                 }
                 if (_cores.Count == 0) { whys.Add($"no staircase fits in a {_uMax - _uMin:0.0} m section"); continue; }
+                // roomy unless a flat beside some staircase would be too narrow for it
+                {
+                    var bnd = new List<float> { _u0 };
+                    for (int i = 1; i < _cores.Count; i++) bnd.Add((_cores[i - 1] + _cores[i]) * 0.5f);
+                    bnd.Add(_u1);
+                    bool roomy = true;
+                    for (int i = 0; i < _cores.Count; i++)
+                        foreach (float wdt in new[] { _cores[i] - RoomyPlan.Core - bnd[i], bnd[i + 1] - _cores[i] - RoomyPlan.Core })
+                            if (wdt < RoomyPlan.MinFlat && wdt + RoomyPlan.Core - TightPlan.Core >= TightPlan.MinFlat) roomy = false;
+                    (CoreHalf, Hall, MinFlat) = roomy ? RoomyPlan : TightPlan;
+                }
                 foreach (var e in mine) { _m.Entrances.Add(e); used.Add(e); }
 
                 // the facade's openings, by the side of the section they're on
@@ -782,15 +797,21 @@ public static class InteriorGenerator
             float f = F(0);
             foreach (var e in _cores)
             {
-                Box(true, _vF - 1.2f, _vF, e - 1.0f, e + 1.0f, s.GroundLow - 0.6f, f);
+                // a landing 2.6 m wide, with ramps down its front and both sides (D37: coming at the door at an angle
+                // you met the landing's side, up to 0.9 m high)
+                const float hw = 1.3f, deep = 1.2f;
+                Box(true, _vF - deep, _vF, e - hw, e + hw, s.GroundLow - 0.6f, f);
                 float drop = f - (s.GroundLow - 0.4f);
                 if (drop > 0.05f)
                 {
-                    float run = drop / MathF.Tan(30f * MathF.PI / 180f);
-                    Ramp(e - 1.0f, e + 1.0f, _vF - 1.2f - run, f - drop, _vF - 1.2f, f);
+                    float run = drop / MathF.Tan(28f * MathF.PI / 180f);
+                    Ramp(e - hw - run, e + hw + run, _vF - deep - run, f - drop, _vF - deep, f);
+                    TiltBox(_f.P(e - hw - run, f - drop, _vF - deep * 0.5f), _f.P(e - hw, f, _vF - deep * 0.5f), deep * 0.5f, _f.AxisV);
+                    TiltBox(_f.P(e + hw + run, f - drop, _vF - deep * 0.5f), _f.P(e + hw, f, _vF - deep * 0.5f), deep * 0.5f, _f.AxisV);
                 }
-                Box(true, _vF - 0.6f, _vF, e - 1.25f, e - 0.8f, f, f + 2.4f);
-                Box(true, _vF - 0.6f, _vF, e + 0.8f, e + 1.25f, f, f + 2.4f);
+                // jambs on the wall line only (D37: 0.6 m deep they caught you coming at the door at an angle)
+                Box(true, _vF - 0.12f, _vF, e - 1.25f, e - 0.8f, f, f + 2.4f);
+                Box(true, _vF - 0.12f, _vF, e + 0.8f, e + 1.25f, f, f + 2.4f);
             }
         }
 
@@ -886,17 +907,21 @@ public static class InteriorGenerator
         }
 
         /// <summary>A tilted physics box whose top runs from (va, ya) to (vb, yb), u0..u1 across.</summary>
-        private void Ramp(float u0, float u1, float va, float ya, float vb, float yb)
+        private void Ramp(float u0, float u1, float va, float ya, float vb, float yb) =>
+            TiltBox(_f.P((u0 + u1) * 0.5f, ya, va), _f.P((u0 + u1) * 0.5f, yb, vb), (u1 - u0) * 0.5f, _f.AxisU);
+
+        /// <summary>A tilted physics box whose top runs from <paramref name="a"/> to <paramref name="b"/> (building
+        /// space), <paramref name="halfAcross"/> to each side along <paramref name="across"/>.</summary>
+        private void TiltBox(Vector3 a, Vector3 b, float halfAcross, Vector3 across)
         {
             const float t = 0.15f;
-            var a = _f.P((u0 + u1) * 0.5f, ya, va); var b = _f.P((u0 + u1) * 0.5f, yb, vb);
             var along = b - a; float len = along.Length();
             var z = along / len;
-            var y = Vector3.Normalize(Vector3.Cross(z, _f.AxisU));
+            var y = Vector3.Normalize(Vector3.Cross(z, across));
             if (y.Y < 0) y = -y;
             var x = Vector3.Normalize(Vector3.Cross(y, z));
             var centre = (a + b) * 0.5f - y * t;
-            _m.Colliders.Add(new Collider(centre, new Vector3((u1 - u0) * 0.5f, t, len * 0.5f), x, y));
+            _m.Colliders.Add(new Collider(centre, new Vector3(halfAcross, t, len * 0.5f), x, y));
         }
 
         // ---- validation -------------------------------------------------------------------------------------------

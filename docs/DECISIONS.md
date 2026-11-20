@@ -591,3 +591,14 @@ Tom's dumps from inside: "balconies are not balconies", "gaps near the windows a
   and physics: its floor, a front rail 1.15 m high, and side walls. Loggias are listed with the balconies (`Loggia`).
 * Also: the jambs of windows and doors in the outer walls faced into the wall; they face into the opening now.
 * Not yet: a loggia that falls in front of a staircase opens off the stairwell.
+
+## D37 — No loggias in front of staircases; easier doorsteps; narrow blocks keep their flats (Tom, 20 Nov 2026)
+* Contemporary flats: no loggia or balcony door in a bay that a staircase stands behind (within 2.1 m of a door on
+  that wall, on every storey); the stairwell gets ordinary windows, as the PRL block already did. At Skaryszew: 0 of
+  33 loggias in front of the staircase (one opened off the stairwell before).
+* The way up to each street door: the landing is 2.6 m wide with ramps down its front and both sides (coming at the
+  door at an angle you met the landing's side, up to 0.9 m high); the jambs beside the door are on the wall line only
+  (0.12 m, were 0.6 m and caught you).
+* The roomy sizes of D34 had left narrow blocks with no flats at all (a 13 m point block: 9 rooms, all stairwell): a
+  section now takes the tight staircase (2.9 m) and a 1.6 m hall when the roomy one would leave a flat beside it
+  narrower than 4.6 m but the tight one wouldn't. That block has its 63 rooms back.
