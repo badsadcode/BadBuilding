@@ -650,3 +650,24 @@ From photographs (Wikimedia Commons) and the Wikipedia article on the decoration
 Tests: most podlasie houses are cottages; no podlasie dress without the preset; details within a metre and the door
 on a long side (140 pass). Gallery samples `synthetic_podlasie` (10 seeds). Tom (20 Nov): "this looks amazing... good enough"; the look
 stands. Possible later: glazed verandas, fences and benches.
+
+## D41 — The Orthodox church (cerkiew), only on the map's word (Tom: "Orthodox churches next", 20 Nov)
+A new style, `orthodox_church`, for a church, chapel or "religious" building whose OSM `denomination` contains
+"orthodox" **and** whose `religion` is christian or unmapped (`denomination=orthodox` also tags Orthodox Judaism:
+a synagogue in the data says `religion=jewish`, and stays a synagogue). No evidence, no onion domes (Tom's rule for
+Podlaskie: onion domes only with OSM evidence). From photographs of Podlaskie's cerkwie (Wikimedia Commons):
+* the body on the mapped outline under a gabled roof along its length (wings for a cross-shaped plan, a flat roof for
+  an outline too ragged for one); the door in the most west-facing wall (churches face east), with steps;
+* a raised octagonal drum over the nave with a band of small windows, a cornice and an onion dome (a 12-sided lathe);
+  a small drum and onion over the sanctuary at the east end; at the west end a square tower over the entrance,
+  rising past the ridge with a belfry, under a tented spire or a small onion on a little drum;
+* the eight-pointed Orthodox cross, gilded, on every dome and spire (three bars, the lowest slanted);
+* wooden (`timber`) when mapped as wood, else 75 % in Podlasie (the preset) and 35 % elsewhere, never when big
+  (> 450 m²): painted blue (most often), sky blue, pale blue-grey, green, white, or honey wood, white corner boards
+  and white surrounds peaked over house-sized windows; masonry: yellow brick, white, cream or pink plaster with tall
+  windows; roofs silver-grey, green, blue or dark; domes like the roof, gilded, blue or dark.
+* `BuildingRequest.Religion` and `.Denomination` (and the recipe now records Material, Denomination and Preset).
+About 2,300–2,900 triangles. Tests: three orthodox denominations are cerkwie; no denomination or roman_catholic is
+not; an orthodox synagogue is not; onion and cross above the ridge, within a metre, the door at the west; mostly
+wooden in Podlasie; deterministic (151 pass). Not yet: churches mapped in parts (towers and domes as
+building:part, like Warsaw's cathedral) keep the old meshes; Catholic churches; the Tatar mosques.

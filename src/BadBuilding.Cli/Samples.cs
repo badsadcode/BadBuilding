@@ -122,6 +122,14 @@ public static class Samples
         for (int k = 0; k < 10; k++)
             yield return new("synthetic_podlasie", true, $"Podlasie wooden house {k + 1}: 7 × 12 m, gable to the street",
                 Req($"syn:podlasie{k}", R(-3.5f, -18, 3.5f, -18, 3.5f, -6, -3.5f, -6), "house", 1) with { Streets = st, Preset = "podlasie" }, S);
+        // Orthodox churches (D41): a village cerkiew in Podlasie (wood), a bigger masonry one, an L-shaped one
+        for (int k = 0; k < 4; k++)
+            yield return new("synthetic_cerkiew", true, $"Orthodox church {k + 1}: 9 × 18 m, Podlasie",
+                Req($"syn:cerkiew{k}", R(-9, -4.5f, 9, -4.5f, 9, 4.5f, -9, 4.5f), "church") with { Streets = st, Preset = "podlasie", Religion = "christian", Denomination = "orthodox" }, S);
+        yield return new("synthetic_cerkiew_masonry", true, "Orthodox church in brick, 14 × 30 m",
+            Req("syn:cerkiew_m", R(-15, -7, 15, -7, 15, 7, -15, 7), "church") with { Streets = st, Religion = "christian", Denomination = "polish_orthodox", Material = "brick" }, S);
+        yield return new("synthetic_cerkiew_cross", true, "Orthodox church with a wider middle (a cross-shaped plan)",
+            Req("syn:cerkiew_x", R(-10, -3.5f, -3, -3.5f, -3, -6, 3, -6, 3, -3.5f, 10, -3.5f, 10, 3.5f, 3, 3.5f, 3, 6, -3, 6, -3, 3.5f, -10, 3.5f), "church") with { Streets = st, Preset = "podlasie", Religion = "christian", Denomination = "orthodox" }, S);
         yield return new("synthetic_bowtie", true, "self-intersecting outline: must be rejected",
             Req("syn:bowtie", R(-10, -10, 10, 10, 10, -10, -10, 10), "yes", 2), S);
         yield return new("synthetic_tiny", true, "0.6 m² footprint: must be rejected",

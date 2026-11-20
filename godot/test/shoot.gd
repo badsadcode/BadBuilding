@@ -30,6 +30,7 @@ func _run() -> void:
 	var out: String = _args.get("out", "user://shots")
 	DirAccess.make_dir_recursive_absolute(out)
 	var spacing := float(_args.get("dist", "16"))
+	var zoom := float(_args.get("zoom", "1"))   # camera distances × this (big buildings)
 	var root := Node3D.new()
 	get_root().add_child(root)
 	var env := WorldEnvironment.new()
@@ -86,11 +87,11 @@ func _run() -> void:
 	cam.look_at(mid, Vector3.UP)
 	await _shot(out.path_join("row.png"))
 	for k in centres.size():
-		var c := centres[k] + Vector3(0, 2.4, z0)
-		cam.position = c + Vector3(9, 2.6, 14)
+		var c := centres[k] + Vector3(0, 2.4 * zoom, z0)
+		cam.position = c + Vector3(9, 2.6, 14) * zoom
 		cam.look_at(c, Vector3.UP)
 		await _shot(out.path_join("house_%02d.png" % k))
-		cam.position = c + Vector3(-11, 2.0, -3)
+		cam.position = c + Vector3(-11, 2.0, -3) * zoom
 		cam.look_at(c, Vector3.UP)
 		await _shot(out.path_join("house_%02d_side.png" % k))
 	if centres.size() > 0:

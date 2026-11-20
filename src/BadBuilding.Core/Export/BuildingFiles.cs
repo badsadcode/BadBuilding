@@ -85,7 +85,7 @@ public static class BuildingFiles
             // Noor Interchange (D14): the identity, the seed and the version that regenerate this asset
             Id = Noor.Text(assetId ?? Noor.AssetId(r)), r.Seed, Version = BuildingGenerator.Version, NoorInterchange = Noor.Interchange,
             Generator = "BadBuilding", GeneratorVersion = BuildingGenerator.Version,
-            Request = new { r.Id, r.Seed, r.Type, r.Levels, r.Height, r.Roof, r.HouseNumber, r.Style, r.FromOsm, StageSeeds = r.StageSeeds },
+            Request = new { r.Id, r.Seed, r.Type, r.Levels, r.Height, r.Roof, r.HouseNumber, r.Style, r.Material, r.Denomination, r.Preset, r.FromOsm, StageSeeds = r.StageSeeds },
             Resolved = p == null ? null : new
             {
                 p.Style,

@@ -72,6 +72,10 @@ public sealed record BuildingRequest
     /// <summary>The wall material when known ("brick", "sandstone", "stone", "concrete", "wood", "glass"…); evidence for
     /// a style (D31: sandstone on a big block of the early fifties' size is socialist realism).</summary>
     public string? Material { get; init; }
+    /// <summary>OSM religion and denomination, when mapped: evidence for a place of worship's style (D41: an orthodox
+    /// church is a cerkiew).</summary>
+    public string? Religion { get; init; }
+    public string? Denomination { get; init; }
     /// <summary>A regional or alternate-world preset that changes which styles are chosen (cookbook part D), such as
     /// "brutalist" (D32: the Brutalist Warsaw that never was). Null: the styles go by the evidence.</summary>
     public string? Preset { get; init; }

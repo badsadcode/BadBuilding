@@ -77,14 +77,16 @@ public static class BuildingGenerator
                 Industrial.Name => new Industrial(),
                 Office.Name => new Office(),
                 House.Name => new House(c),
+                Orthodox.Name => new Orthodox(c),
                 Farm.Name => new Farm(c),
                 Garages.Name => new Garages(c),
                 Civic.Name => new Civic(c),
                 Apartments.Name => new Apartments(),
                 SocRealism.Name => new SocRealism(),
                 Brutalism.Name => new Brutalism(),
-                _ => throw new ArgumentException($"Unknown style '{forced}' (styles: {PrlBlock.Name}, {Kamienica.Name}, {Industrial.Name}, {Office.Name}, {House.Name}, {Farm.Name}, {Garages.Name}, {Civic.Name}, {Apartments.Name}, {SocRealism.Name}, {Brutalism.Name}, {Plain.Name})."),
+                _ => throw new ArgumentException($"Unknown style '{forced}' (styles: {PrlBlock.Name}, {Kamienica.Name}, {Industrial.Name}, {Office.Name}, {House.Name}, {Farm.Name}, {Garages.Name}, {Civic.Name}, {Apartments.Name}, {SocRealism.Name}, {Brutalism.Name}, {Orthodox.Name}, {Plain.Name})."),
             };
+        if (Orthodox.Fits(c)) return new Orthodox(c);   // (D41) only on the map's word: denomination=*orthodox
         if (Industrial.Fits(c)) return new Industrial();   // (D17) small sheds too: the type says what it is
         if (Farm.Fits(c)) return new Farm(c);   // (D27)
         if (Garages.Fits(c)) return new Garages(c);   // (D28)
