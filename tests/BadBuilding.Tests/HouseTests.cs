@@ -108,4 +108,55 @@ public class HouseTests
         // a window up in the gable
         Assert.Contains(b.Modules, m => m.Type == "roof" && m.Mesh.Groups.TryGetValue("glass", out var g) && g.Any(i => m.Mesh.Positions[i].Y > b.Plan.Datum + 2 * b.Plan.StoreyHeight));
     }
+
+    // ---- Podlasie (D40) ------------------------------------------------------------------------------------------------
+
+    private static BuildingRequest Podlasie(ulong seed) => Req(Rect(-3.5f, -18, 3.5f, -6), levels: 1, seed: seed) with { Preset = House.Podlasie };
+
+    [Fact]
+    public void In_podlasie_most_long_one_storey_houses_are_wooden_cottages()
+    {
+        int cottages = 0, n = 40;
+        for (ulong s = 1; s <= (ulong)n; s++)
+        {
+            var b = BuildingGenerator.Generate(Podlasie(s));
+            if (b.Plan!.Palette.StartsWith("cottage, podlasie")) cottages++;
+        }
+        Assert.InRange(cottages, n * 6 / 10, n);
+    }
+
+    [Fact]
+    public void Without_the_preset_cottages_stay_mazowsze_cottages()
+    {
+        for (ulong s = 1; s <= 20; s++)
+            Assert.DoesNotContain("podlasie", BuildingGenerator.Generate(Podlasie(s) with { Preset = null }).Plan!.Palette);
+    }
+
+    [Theory]
+    [InlineData(1)]
+    [InlineData(2)]
+    [InlineData(3)]
+    [InlineData(4)]
+    [InlineData(6)]
+    [InlineData(9)]
+    public void A_podlasie_house_keeps_its_details_within_a_metre_and_its_door_on_a_long_side(ulong seed)
+    {
+        var req = Podlasie(seed);
+        var b = BuildingGenerator.Generate(req);
+        var outer = req.Outer;
+        foreach (var m in b.Modules)
+            foreach (var p in m.Mesh.Positions)
+            {
+                var q = new Vector2(p.X, p.Z);
+                float d = Geometry.Polygon.Contains(outer.Points, q) ? 0 : outer.Points.Select((a, i) => Geometry.Polygon.DistanceToSegment(q, a, outer.Points[(i + 1) % outer.Points.Count])).Min();
+                Assert.True(d <= 1.05f, $"{m.Id} reaches {d:0.00} m out at {q}");
+            }
+        if (!b.Plan!.Palette.StartsWith("cottage, podlasie")) return;
+        // the gable (a short wall, x = ±3.5 m) faces the street; the door is on a long wall (x = ±3.5)
+        var door = b.Markers.First(k => k.Kind == "entrance");
+        Assert.True(MathF.Abs(MathF.Abs(door.Position.X) - 3.5f) < 0.2f, $"door at {door.Position}");
+        // the gable's dress: battens or barge boards in trim, and shutters or surrounds
+        Assert.Contains(b.Modules, m => m.Type == "roof" && m.Mesh.Groups.ContainsKey("trim"));
+        Assert.Contains(b.Modules, m => m.Mesh.Groups.ContainsKey("corner"));
+    }
 }

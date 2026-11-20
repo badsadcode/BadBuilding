@@ -628,3 +628,25 @@ Tom: "I want to be able to swap the assets with any model". Each `FurnitureItem`
 (`Shape`, building space, by material role) instead of adding it to the interior's mesh, and says whether it stands
 against a wall (`AgainstWall`). A game draws the shape for the kinds it has no model for and places its own model on
 the footprint for the rest; the physics boxes and loot markers stay the library's.
+
+## D40 — Podlasie's wooden houses: the "podlasie" preset (Baltic Drive's second region; Tom: "Wooden villages first", 20 Nov)
+Podlaskie's villages are the region's signature (the Land of Open Shutters: Soce, Trześcianka, Puchły; Czyże).
+From photographs (Wikimedia Commons) and the Wikipedia article on the decoration of wooden houses in Podlachia:
+* **What it is:** with `Preset = "podlasie"` the house family's cottage becomes the Podlasie wooden house:
+  - walls of horizontal boards (`timber`) in honey varnish, ox-blood, brown, ochre, weathered grey, now and then blue,
+    green or yellow;
+  - the gable boarded in a chevron (battens parallel to the rakes, a white strip up the middle), above a little skirt
+    roof, with white barge boards cut into teeth under the rakes; the attic window kept;
+  - white window surrounds with a carved crown (nadokiennik: a board with a peak and two small ones), panelled
+    shutters held open (a white board with two panels in blue, sky, green, brown or ochre), white corner boards;
+  - the door on a long side (the gable faces the street), often under a porch (ganek) with posts and its own little
+    boarded gable; roofs in red-brown, grey eternit, dark, green or red sheet.
+* **Commoner cottages:** in Podlasie long one-storey footprints are cottages 78 % of the time (else modern or kostka),
+  squarer small ones 55 %; a mapped year before 1970 is a cottage there (1945 elsewhere). Anywhere, a footprint
+  mapped `building:material=wood` that isn't two storeys is a cottage.
+* **Within a metre:** every piece (skirt, porch roof, shutters) stays within 1 m of the walls, as for every detail.
+* **Cost:** about 1,700–2,400 triangles per house (a plain cottage ~550, a modern house ~650).
+* `godot/test/shoot.gd`: photographs exported GLBs in a row (loads them at run time, hides the "-colonly" mass).
+Tests: most podlasie houses are cottages; no podlasie dress without the preset; details within a metre and the door
+on a long side (140 pass). Gallery samples `synthetic_podlasie` (10 seeds). Tom to judge the look; open questions for
+him: the colours and how often each, how rich the carving, verandas (glazed porches), fences and benches.

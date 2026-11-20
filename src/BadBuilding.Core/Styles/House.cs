@@ -17,12 +17,18 @@ namespace BadBuilding.Styles;
 ///   anthracite frames, sometimes a garage door on the street side;
 /// * <b>semi-detached</b> and <b>terraced</b> (bliźniak, szeregowiec, R005–R006): the modern or kostka look on a unit
 ///   that shares one or two walls, the door kept away from them.
+/// With the <c>podlasie</c> preset (D40) the cottage is Podlasie's wooden house: horizontal boards in honey varnish,
+/// ox-blood, brown, ochre or weathered grey; the gable boarded in a chevron above a little skirt roof, with white
+/// serrated barge boards; white window surrounds with a carved crown, panelled shutters held open (the Land of Open
+/// Shutters), white corner boards, a porch on the long side; and cottages are commoner (a wooden village).
 /// Everything inside the footprint, as with every style; the details stand at most 1 m proud (canopies, steps,
 /// balconies, sills).
 /// </summary>
 public sealed class House : IStyle
 {
     public const string Name = "house";
+    /// <summary>The preset that makes cottages Podlasie's painted wooden houses (D40).</summary>
+    public const string Podlasie = "podlasie";
     public string Id => Name;
 
     public enum Family { Cottage, Kostka, Modern, SemiDetached, Terraced }
@@ -33,6 +39,7 @@ public sealed class House : IStyle
     public House(BuildingGenerator.Context c)
     {
         Kind = FamilyOf(c);
+        _podlasie = Kind == Family.Cottage && c.Request.Preset == Podlasie;
         _look = Kind is Family.SemiDetached or Family.Terraced
             ? (c.Request.StartYear is >= 1945 and < 1990 || Rng.Stream(c.Request.Seed, "house.look").Chance(0.45) ? Family.Kostka : Family.Modern)
             : Kind;
@@ -62,11 +69,22 @@ public sealed class House : IStyle
         if (r.Type == "semidetached_house" || party == 1) return Family.SemiDetached;
         var rect = Roofs.MinRect(c.Site.Outer);
         float ratio = rect.HalfL / MathF.Max(rect.HalfW, 0.1f), area = c.Site.Area;
+        bool podlasie = r.Preset == Podlasie;
         if (r.StartYear is { } y)
-            return y < 1945 ? Family.Cottage : y < 1990 ? (ratio < 1.45f ? Family.Kostka : Family.Cottage) : Family.Modern;
+            return y < (podlasie ? 1970 : 1945) ? Family.Cottage : y < 1990 ? (ratio < 1.45f ? Family.Kostka : Family.Cottage) : Family.Modern;
         var rng = Rng.Stream(r.Seed, "house.family");
         bool oneStorey = r.Levels is 1 || r.Height is < 5.5f;
         bool twoStorey = r.Levels is >= 2 || r.Height is >= 6.5f;
+        // mapped as wood: a cottage (D40)
+        if (r.Material == "wood" && !twoStorey && area < 200f) return Family.Cottage;
+        // Podlasie (D40): the wooden village; the long, one-storey footprints are mostly the old houses
+        if (podlasie)
+        {
+            if (ratio >= 1.25f && area < 170f && !twoStorey)
+                return rng.Weighted<Family>([(Family.Cottage, 78), (Family.Modern, 14), (Family.Kostka, 8)]);
+            if (area < 150f && !twoStorey)
+                return rng.Weighted<Family>([(Family.Cottage, 55), (Family.Kostka, 25), (Family.Modern, 20)]);
+        }
         if (ratio < 1.35f && area is >= 60f and <= 170f && !oneStorey)
             return rng.Weighted<Family>([(Family.Kostka, 6), (Family.Modern, 4)]);
         if (ratio >= 1.45f && area < 130f && !twoStorey)
@@ -106,6 +124,9 @@ public sealed class House : IStyle
     // ---- looks ---------------------------------------------------------------------------------------------------------
 
     private bool _timber, _trims, _shutters, _balcony, _garage, _band;
+    // Podlasie (D40): the painted wooden house
+    private readonly bool _podlasie;
+    private bool _crown, _porch, _chevron;
     private string _frame = "e8e6e0";
 
     private static readonly (string Name, string Hex)[] Whitewash = [("white", "ebe7dc"), ("cream", "efe5c8"), ("grey wash", "d4d6cc"), ("blue wash", "cdd6d8")];
@@ -117,6 +138,47 @@ public sealed class House : IStyle
     // the colours Polish insulated houses actually come in, less often than white
     private static readonly (string Name, string Hex)[] Warm = [("sand", "e2d3b0"), ("light yellow", "eadfae"), ("soft salmon", "e3c9b5"), ("pale green", "d5dcca"), ("light ochre", "dcc28e")];
 
+    // Podlasie's wooden houses (D40, from photographs of Soce, Trześcianka, Czyże and villages round Białystok)
+    private static readonly (string, double)[] PodlasieWalls = [("a8743a", 4), ("7d332a", 3), ("5e412d", 3), ("b38a3e", 2), ("6e695f", 2), ("4d6d93", 1), ("56704a", 1), ("c9a94a", 1)];
+    private static readonly string[] PodlasieWallNames = ["honey varnish", "ox-blood", "brown", "ochre", "weathered grey", "blue", "green", "yellow"];
+    private static readonly (string, double)[] PodlasieRoofs = [("7a3a2c", 3), ("7b7b74", 3), ("3d3d3b", 2), ("4c5d48", 1), ("b4552f", 2)];
+
+    private static string Shade(string hex, float k)
+    {
+        int v = Convert.ToInt32(hex, 16);
+        int r = (int)(((v >> 16) & 255) * k), g = (int)(((v >> 8) & 255) * k), b = (int)((v & 255) * k);
+        return $"{Math.Clamp(r, 0, 255):x2}{Math.Clamp(g, 0, 255):x2}{Math.Clamp(b, 0, 255):x2}";
+    }
+
+    /// <summary>Podlasie's cottage: wall, trims, shutters, gable and roof colours (D40).</summary>
+    private string PodlasieLook(BuildingGenerator.Context c, out string roof, out string name)
+    {
+        var L = c.Look;
+        var m = c.Building.Materials;
+        string wall = L.Weighted<string>(PodlasieWalls);
+        string wallName = PodlasieWallNames[Array.FindIndex(PodlasieWalls, w => w.Item1 == wall)];
+        _timber = true; _trims = true;
+        _shutters = L.Chance(0.75);
+        _crown = L.Chance(0.7);
+        _chevron = L.Chance(0.8);
+        _porch = L.Chance(0.55);
+        string surround = L.Weighted<string>([("ebe8de", 8), ("e6dcc0", 1), ("9fc0dc", 1)]);
+        bool blueWall = wall == "4d6d93";
+        string shutter = blueWall ? "ebe8de" : L.Weighted<string>([("2f5ea6", 4), ("5b8fc4", 2), ("3d6b45", 2), (wall, 2), ("4a3324", 1), ("c29a3e", 1)]);
+        string panel = blueWall ? "2f5ea6" : surround;
+        string gable = L.Weighted<string>([(wall, 5), ("e3dfd3", 1), (L.Weighted<string>(PodlasieWalls), 2)]);
+        _frame = surround;
+        roof = L.Weighted<string>(PodlasieRoofs);
+        m["boards"] = Kit.Mat("boards", gable, 0.95f);
+        m["batten"] = Kit.Mat("batten", Shade(gable, 0.72f), 0.95f);
+        m["shutter"] = Kit.Mat("shutter", shutter, 0.75f);
+        m["panel"] = Kit.Mat("panel", panel, 0.75f);
+        m["corner"] = Kit.Mat("corner", surround, 0.8f);
+        m["post"] = Kit.Mat("post", L.Chance(0.6) ? surround : Shade(wall, 0.85f), 0.85f);
+        name = $"podlasie, {wallName} boards, {(surround == "ebe8de" ? "white" : "coloured")} surrounds{(_shutters ? ", open shutters" : "")}{(_chevron ? ", chevron gable" : "")}{(_porch ? ", porch" : "")}";
+        return wall;
+    }
+
     public void Materials(BuildingGenerator.Context c)
     {
         var L = c.Look;
@@ -125,6 +187,9 @@ public sealed class House : IStyle
         _band = false;
         switch (_look)
         {
+            case Family.Cottage when _podlasie:
+                wall = PodlasieLook(c, out roof, out name);
+                break;
             case Family.Cottage:
                 _timber = L.Chance(0.35);
                 var w = _timber ? L.Pick(Planks) : L.Pick(Whitewash);
@@ -189,7 +254,7 @@ public sealed class House : IStyle
         float sh = plan.StoreyHeight, datum = plan.Datum, top = c.RoofLevel, ground = plan.GroundLow;
         float bay = _look switch { Family.Cottage => 2.8f, Family.Kostka => 3.0f, _ => 3.3f };
         // one front door, on the street side when there is one, never on a shared wall
-        var doors = Entrances.Place(c, _ => 1, bay);
+        var doors = _podlasie && c.Request.Entrances.Count == 0 ? LongSideDoor(c, bay) : Entrances.Place(c, _ => 1, bay);
         var street = plan.Edges.Where(e => e.Exposure == Exposure.Street).OrderByDescending(e => e.Length).FirstOrDefault();
         var streetOut = street?.Out ?? (doors.Count > 0 ? plan.Edges[doors[0].Edge].Out : Vector2.Zero);
         string body = _timber ? "timber" : "wall";
@@ -230,6 +295,12 @@ public sealed class House : IStyle
             }
             else Kit.Wall(wall.Mesh, "plinth", f, 0, len, ground - 0.5f, datum);
 
+            // Podlasie: white corner boards (D40)
+            if (_podlasie && e.Ring == 0 && len >= 1.2f)
+            {
+                Kit.Box(trim.Mesh, "corner", f, 0, 0.17f, datum - 0.05f, top, 0, 0.035f);
+                Kit.Box(trim.Mesh, "corner", f, len - 0.17f, len, datum - 0.05f, top, 0, 0.035f);
+            }
             if (blind) { Kit.Wall(wall.Mesh, body, f, 0, len, datum, top); continue; }
 
             int bays = Math.Max(1, (int)MathF.Round(len / bay));
@@ -249,7 +320,7 @@ public sealed class House : IStyle
                         continue;
                     }
                     // the cottage's gable-end walls keep one small window; a kostka every bay; modern the garden side wide
-                    if (bwid < 1.5f || (_look == Family.Cottage && len < 5.5f && bi != bays / 2)) { Kit.Wall(wall.Mesh, body, f, u0, u1, y0, y1); continue; }
+                    if (bwid < 1.5f || (_look == Family.Cottage && !_podlasie && len < 5.5f && bi != bays / 2)) { Kit.Wall(wall.Mesh, body, f, u0, u1, y0, y1); continue; }
                     Window(c, wall.Mesh, trim.Mesh, f, body, u0, u1, y0, y1, sh, s, garden);
                 }
             }
@@ -269,6 +340,7 @@ public sealed class House : IStyle
         float hw, sill, head;
         switch (_look)
         {
+            case Family.Cottage when _podlasie: hw = MathF.Min(0.47f, bw * 0.2f); sill = 0.8f; head = MathF.Min(sh - 0.62f, 2.05f); break;
             case Family.Cottage: hw = MathF.Min(0.45f, bw * 0.25f); sill = 0.85f; head = MathF.Min(sh - 0.45f, 2.0f); break;
             case Family.Kostka: hw = MathF.Min(0.7f, bw * 0.3f); sill = 0.9f; head = MathF.Min(sh - 0.35f, 2.3f); break;
             default:
@@ -286,6 +358,7 @@ public sealed class House : IStyle
         if (cross) { float yt = ys + (yh - ys) * (_look == Family.Cottage ? 0.62f : 0.7f); Kit.Box(trim, "frame", f, a, z, yt - 0.03f, yt + 0.03f, d0, d1); }
         // the sill outside
         if (sill > 0.2f) Kit.Box(trim, "sill", f, a - 0.06f, z + 0.06f, ys - 0.05f, ys, 0, 0.07f);
+        if (_podlasie) { PodlasieWindow(trim, f, u0, u1, a, z, ys, yh, hw); return; }
         // the cottage's painted surround, and sometimes open shutters
         if (_look == Family.Cottage && _trims)
         {
@@ -308,8 +381,9 @@ public sealed class House : IStyle
         du = Math.Clamp(du, u0 + hw + 0.1f, u1 - hw - 0.1f);
         Kit.WallWithOpening(wall, _timber ? "timber" : "wall", "reveal", "door", f, u0, u1, y0, y1, du - hw, du + hw, y0, y0 + dh, 0.15f);
         b.Markers.Add(new Marker(c.Id($"entrance.e{e.Ring}.{e.Index}"), "entrance", f.P(du, y0, 0.05f), f.Out));
+        if (_podlasie && _porch) Porch(trim, f, du, y0, c.Plan.GroundLow);
         // a canopy over it (not on every cottage)
-        if (_look != Family.Cottage || c.Detail.Chance(0.4))
+        else if (_look != Family.Cottage || c.Detail.Chance(0.4))
             Kit.Box(trim, "canopy", f, du - 0.85f, du + 0.85f, y0 + dh + 0.2f, y0 + dh + 0.3f, 0, _look == Family.Modern ? 1.0f : 0.8f);
         // steps from the ground up to the door: the kostka's raised entrance climbs its plinth
         float rise = y0 - c.Plan.GroundLow;
@@ -363,6 +437,149 @@ public sealed class House : IStyle
         }
     }
 
+    // ---- Podlasie (D40) ------------------------------------------------------------------------------------------------
+
+    /// <summary>The door on a long side, a little off centre: the gable faces the street, the porch the yard.</summary>
+    private static List<DoorSite> LongSideDoor(BuildingGenerator.Context c, float bay)
+    {
+        var rect = Roofs.MinRect(c.Site.Outer);
+        var edges = c.Site.Edges;
+        int best = -1; float score = 0;
+        for (int i = 0; i < edges.Count; i++)
+        {
+            var e = edges[i];
+            if (e.Ring != 0 || e.Exposure is Exposure.Party or Exposure.Sliver || e.Length < 3f) continue;
+            float along = MathF.Abs(Vector2.Dot(e.Dir, rect.U));
+            float sc = e.Length * (along > 0.8f ? 2f : 1f) * (e.Exposure == Exposure.Street ? 0.8f : 1f) + c.Detail.Range(0f, 0.5f);
+            if (sc > score) { score = sc; best = i; }
+        }
+        if (best < 0) return Entrances.Place(c, _ => 1, bay);
+        var w = edges[best];
+        int bays = Math.Max(1, (int)MathF.Round(w.Length / bay));
+        float bw = w.Length / bays;
+        int bi = bays <= 2 ? 0 : c.Detail.Chance(0.5) ? 1 : bays - 2;
+        return [new DoorSite(best, (bi + 0.5f) * bw, Source.Inferred, "main")];
+    }
+
+    /// <summary>A Podlasie window's dress: a white surround, a carved crown over it, open panelled shutters.</summary>
+    private void PodlasieWindow(Mesh trim, Kit.Frame f, float u0, float u1, float a, float z, float ys, float yh, float hw)
+    {
+        const float t = 0.12f;
+        float uc = (a + z) * 0.5f;
+        Kit.Box(trim, "trim", f, a - t, a, ys - 0.04f, yh + 0.04f, 0, 0.035f);
+        Kit.Box(trim, "trim", f, z, z + t, ys - 0.04f, yh + 0.04f, 0, 0.035f);
+        Kit.Box(trim, "trim", f, a - t, z + t, yh, yh + 0.11f, 0, 0.04f);
+        Kit.Box(trim, "trim", f, a - t, z + t, ys - 0.12f, ys - 0.04f, 0, 0.03f);
+        if (_crown)
+        {
+            // the nadokiennik: a board wider than the window, a peak in the middle and two small ones
+            float e0 = a - t - 0.07f, e1 = z + t + 0.07f, yb = yh + 0.11f, yt = yb + 0.1f;
+            Kit.Box(trim, "trim", f, e0, e1, yb, yt, 0, 0.045f);
+            Vector3 P(float u, float y) => f.P(u, y, 0.045f);
+            trim.AddPolygon("trim", [P(uc - 0.22f, yt), P(uc + 0.22f, yt), P(uc, yt + 0.24f)], f.Out);
+            trim.AddPolygon("trim", [P(e0, yt), P(e0 + 0.18f, yt), P(e0 + 0.09f, yt + 0.11f)], f.Out);
+            trim.AddPolygon("trim", [P(e1 - 0.18f, yt), P(e1, yt), P(e1 - 0.09f, yt + 0.11f)], f.Out);
+        }
+        if (!_shutters) return;
+        float sw = hw, l0 = a - t - sw, r1 = z + t + sw;
+        if (l0 < u0 + 0.05f || r1 > u1 - 0.05f) return;
+        foreach (var (s0, s1) in new[] { (l0, a - t), (z + t, r1) })
+        {
+            Kit.Box(trim, "panel", f, s0, s1, ys - 0.02f, yh + 0.02f, 0.01f, 0.045f);
+            float h = yh - ys, i0 = s0 + 0.06f, i1 = s1 - 0.06f;
+            // the panels: a long one above, a short one below (thinner boards in the shutter's colour)
+            Kit.Wall(trim, "shutter", f, i0, i1, ys + 0.06f, ys + h * 0.3f, 0.048f);
+            Kit.Wall(trim, "shutter", f, i0, i1, ys + h * 0.36f, yh - 0.06f, 0.048f);
+        }
+    }
+
+    /// <summary>The porch (ganek): a deck, two posts and a little gable roof, boarded in the gable.</summary>
+    private void Porch(Mesh m, Kit.Frame f, float du, float y0, float ground)
+    {
+        const float hw = 1.15f, depth = 0.95f;
+        float eave = y0 + 2.35f, ridge = y0 + 2.85f;
+        Kit.Box(m, "steps", f, du - hw, du + hw, ground - 0.2f, y0, 0, depth);
+        foreach (float pu in new[] { du - hw + 0.08f, du + hw - 0.08f })
+            Kit.Box(m, "post", f, pu - 0.06f, pu + 0.06f, y0, eave, depth - 0.14f, depth - 0.02f);
+        Kit.Box(m, "post", f, du - hw, du + hw, eave - 0.12f, eave, depth - 0.14f, depth - 0.02f);
+        float d1 = depth + 0.05f;   // the roof stays within a metre of the wall, like every detail
+        Vector3 P(float u, float y, float w) => f.P(u, y, w);
+        // roof slopes (top and underside)
+        m.AddQuad("roof", P(du - hw - 0.1f, eave - 0.05f, 0), P(du - hw - 0.1f, eave - 0.05f, d1), P(du, ridge, d1), P(du, ridge, 0), Vector3.UnitY);
+        m.AddQuad("roof", P(du, ridge, 0), P(du, ridge, d1), P(du + hw + 0.1f, eave - 0.05f, d1), P(du + hw + 0.1f, eave - 0.05f, 0), Vector3.UnitY);
+        m.AddQuad("soffit", P(du, ridge - 0.04f, 0), P(du - hw - 0.1f, eave - 0.09f, 0), P(du - hw - 0.1f, eave - 0.09f, d1), P(du, ridge - 0.04f, d1), -Vector3.UnitY);
+        m.AddQuad("soffit", P(du + hw + 0.1f, eave - 0.09f, 0), P(du, ridge - 0.04f, 0), P(du, ridge - 0.04f, d1), P(du + hw + 0.1f, eave - 0.09f, d1), -Vector3.UnitY);
+        // the porch's boarded gable, and its white edge
+        m.AddPolygon("boards", [P(du - hw, eave, depth - 0.02f), P(du + hw, eave, depth - 0.02f), P(du, ridge - 0.06f, depth - 0.02f)], f.Out);
+        m.AddPolygon("trim", [P(du - 0.12f, eave + 0.05f, depth), P(du + 0.12f, eave + 0.05f, depth), P(du, ridge - 0.12f, depth)], f.Out);
+    }
+
+    /// <summary>Podlasie's gables (D40): a little skirt roof along the bottom, the boarding in a chevron, white
+    /// serrated barge boards under the rakes.</summary>
+    private void PodlasieGables(BuildingGenerator.Context c, Mesh m, float eave)
+    {
+        var plan = c.Plan;
+        var wings = plan.RoofWings.Count > 0 ? plan.RoofWings : [new Roofs.Wing(plan.RoofRect, plan.RoofRise, true, true)];
+        foreach (var wg in wings)
+        {
+            if (wg.Rise < 1.6f) continue;
+            var r = wg.Rect;
+            float W = r.HalfW, rise = wg.Rise;
+            float whw = MathF.Min(0.45f, W * 0.25f), wy0 = eave + 0.5f, wy1 = eave + MathF.Min(rise - 0.7f, 1.7f);
+            bool window = rise >= 2.4f;
+            foreach (var (outer, sgn) in new[] { (wg.OuterStart, -1f), (wg.OuterEnd, 1f) })
+            {
+                if (!outer) continue;
+                var at = r.At(sgn * r.HalfL, 0);
+                var f = new Kit.Frame(new Vector3(at.X, 0, at.Y), new Vector3(r.V.X, 0, r.V.Y) * sgn, new Vector3(r.U.X, 0, r.U.Y) * sgn);
+                Vector3 P(float u, float y, float w) => f.P(u, y, w);
+                float Rake(float u) => eave + rise * (1f - MathF.Abs(u) / W);
+                // the skirt roof
+                const float sk = 0.5f;
+                m.AddQuad("roof", P(-W - 0.05f, eave + 0.22f, 0), P(W + 0.05f, eave + 0.22f, 0), P(W + 0.05f, eave - 0.06f, sk), P(-W - 0.05f, eave - 0.06f, sk), Vector3.UnitY);
+                m.AddQuad("soffit", P(W + 0.05f, eave + 0.18f, 0), P(-W - 0.05f, eave + 0.18f, 0), P(-W - 0.05f, eave - 0.1f, sk), P(W + 0.05f, eave - 0.1f, sk), -Vector3.UnitY);
+                float yb = eave + 0.28f;
+                // the chevron: battens parallel to the rakes, stopping short of the attic window
+                if (_chevron)
+                    for (float d = 0.3f; d < rise - 0.35f; d += 0.3f)
+                        foreach (float side in new[] { -1f, 1f })
+                        {
+                            // the line y = Rake(u) - d on this half, from the skirt up to the middle
+                            float uS = W * (1f - (d + yb - eave) / rise);    // |u| where it meets the skirt
+                            float uE = 0.04f;
+                            float yE = Rake(uE) - d;
+                            if (window && yE > wy0 - 0.15f && yE < wy1 + 0.25f)
+                            {
+                                uE = whw + 0.12f; yE = Rake(uE) - d;
+                                if (uE >= uS) continue;
+                            }
+                            if (uS <= uE) continue;
+                            float y0 = Rake(uS) - d;
+                            m.AddQuad("batten", P(side * uS, y0, 0.025f), P(side * uE, yE, 0.025f), P(side * uE, yE + 0.05f, 0.025f), P(side * uS, y0 + 0.05f, 0.025f), f.Out);
+                        }
+                // a white strip up the middle, under the window and over it
+                if (_chevron)
+                {
+                    Kit.Box(m, "trim", f, -0.06f, 0.06f, yb, window ? wy0 - 0.08f : Rake(0) - 0.2f, 0, 0.035f);
+                    if (window) Kit.Box(m, "trim", f, -0.06f, 0.06f, wy1 + 0.08f, Rake(0) - 0.2f, 0, 0.035f);
+                    if (window) Kit.Box(m, "trim", f, -whw - 0.12f, whw + 0.12f, wy0 - 0.14f, wy0 - 0.06f, 0, 0.04f);
+                }
+                // barge boards with teeth under the rakes
+                foreach (float side in new[] { -1f, 1f })
+                {
+                    for (float u = 0f; u < W; u += 0.2f)
+                    {
+                        float ua = u, ub = MathF.Min(W, u + 0.2f);
+                        float ya = Rake(ua) - 0.03f, yb2 = Rake(ub) - 0.03f;
+                        m.AddQuad("trim", P(side * ua, ya - 0.2f, 0.05f), P(side * ub, yb2 - 0.2f, 0.05f), P(side * ub, yb2, 0.05f), P(side * ua, ya, 0.05f), f.Out);
+                        float um = (ua + ub) * 0.5f;
+                        m.AddPolygon("trim", [P(side * ua, ya - 0.2f, 0.05f), P(side * ub, yb2 - 0.2f, 0.05f), P(side * um, Rake(um) - 0.33f, 0.05f)], f.Out);
+                    }
+                }
+            }
+        }
+    }
+
     private void Roof(BuildingGenerator.Context c, float top)
     {
         var plan = c.Plan;
@@ -377,6 +594,7 @@ public sealed class House : IStyle
             Roofs.Pitched(roof.Mesh, "roof", "soffit", _look == Family.Cottage ? "boards" : _timber ? "timber" : "wall", plan, top, o);
             Kit.Slab(roof.Mesh, "soffit", c.Site.Outer, c.Site.Holes, top - 0.05f, top, sides: false);
             if (plan.RoofShape == RoofShape.Gabled) AtticWindows(c, roof.Mesh, top);
+            if (_podlasie && plan.RoofShape == RoofShape.Gabled) PodlasieGables(c, roof.Mesh, top);
             var main = plan.RoofWings.Count > 0 ? plan.RoofWings.MaxBy(w => w.Rise).Rect : plan.RoofRect;
             ridge = top + (plan.RoofWings.Count > 0 ? plan.RoofWings.Max(w => w.Rise) : plan.RoofRise);
             // the chimney: on the ridge, off centre (in the middle on a cottage)

@@ -118,6 +118,10 @@ public static class Samples
             Req("syn:barn", R(-12, -5, 12, -5, 12, 5, -12, 5), "barn", 1) with { Streets = st }, S);
         yield return new("synthetic_villa_hipped", true, "villa, mapped hipped roof",
             Req("syn:villa", R(-8, -6, 8, -6, 8, 6, -8, 6), "house", 2) with { Roof = "hipped", Streets = st }, S);
+        // Podlasie (D40): wooden houses, gable to the street, as in a village row
+        for (int k = 0; k < 10; k++)
+            yield return new("synthetic_podlasie", true, $"Podlasie wooden house {k + 1}: 7 × 12 m, gable to the street",
+                Req($"syn:podlasie{k}", R(-3.5f, -18, 3.5f, -18, 3.5f, -6, -3.5f, -6), "house", 1) with { Streets = st, Preset = "podlasie" }, S);
         yield return new("synthetic_bowtie", true, "self-intersecting outline: must be rejected",
             Req("syn:bowtie", R(-10, -10, 10, 10, 10, -10, -10, 10), "yes", 2), S);
         yield return new("synthetic_tiny", true, "0.6 m² footprint: must be rejected",
