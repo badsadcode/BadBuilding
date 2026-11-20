@@ -691,3 +691,24 @@ kind, the street side for the others; the door in the middle bay of that wall, w
 1,600–3,500 triangles. Tests: the two kinds by footprint, the map's word (building=mosque counts; a church, an office
 or an untyped building doesn't), finials, within a metre, a minaret on a big modern one (157 pass).
 The Orthodox style's drum and pyramid helpers are now shared (internal).
+
+## D43 — Catholic (and other Western) churches (Tom: "Catholic churches next", 20 Nov)
+A `church` style for a church, chapel, cathedral, basilica, monastery or convent that is Christian or says nothing, and
+isn't Orthodox (D41); an untyped building or "religious" one only when the map says Christian. In the joined data
+about 3,000 church-kind buildings: 1,532 churches and 512 chapels tagged roman_catholic, hundreds untagged, a few
+Lutheran. Five kinds, from the map's year or material when it has them, else by chance (Podlasie a little more wooden):
+* **gothic** (neo-Gothic red brick, 1800–1944 three in four; Poland's commonest village and town church): a 52° roof,
+  pointed windows with stone-coloured heads and glazing bars, buttresses with sloped tops between the bays, a cornice,
+  a west tower with a belfry, clock discs and a dark spire (patinated copper, slate or black), twin towers on a big
+  wide one; on the `brick` surface (the shader's brick);
+* **baroque** (before 1800, or a monastery or convent): white, cream, yellow or ochre plaster, pilasters, round-headed
+  windows, a cornice, a west tower under a bulb, a lantern and a smaller bulb;
+* **modern** (after 1945, or concrete): light walls, tall strip windows, a low roof, a tall slender tower with a big cross;
+* **wooden** (mapped as wood, 5 %, 15 % in Podlasie): dark boards, a dark roof, a boarded tower with a tented roof;
+* **chapel** (under 60 m²): plastered (now and then brick), a gabled roof, a small bell turret on the ridge, a cross.
+Oriented east: the portal and tower at the west end. A footprint with an apse (or anything not a rectangle) gets its
+pitched roof over the nave's rectangle, trimmed from the east end until it stands in the footprint, and a flat roof over
+the rest. Latin crosses, gilded. 500–4,500 triangles. Tests: the kinds by year and material, a chapel, Orthodox and
+synagogues and untyped buildings not this, a tower with a cross above the roof, the door at the west, within a metre
+with and without an apse (167 pass). Not yet: churches mapped in parts keep the old meshes; towers on ragged
+outlines are left out when no square fits; Lutheran churches look Catholic.

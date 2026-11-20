@@ -137,6 +137,14 @@ public static class Samples
             Req("syn:mosque_s", R(-7, -6.5f, 7, -6.5f, 7, 6.5f, -7, 6.5f), "mosque") with { Streets = st, Religion = "muslim", Heritage = true, Preset = "podlasie" }, S);
         yield return new("synthetic_mosque_modern", true, "modern mosque, 19 × 34 m",
             Req("syn:mosque_m", R(-17, -9.5f, 17, -9.5f, 17, 9.5f, -17, 9.5f), "mosque") with { Streets = st, Religion = "muslim" }, S);
+        // Catholic churches (D43): one per kind by the build year or material, one with an apse, a chapel
+        foreach (var (k, year, mat) in new (string, int?, string?)[] { ("gothic", 1905, null), ("baroque", 1760, null), ("modern", 1985, null), ("wooden", null, "wood") })
+            yield return new($"synthetic_church_{k}", true, $"Catholic church, {k}: 14 × 32 m",
+                Req($"syn:church_{k}", R(-16, -7, 16, -7, 16, 7, -16, 7), "church") with { Streets = st, Religion = "christian", Denomination = "roman_catholic", StartYear = year, Material = mat }, S);
+        yield return new("synthetic_church_apse", true, "neo-Gothic church with a three-sided apse at the east end",
+            Req("syn:church_apse", R(-15, -7, 11, -7, 15, -3, 15, 3, 11, 7, -15, 7), "church") with { Streets = st, Religion = "christian", StartYear = 1910 }, S);
+        yield return new("synthetic_chapel", true, "roadside chapel, 5 × 7 m",
+            Req("syn:chapel", R(-3.5f, -2.5f, 3.5f, -2.5f, 3.5f, 2.5f, -3.5f, 2.5f), "chapel") with { Streets = st, Religion = "christian" }, S);
         yield return new("synthetic_bowtie", true, "self-intersecting outline: must be rejected",
             Req("syn:bowtie", R(-10, -10, 10, 10, 10, -10, -10, 10), "yes", 2), S);
         yield return new("synthetic_tiny", true, "0.6 m² footprint: must be rejected",
