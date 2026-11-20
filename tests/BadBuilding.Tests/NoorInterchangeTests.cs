@@ -111,7 +111,7 @@ public class NoorInterchangeTests
         var b = BuildingGenerator.Generate(Court());
         var gltf = GltfJson(BuildingFiles.Lod(b, 0));
         var markers = Nodes(gltf).Where(n => NoorOf(n)?.TryGetProperty("marker", out _) == true).ToList();
-        Assert.Equal(b.Markers.Count, markers.Count);
+        Assert.Equal(b.Markers.Count(BadBuilding.Export.Noor.Exported), markers.Count);   // balconies stay inside BadBuilding (D35)
         var entranceKinds = new List<string>();
         var passages = new Dictionary<string, JsonElement>();
         foreach (var m in markers)

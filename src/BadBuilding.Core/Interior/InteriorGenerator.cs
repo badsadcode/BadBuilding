@@ -30,6 +30,7 @@ public static class InteriorGenerator
     private const float OuterT = 0.3f;         // the outer wall, inside the facade line
     private const float GlassAt = 0.21f;       // the interior's window glass, behind the facade (the exterior's is at 0.2)
     private const float Slab = 0.2f;
+    private const float Inset = 0.012f;        // the interior's openings, inside the exterior's (no cracks, no flicker)
     // roomy (Tom, 20 Nov: "very cramped"): a 3.8 m staircase with 1.75 m flights, 2.1 m halls, 1.9 m corridors;
     // the landing, flights and half landing shrink toward the tight sizes only where the block is too shallow
     private const float CoreHalf = 1.9f, Bath = 2.5f;
@@ -189,6 +190,8 @@ public static class InteriorGenerator
                     float a0 = side < 2 ? MathF.Min(ua, ub) : MathF.Min(va, vb), a1 = side < 2 ? MathF.Max(ua, ub) : MathF.Max(va, vb);
                     // a door with no staircase behind it stays shut: drawn as a door, solid
                     string kind = o.Kind;
+                    // a balcony door is a way out onto its balcony, when the exterior says there is one (D35)
+                    if (kind == "balcony_door" && !s.Balconies.Any(bs => Vector2.Distance(new Vector2(bs.Position.X, bs.Position.Z), (o.A + o.B) * 0.5f) < 0.8f && MathF.Abs(bs.Position.Y - o.Y0) < 0.3f)) kind = "glass";
                     if (kind == "door" && !mine.Any(e => Vector2.Distance(new Vector2(e.Position.X, e.Position.Z), (o.A + o.B) * 0.5f) < 1.2f)) kind = "shut";
                     _segOpen.Add((side, a0, a1, o.Y0, o.Y1, kind));
                 }
@@ -546,7 +549,9 @@ public static class InteriorGenerator
                 float a0 = alongU ? _uMin : _vF, a1 = alongU ? _uMax : _depth;
                 var normal = (alongU ? _f.AxisV : _f.AxisU) * sign;           // the inner face looks into the building
                 var holes = _segOpen.Where(o => o.Side == side && MathF.Min(o.Y1, c) - MathF.Max(o.Y0, f) > 0.3f)
-                                     .Select(o => new Hole(o.A0, o.A1, MathF.Max(o.Y0, f), MathF.Min(o.Y1, c), o.Kind)).ToList();
+                                     // a hair inside the exterior's hole, so the interior's reveals run out to the facade in
+                                     // front of the exterior's own instead of leaving a crack where they meet (D83)
+                                     .Select(o => new Hole(o.A0 + Inset, o.A1 - Inset, o.Kind is "door" or "balcony_door" ? MathF.Max(o.Y0, f) : MathF.Max(o.Y0, f) + Inset, MathF.Min(o.Y1, c) - Inset, o.Kind)).ToList();
                 // break at holes and room corners
                 var cols = new SortedSet<float> { a0, a1 };
                 foreach (var h in holes) { cols.Add(h.A0); cols.Add(h.A1); }
@@ -568,10 +573,10 @@ public static class InteriorGenerator
                     }
                     if (hole == null || role == "") continue;
                     // the reveal back to the glass (or, for the entrance, to the exterior's own reveal)
-                    bool door = hole.Kind == "door";
-                    float back = facade + sign * (door ? 0.25f : GlassAt);
-                    float w0 = MathF.Min(back, inner), w1 = MathF.Max(back, inner);
-                    HFace(role, alongU, w0, w1, x0, x1, hole.Y0, true);
+                    bool door = hole.Kind is "door" or "balcony_door";
+                    float back = facade + sign * GlassAt;
+                    float w0 = MathF.Min(facade, inner), w1 = MathF.Max(facade, inner);      // the reveal, out to the facade
+                    if (!(door && hole.Y0 <= f + 0.06f)) HFace(role, alongU, w0, w1, x0, x1, hole.Y0, true);
                     HFace(role, alongU, w0, w1, x0, x1, hole.Y1, false);
                     if (!door)
                     {
@@ -580,7 +585,7 @@ public static class InteriorGenerator
                 }
                 // physics: the whole wall, glass and all, with only the street doors left open
                 float px = a0;
-                foreach (var h in holes.Where(h => h.Kind == "door").OrderBy(h => h.A0))
+                foreach (var h in holes.Where(h => h.Kind is "door" or "balcony_door").OrderBy(h => h.A0))
                 {
                     Box(alongU, MathF.Min(facade, inner), MathF.Max(facade, inner), px, h.A0, y0, y1);
                     Box(alongU, MathF.Min(facade, inner), MathF.Max(facade, inner), h.A0, h.A1, h.Y1, y1);
@@ -592,12 +597,32 @@ public static class InteriorGenerator
                     var room = alongU ? RoomAt((h.A0 + h.A1) * 0.5f, inner + sign * 0.1f) : RoomAt(inner + sign * 0.1f, (h.A0 + h.A1) * 0.5f);
                     string role = WallRole(room?.Kind, room?.Flat);
                     if (role == "") continue;
-                    float back = facade + sign * (h.Kind == "door" ? 0.25f : GlassAt);
-                    float w0 = MathF.Min(back, inner), w1 = MathF.Max(back, inner);
+                    float w0 = MathF.Min(facade, inner), w1 = MathF.Max(facade, inner);
+                    if (h.Kind == "balcony_door" && st >= 0) Balcony(side, facade, sign, h, f);
                     EndFace(role, alongU, w0, w1, h.A0, h.Y0, h.Y1, -1, f);
                     EndFace(role, alongU, w0, w1, h.A1, h.Y0, h.Y1, +1, f);
                 }
             }
+        }
+
+        /// <summary>A balcony outside a balcony door (D35): the exterior draws it; the interior gives it a floor and
+        /// railings a little higher than the drawn ones, and records it so a game can let you out there.</summary>
+        private void Balcony(int side, float facade, float sign, Hole h, float f)
+        {
+            bool alongU = side < 2;
+            float mid = (h.A0 + h.A1) * 0.5f;
+            var at = alongU ? _f.P(mid, f, facade) : _f.P(facade, f, mid);
+            var site = s.Balconies.Where(b => MathF.Abs(b.Position.Y - f) < 0.4f).OrderBy(b => Vector2.Distance(new Vector2(b.Position.X, b.Position.Z), new Vector2(at.X, at.Z))).FirstOrDefault();
+            if (site == null || Vector2.Distance(new Vector2(site.Position.X, site.Position.Z), new Vector2(at.X, at.Z)) > 0.8f) return;
+            _m.Balconies.Add(site with { Position = at });
+            if (site.Depth < 0.3f) return;   // a garden door: the ground is the floor
+            float hw = MathF.Max(site.Width * 0.5f, (h.A1 - h.A0) * 0.5f + 0.2f), d = site.Depth, o = -sign;   // outward along the axis
+            float w0 = MathF.Min(facade, facade + o * d), w1 = MathF.Max(facade, facade + o * d);
+            Box(alongU, w0, w1, mid - hw, mid + hw, f - 0.25f, f);                                         // the slab
+            float wf = facade + o * d;                                                                       // the front rail
+            Box(alongU, MathF.Min(wf, wf - o * 0.06f), MathF.Max(wf, wf - o * 0.06f), mid - hw, mid + hw, f, f + 1.15f);
+            Box(alongU, w0, w1, mid - hw - 0.06f, mid - hw, f, f + 1.15f);                                // the sides
+            Box(alongU, w0, w1, mid + hw, mid + hw + 0.06f, f, f + 1.15f);
         }
 
         /// <summary>The staircase: a spine wall between the flights, the flight up from the landing, the half landing

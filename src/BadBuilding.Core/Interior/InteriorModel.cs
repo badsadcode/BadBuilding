@@ -49,6 +49,8 @@ public sealed class InteriorModel
     public List<Doorway> Doors { get; } = [];
     public List<Marker> Markers { get; } = [];
     public List<EntranceDoor> Entrances { get; } = [];
+    /// <summary>Balconies you can step out onto (D35), with the storey's floor height in their position.</summary>
+    public List<BalconySite> Balconies { get; } = [];
     /// <summary>Entrances the plan could not use: the door stays shut for good (D11's fallback).</summary>
     public List<EntranceDoor> Sealed { get; } = [];
     public Dictionary<string, MaterialDef> Materials { get; } = new(StringComparer.Ordinal);
@@ -66,7 +68,7 @@ public sealed class InteriorModel
         sb.Append(",\"rooms\":[").Append(string.Join(",", Rooms.Select(r => $"{{\"id\":\"{r.Id}\",\"kind\":\"{r.Kind}\",\"storey\":{r.Storey},\"rects\":[{string.Join(",", r.Rects.Select(q => $"[{F(q.Min.X)},{F(q.Min.Y)},{F(q.Max.X)},{F(q.Max.Y)}]"))}]}}"))).Append(']');
         sb.Append(",\"doors\":[").Append(string.Join(",", Doors.Select(d => { var (u, v) = Frame.Local(new Vector2(d.Position.X, d.Position.Z)); return $"{{\"storey\":{StoreyAt(d.Position.Y + 0.1f)},\"u\":{F(u)},\"v\":{F(v)},\"w\":{F(d.Width)},\"along\":{(MathF.Abs(Vector3.Dot(d.Normal, Frame.AxisV)) > 0.5f ? "true" : "false")}}}"; }))).Append(']');
         sb.Append(",\"report\":\"").Append(string.Join("; ", Report.Issues.Select(i => i.Code + " " + i.Message)).Replace("\"", "'")).Append("\"");
-        sb.Append(",\"metrics\":{").Append(string.Join(",", Report.Metrics.Select(kv => $"\"{kv.Key}\":{kv.Value}"))).Append("}");
+        sb.Append(",\"metrics\":{").Append(string.Join(",", Report.Metrics.Select(kv => $"\"{kv.Key}\":{F((float)kv.Value)}"))).Append("}");
         sb.Append(",\"openings\":[").Append(string.Join(",", Openings.Select(o => $"[{o.Side},{F(o.A0)},{F(o.A1)},{F(o.Y0)},{F(o.Y1)},\"{o.Kind}\"]"))).Append(']');
         return sb.Append('}').ToString();
     }

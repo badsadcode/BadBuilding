@@ -10,6 +10,10 @@ public sealed record Opening(Vector2 A, Vector2 B, float Y0, float Y1, string Ki
 /// <summary>An entrance door of the exterior: where it stands (on the wall, at the floor) and which way is out.</summary>
 public sealed record EntranceDoor(string Id, Vector3 Position, Vector3 Out);
 
+/// <summary>A balcony of the exterior (D35): the middle of its door on the facade line at the floor, which way is out,
+/// its width along the wall and how far it stands out (0: a door out to the garden on the ground floor).</summary>
+public sealed record BalconySite(Vector3 Position, Vector3 Out, float Width, float Depth);
+
 /// <summary>
 /// What an interior needs to know about a building (D33), kept small so a game can hold one for every building near
 /// the player and plan the rooms only when somebody walks in: the outline, the storeys, the entrance doors and every
@@ -29,6 +33,7 @@ public sealed record Shell
     public required int Levels { get; init; }
     public required IReadOnlyList<EntranceDoor> Entrances { get; init; }
     public required IReadOnlyList<Opening> Openings { get; init; }
+    public IReadOnlyList<BalconySite> Balconies { get; init; } = [];
 
     /// <summary>The styles whose buildings get interiors so far (D33: blocks of flats with staircases).</summary>
     public static readonly HashSet<string> Styles = ["prl_block", "apartments"];
@@ -55,10 +60,11 @@ public sealed record Shell
             Levels = plan.Levels.Value,
             Entrances = doors,
             Openings = OpeningsOf(b),
+            Balconies = b.Markers.Where(m => m.Kind == "balcony").Select(m => new BalconySite(m.Position, m.Direction, m.Size.X, m.Size.Y)).ToList(),
         };
     }
 
-    private static readonly HashSet<string> Fills = ["glass", "door", "glass_block", "shopfront"];
+    private static readonly HashSet<string> Fills = ["glass", "door", "glass_block", "shopfront", "balcony_door"];
 
     /// <summary>Every opening in the walls, read back from the infill quads the facade drew (Kit.WallWithOpening puts
     /// one quad of glass or door at the back of each hole): its corners give the hole's extent.</summary>

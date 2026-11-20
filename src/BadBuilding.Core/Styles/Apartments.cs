@@ -87,6 +87,7 @@ public sealed class Apartments : IStyle
         m["plinth"] = Kit.Mat("plinth", L.Weighted<string>([("5e5f61", 2), ("8a8984", 1)]), 0.9f);
         m["reveal"] = Kit.Mat("reveal", wall.Item2, 0.9f);
         m["glass"] = Kit.Mat("glass", "26323a", 0.06f, 0.1f);
+        m["balcony_door"] = Kit.Mat("balcony_door", "26323a", 0.06f, 0.1f);   // glass you can open (D35)
         m["shopfront"] = Kit.Mat("shopfront", "2f3d46", 0.05f, 0.1f);
         m["frame"] = Kit.Mat("frame", L.Weighted<string>([("3a3d40", 5), ("eceae4", 1)]), 0.5f);
         m["door"] = Kit.Mat("door", "3a3d40", 0.6f);
@@ -161,9 +162,11 @@ public sealed class Apartments : IStyle
                         else
                         {
                             float hw = MathF.Min(0.8f, bw * 0.3f);
-                            Kit.WallWithOpening(wall.Mesh, body, "reveal", "glass", f, u0, u1, y0, y1, uc - hw, uc + hw, y0, y0 + 2.4f, 0.15f);
-                            Kit.Box(trim.Mesh, "frame", f, uc - 0.03f, uc + 0.03f, y0, y0 + 2.4f, -0.13f, -0.09f);
+                            // (no middle mullion: the door opens for someone walking out, D35)
+                            Kit.WallWithOpening(wall.Mesh, body, "reveal", "balcony_door", f, u0, u1, y0, y1, uc - hw, uc + hw, y0, y0 + 2.4f, 0.15f);
                             if (s > 0) { balconies ??= b.Add(c.Id($"balconies.e{e.Ring}.{e.Index}"), "balconies", ModuleTier.Secondary, wall.Id); Balcony(balconies.Mesh, f, u0, u1, y0, bw); }
+                            // a balcony (or on the ground floor, a door out to the garden: no depth)
+                            b.Markers.Add(new Marker(c.Id($"balcony.e{e.Ring}.{e.Index}.{bi}.{s}"), "balcony", f.P(uc, y0, 0), f.Out, new Vector2(u1 - u0 - 0.2f, s > 0 ? 1.4f : 0f)));
                         }
                         continue;
                     }

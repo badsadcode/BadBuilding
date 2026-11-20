@@ -20,8 +20,9 @@ public sealed class Module
     public Aabb Bounds => Mesh.Bounds();
 }
 
-/// <summary>A functional point with a direction: doors, the roof access, the entrance to a stairwell.</summary>
-public sealed record Marker(string Id, string Kind, Vector3 Position, Vector3 Direction);
+/// <summary>A functional point with a direction: doors, the roof access, the entrance to a stairwell. <see cref="Size"/>
+/// is what some kinds need besides (a balcony: its width along the wall and how far it stands out; D35).</summary>
+public sealed record Marker(string Id, string Kind, Vector3 Position, Vector3 Direction, Vector2 Size = default);
 
 /// <summary>A material by role, with linear colour, roughness and metalness (and opacity for glass).</summary>
 public sealed record MaterialDef(string Role, Vector3 Color, float Roughness, float Metallic, float Alpha = 1f);

@@ -59,6 +59,7 @@ public sealed class PrlBlock : IStyle
         m["seam"] = Kit.Mat("seam", "4a4945", 0.95f);
         m["reveal"] = Kit.Mat("reveal", "7c7a74", 0.9f);
         m["glass"] = Kit.Mat("glass", "2a3640", 0.08f, 0.1f);
+        m["balcony_door"] = Kit.Mat("balcony_door", "2a3640", 0.08f, 0.1f);   // glass you can open (D35)
         m["glass_block"] = Kit.Mat("glass_block", "aebfc4", 0.35f);
         m["door"] = Kit.Mat("door", "3b3a36", 0.6f, 0.3f);
         m["concrete"] = Kit.Mat("concrete", "8b8984", 0.95f);
@@ -136,9 +137,10 @@ public sealed class PrlBlock : IStyle
                     if (balcony && (s > 0 || groundBalconies))
                     {
                         // balcony door and window: one wide opening down to the floor
-                        Kit.WallWithOpening(wall.Mesh, role, "reveal", "glass", f, u0, u1, y0, y1, uc - 1.25f, uc + 1.25f, y0 + 0.05f, y0 + 2.2f, 0.2f);
+                        Kit.WallWithOpening(wall.Mesh, role, "reveal", "balcony_door", f, u0, u1, y0, y1, uc - 1.25f, uc + 1.25f, y0 + 0.05f, y0 + 2.2f, 0.2f);
                         balconies ??= b.Add(c.Id($"balconies.{tag}"), "balconies", ModuleTier.Secondary, wall.Id);
                         float bu0 = uc - MathF.Min(1.6f, bw * 0.48f), bu1 = uc + MathF.Min(1.6f, bw * 0.48f);
+                        b.Markers.Add(new Marker(c.Id($"balcony.{tag}.{bi}.{s}"), "balcony", f.P(uc, y0, 0), f.Out, new Vector2(bu1 - bu0, 1.15f)));
                         Kit.Box(balconies.Mesh, "concrete", f, bu0, bu1, y0 - 0.15f, y0, 0, 1.25f);                 // slab
                         Kit.Box(balconies.Mesh, "balcony_front", f, bu0, bu1, y0, y0 + 1.0f, 1.15f, 1.25f);         // front
                         Kit.Box(balconies.Mesh, "balcony_front", f, bu0, bu0 + 0.08f, y0, y0 + 1.0f, 0, 1.15f);     // sides

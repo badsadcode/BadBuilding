@@ -567,3 +567,16 @@ bathrooms 2.5 m (1.9), bedrooms at least 3.2 m (2.6) and about 5 m (4.2), doors 
 storage doors 1.1 m), flats under 4.6 m left out (3.5). Deep blocks keep 5.5 m back rooms. Fewer, bigger rooms, as
 D11 wanted. Window glass is a little more visible (it read as an open hole). Ceilings stay at the facade's storey
 height.
+
+## D35 — Balconies you can step onto, and openings without cracks (Tom, 20 Nov 2026)
+Tom's dumps from inside: "balconies are not balconies", "gaps near the windows and the balcony".
+* The PRL block and contemporary flats give their balcony doors their own infill role, `balcony_door` (glass that
+  opens), and leave a `balcony` marker at each: the door's middle on the facade at the floor, out, and
+  `Marker.Size` = (width along the wall, depth out; 0 for a ground-floor door out to the garden). Balcony markers stay
+  out of the Noor export (no such kind in the spec; to propose). The contemporary French door lost its middle mullion.
+* The shell carries the balconies; the interior makes their doors doorways (no pane, open in the physics), gives each
+  balcony a slab and railings 1.15 m high for physics (the exterior draws it), and lists them (`InteriorModel.Balconies`).
+* Openings: the interior's holes sit 1.2 cm inside the exterior's and their reveals run out to the facade line, in
+  front of the exterior's own. They stopped 0.21 m in before, and the contemporary blocks' reveals end at 0.15 m: a
+  crack round every window and balcony door.
+* Not yet: loggias (their glass is 1.3 m in, behind the interior's outer wall, which stays blind there).
