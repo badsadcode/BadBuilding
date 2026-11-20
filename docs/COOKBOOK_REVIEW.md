@@ -148,7 +148,7 @@ game's extract and pack, then a map rebuild (~52 min).
 | S09 | Socialist realism | implemented (D31) | roadmap, Tom's list |
 | S10 | PRL panel | implemented | `PrlBlock` |
 | S11 | PRL functional | partial | `Industrial` concrete, `Office` grid |
-| S12–S14 | Brutalism (civic, residential, industrial) | missing | Tom's list; best as a modifier over existing types (P05) |
+| S12–S14 | Brutalism (civic, residential, industrial) | implemented (D32) | Tom's list; best as a modifier over existing types (P05) |
 | S15 | Postmodern | missing | later |
 | S16 | Contemporary plaster housing | missing | → R025 |
 | S17 | Contemporary glass office | implemented | `Office` |
@@ -186,7 +186,7 @@ game's extract and pack, then a map rebuild (~52 min).
 | C3 | Entrances | partial | main, shop, yard, gate, loading dock; no garage door rows, no vehicle bays |
 | C3 | Balconies | partial | projected (PRL, kamienica); no loggias, no glass balconies |
 | C4 | Ground and thresholds | implemented | D5 datum |
-| C4 | Region presets | missing | later (P01–P07) |
+| C4 | Region presets | partial | `BuildingRequest.Preset`; the first one is "brutalist" (P05, D32) |
 
 ## 4. What to do next (Sage's suggestion)
 
@@ -205,7 +205,7 @@ By what you see most while driving, then by shared leverage:
 5. *(done, D28)* **Garages and shacks** (R014, R013, R012, R011): Tom's list; small and quick once roofs and types are in.
 6. *(done, D29)* **Village civic**: fire station (R049), school and kindergarten (R044).
 7. *(done, D30)* **Contemporary apartments** (R025): Warsaw's new estates stop looking like PRL blocks.
-8. Then the city styles: **socialist realism** (R019, S09), **brutalism** as a modifier over existing types (S12–S14).
+8. *(done, D31, D32)* Then the city styles: **socialist realism** (R019, S09), **brutalism** as a modifier over existing types (S12–S14), with the "brutalist" preset (P05).
 
 Each new family keeps today's detail level: real geometry for openings, reveals, sills and porches, materials by
 role, markers and LODs. It doesn't swap detail for variety.

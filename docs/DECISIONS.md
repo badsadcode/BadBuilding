@@ -507,3 +507,25 @@ Tests: a 1952 block is socialist realism; undated avenue blocks often, never on 
 plain courtyard; footprint bounds; a top piece keeps its span and isn't blinded; a low pavilion leaves a facade, a
 tall neighbour a firewall.
 The blank wall left on the east of Plac Konstytucji was the game's doing (an inner piece drawn too); fixed there, Baltic Drive D78.
+
+## D32 — Brutalism, and the "brutalist" preset (Tom: "Brutalism next", 20 Nov 2026)
+
+Style `Brutalism` (cookbook S12–S14) with five facade grammars chosen per building: **fins** (deep vertical fins
+between bays), **bands** (heavy spandrel bands over ribbon windows), **waffle** (an egg-crate grid, each window at the
+back of its own box), **pilotis** (the ground floor glazed and set 2.5 m back behind columns, so the mass above reads
+as cantilevered while staying inside the footprint), **towers** (blank stair and lift shafts at the ends of the main
+wall, rising 3.5 m over the roof). Always: board-marked concrete (role `concrete_board`, `fin`), windows 0.5 m deep,
+blank concrete ends on walls under 6.5 m, a 1.2 m fascia, a recessed entrance under a heavy canopy, a plant room.
+Five concrete greys. Function is kept: it only dresses offices, civic buildings and (under the preset) flats.
+**Evidence:** an architecture tag; a listed concrete civic building of 1962–1985 (a monument of its time); a dated
+concrete civic or office building of 1962–1985 (by the district's roll, 55 %); an undated concrete one over 600 m²
+and three storeys (30 %). In Mazowsze's data this is rare (one listed 1970s office near Warsaw's centre).
+**Preset "brutalist"** (`BuildingRequest.Preset`, new; cookbook part D, P05 "Brutalist Warsaw"): the alternate city.
+Offices, civic buildings and blocks of flats over 250 m² (untyped ones over 400 m²) take the style, except: listed
+buildings, anything mapped before 1945 or since 1990, towers over 60 m (the glass skyline stays), stone, sandstone
+and brick buildings (MDM and the old city were there first), and walled-in street rows. Houses, farms, garages and
+churches never change.
+Tests: the tag; seventies concrete civic often, flats never without the preset; the preset turns a block brutalist
+but not a listed one or a house; all five grammars over forty seeds within a metre of the footprint.
+Looked at in Baltic Drive with the preset: Ksawerów's office blocks (bands and blank ends), Plac Konstytucji (MDM
+untouched).

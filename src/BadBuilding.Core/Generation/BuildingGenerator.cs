@@ -82,12 +82,14 @@ public static class BuildingGenerator
                 Civic.Name => new Civic(c),
                 Apartments.Name => new Apartments(),
                 SocRealism.Name => new SocRealism(),
-                _ => throw new ArgumentException($"Unknown style '{forced}' (styles: {PrlBlock.Name}, {Kamienica.Name}, {Industrial.Name}, {Office.Name}, {House.Name}, {Farm.Name}, {Garages.Name}, {Civic.Name}, {Apartments.Name}, {SocRealism.Name}, {Plain.Name})."),
+                Brutalism.Name => new Brutalism(),
+                _ => throw new ArgumentException($"Unknown style '{forced}' (styles: {PrlBlock.Name}, {Kamienica.Name}, {Industrial.Name}, {Office.Name}, {House.Name}, {Farm.Name}, {Garages.Name}, {Civic.Name}, {Apartments.Name}, {SocRealism.Name}, {Brutalism.Name}, {Plain.Name})."),
             };
         if (Industrial.Fits(c)) return new Industrial();   // (D17) small sheds too: the type says what it is
         if (Farm.Fits(c)) return new Farm(c);   // (D27)
         if (Garages.Fits(c)) return new Garages(c);   // (D28)
         if (Civic.Fits(c)) return new Civic(c);   // (D29)
+        if (Brutalism.Fits(c)) return new Brutalism();   // (D32) evidence, or the "brutalist" preset
         if (!c.Site.Small && Office.Fits(c)) return new Office();   // (D18)
         if (SocRealism.Fits(c)) return new SocRealism();   // (D31) before the tenement, the new blocks and PRL
         if (House.Fits(c)) return new House(c);   // (D26)

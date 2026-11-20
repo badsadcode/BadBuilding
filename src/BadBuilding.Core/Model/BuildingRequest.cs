@@ -72,6 +72,9 @@ public sealed record BuildingRequest
     /// <summary>The wall material when known ("brick", "sandstone", "stone", "concrete", "wood", "glass"…); evidence for
     /// a style (D31: sandstone on a big block of the early fifties' size is socialist realism).</summary>
     public string? Material { get; init; }
+    /// <summary>A regional or alternate-world preset that changes which styles are chosen (cookbook part D), such as
+    /// "brutalist" (D32: the Brutalist Warsaw that never was). Null: the styles go by the evidence.</summary>
+    public string? Preset { get; init; }
     /// <summary>Mapped shops (shop=* and shop-like amenity nodes) in or at the building, plan points. Null = not known;
     /// when given, they decide where shop fronts go instead of a guess (D10).</summary>
     public IReadOnlyList<Vector2>? Shops { get; init; }
