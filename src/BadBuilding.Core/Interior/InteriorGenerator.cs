@@ -25,13 +25,16 @@ public static class InteriorGenerator
     public const string Version = "0.1.0";
 
     // game scale (D11)
-    public const float DoorWidth = 1.1f, DoorHeight = 2.15f;
+    public const float DoorWidth = 1.3f, DoorHeight = 2.3f, SmallDoor = 1.1f;
     private const float Half = 0.07f;          // half a partition's thickness
     private const float OuterT = 0.3f;         // the outer wall, inside the facade line
     private const float GlassAt = 0.21f;       // the interior's window glass, behind the facade (the exterior's is at 0.2)
     private const float Slab = 0.2f;
-    private const float CoreHalf = 1.45f, Landing = 1.3f, StairRun = 2.3f, HalfLanding = 1.3f;
-    private const float Hall = 1.5f, Corridor = 1.4f, MinFlat = 3.5f;
+    // roomy (Tom, 20 Nov: "very cramped"): a 3.8 m staircase with 1.75 m flights, 2.1 m halls, 1.9 m corridors;
+    // the landing, flights and half landing shrink toward the tight sizes only where the block is too shallow
+    private const float CoreHalf = 1.9f, Bath = 2.5f;
+    private const float Hall = 2.1f, Corridor = 1.9f, MinFlat = 4.6f, RoomTarget = 5f, MinRoom = 3.2f;
+    private static readonly (float Landing, float Run, float Half) Roomy = (2.0f, 2.7f, 1.9f), Tight = (1.3f, 2.3f, 1.3f);
 
     /// <summary>The interior of a building, or null when its footprint doesn't suit a staircase block.</summary>
     public static InteriorModel? Generate(Shell shell) => Generate(shell, out _);
@@ -57,6 +60,7 @@ public static class InteriorGenerator
         private readonly List<float> _cores = [];
         private int _coreBase, _sections;
         private float _vF;                                    // the section's front line (v)
+        private float Landing, StairRun, HalfLanding;          // this section's staircase (roomy where it fits)
         private readonly List<(int Side, float A0, float A1, float Y0, float Y1, string Kind)> _segOpen = [];
         private InteriorModel _m = null!;
         private Rng _look = null!;
@@ -150,6 +154,12 @@ public static class InteriorGenerator
                 _depth = Enumerable.Range(ra, rb - ra + 1).Min(k => hi[k]);
                 if (_depth - _vF > 20f || _uMax - _uMin < 8f) { whys.Add($"a section {_uMax - _uMin:0.0} x {_depth - _vF:0.0} m"); continue; }
                 _u0 = _uMin + OuterT; _u1 = _uMax - OuterT; _v0 = _vF + OuterT; _v1 = _depth - OuterT;
+                // the staircase as roomy as the depth allows, leaving at least 3.4 m of rooms behind it
+                float room = _v1 - 3.4f - _v0, want = Roomy.Landing + Roomy.Run + Roomy.Half, least = Tight.Landing + Tight.Run + Tight.Half;
+                float t = Math.Clamp((room - least) / (want - least), 0f, 1f);
+                Landing = Tight.Landing + (Roomy.Landing - Tight.Landing) * t;
+                StairRun = Tight.Run + (Roomy.Run - Tight.Run) * t;
+                HalfLanding = Tight.Half + (Roomy.Half - Tight.Half) * t;
                 _dc = _v0 + Landing + StairRun + HalfLanding;
 
                 // the staircases: the entrances on this section's front, far enough apart and clear of the ends
@@ -223,7 +233,7 @@ public static class InteriorGenerator
             mm["floor_tile"] = Kit.Mat("floor_tile", _look.Weighted<string>([("b8b0a2", 2), ("8f5a46", 1), ("9aa1a3", 1)]), 0.4f);
             mm["ceiling"] = Kit.Mat("ceiling", "eeece6", 0.95f);
             mm["door_leaf"] = Kit.Mat("door_leaf", _look.Weighted<string>([("9a7a55", 2), ("d9d4c6", 1), ("6b5240", 1)]), 0.6f);
-            mm["window"] = Kit.Mat("window", "a8c0cc", 0.05f, 0f, 0.18f);
+            mm["window"] = Kit.Mat("window", "9fb9c8", 0.04f, 0.15f, 0.32f);
             mm["glass_block"] = Kit.Mat("glass_block", "c9d8da", 0.3f, 0f, 0.55f);
         }
 
@@ -284,12 +294,12 @@ public static class InteriorGenerator
                 return r;
             }
 
-            bool corridor = width - Hall >= 2.2f;
+            bool corridor = width - Hall >= 2.6f;
             // a deep block (more than 7.5 m behind the staircase): the back rooms keep 5 m, a corridor runs along them,
             // and what's left between is storage, reached from that corridor; the hall goes straight through to it
             float back = _v1 - a;
-            bool deep = back > 7.5f;
-            float vb = deep ? _v1 - 5f : a;                       // where the back rooms start
+            bool deep = back > 8.5f;
+            float vb = deep ? _v1 - 5.5f : a;                       // where the back rooms start
             float vs = deep ? vb - Corridor : a;                  // where the back corridor starts
             bool storage = deep && vs - a >= 1.8f;
             if (deep && !storage) vs = a;
@@ -304,42 +314,42 @@ public static class InteriorGenerator
                 {
                     if (x1 - x0 < 1.6f) continue;
                     var st2 = Add("storage", sn++, R(x0, x1, a, vs));
-                    _doors.Add(new DoorPlan(true, vs, U(x0 + MathF.Min(0.8f, (x1 - x0) * 0.5f)), 0.9f, DoorHeight, hall.Id, st2.Id, true));
+                    _doors.Add(new DoorPlan(true, vs, U(x0 + MathF.Min(0.9f, (x1 - x0) * 0.5f)), SmallDoor, DoorHeight, hall.Id, st2.Id, true));
                 }
             }
             // the way in from the landing, a door leaf swung into the hall
-            _doors.Add(new DoorPlan(false, cw, _v0 + Landing * 0.5f, DoorWidth, DoorHeight, core, hall.Id, true));
+            _doors.Add(new DoorPlan(false, cw, _v0 + Landing * 0.5f, MathF.Min(DoorWidth, Landing - 0.2f), DoorHeight, core, hall.Id, true));
             if (corridor)
             {
                 float restW = width - Hall;
-                if (restW >= 4.2f)
+                if (restW >= Bath + 2.2f)
                 {
-                    var bath = Add("bathroom", 0, R(Hall, Hall + 1.9f, _v0, a - Corridor));
-                    var kitchen = Add("kitchen", 0, R(Hall + 1.9f, width, _v0, a - Corridor));
-                    _doors.Add(new DoorPlan(true, a - Corridor, U(Hall + 0.95f), 0.9f, DoorHeight, hall.Id, bath.Id, true));
-                    _doors.Add(new DoorPlan(true, a - Corridor, U(Hall + 1.9f + MathF.Min(1.2f, (width - Hall - 1.9f) * 0.5f)), DoorWidth, DoorHeight, hall.Id, kitchen.Id, false));
+                    var bath = Add("bathroom", 0, R(Hall, Hall + Bath, _v0, a - Corridor));
+                    var kitchen = Add("kitchen", 0, R(Hall + Bath, width, _v0, a - Corridor));
+                    _doors.Add(new DoorPlan(true, a - Corridor, U(Hall + Bath * 0.5f), SmallDoor, DoorHeight, hall.Id, bath.Id, true));
+                    _doors.Add(new DoorPlan(true, a - Corridor, U(Hall + Bath + MathF.Min(1.3f, (width - Hall - Bath) * 0.5f)), DoorWidth, DoorHeight, hall.Id, kitchen.Id, false));
                 }
                 else
                 {
                     var bath = Add("bathroom", 0, R(Hall, width, _v0, a - Corridor));
-                    _doors.Add(new DoorPlan(true, a - Corridor, U(Hall + MathF.Min(0.9f, restW * 0.5f)), 0.9f, DoorHeight, hall.Id, bath.Id, true));
+                    _doors.Add(new DoorPlan(true, a - Corridor, U(Hall + MathF.Min(1.0f, restW * 0.5f)), SmallDoor, DoorHeight, hall.Id, bath.Id, true));
                 }
             }
             else
             {
                 var bath = Add("bathroom", 0, R(Hall, width, _v0, a));
-                _doors.Add(new DoorPlan(false, U(Hall), (_v0 + a) * 0.5f, 0.9f, DoorHeight, hall.Id, bath.Id, true));
+                _doors.Add(new DoorPlan(false, U(Hall), (_v0 + a) * 0.5f, SmallDoor, DoorHeight, hall.Id, bath.Id, true));
             }
 
             // the far side: living room (on the hall) and bedrooms
             float t = width + k;
-            int nr = Math.Clamp((int)MathF.Round(t / 4.2f), 1, 3);
+            int nr = Math.Clamp((int)MathF.Round(t / RoomTarget), 1, 3);
             var cuts = new List<float>();
             for (int j = 1; j < nr; j++)
             {
                 float x = -k + t * j / nr;
                 if (x > -0.2f && x < Hall + 0.2f) x = Hall + 0.2f;     // the living room keeps the hall's door
-                if (x - (cuts.Count > 0 ? cuts[^1] : -k) < 2.6f || width - x < 2.6f) continue;
+                if (x - (cuts.Count > 0 ? cuts[^1] : -k) < MinRoom || width - x < MinRoom) continue;
                 cuts.Add(x);
             }
             var xs = new List<float> { -k };
@@ -366,7 +376,7 @@ public static class InteriorGenerator
                 var r = far[j];
                 if (r.Kind == "living") { _doors.Add(new DoorPlan(true, a, U(Hall * 0.5f), DoorWidth, DoorHeight, hall.Id, r.Id, true)); continue; }
                 float o0 = MathF.Max(x0, Hall), o1 = MathF.Min(x1, width);
-                if (corridor && o1 - o0 >= 1.5f) { _doors.Add(new DoorPlan(true, a, U((o0 + o1) * 0.5f), DoorWidth, DoorHeight, hall.Id, r.Id, true)); continue; }
+                if (corridor && o1 - o0 >= DoorWidth + 0.4f) { _doors.Add(new DoorPlan(true, a, U((o0 + o1) * 0.5f), DoorWidth, DoorHeight, hall.Id, r.Id, true)); continue; }
                 // behind the staircase (or no corridor): through the neighbour nearer the hall
                 var nb = x1 <= Hall * 0.5f ? far[j + 1] : far[j - 1];
                 float line = x1 <= Hall * 0.5f ? x1 : x0;

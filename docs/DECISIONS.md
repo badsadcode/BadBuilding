@@ -558,3 +558,12 @@ Milestone 3 starts with the commonest Warsaw building, the block of flats with s
 Tests: staircases and flats on every storey, reachability, windows following the facade, rooms inside the outline,
 same shell same interior, L-blocks planned in their arm, stepped slabs in sections, storage in deep slabs. The CLI
 `interior` command writes a plan as JSON (`InteriorModel.PlanJson`).
+
+## D34 — Roomier interiors (Tom: "very cramped", 20 Nov 2026)
+After walking in (Baltic Drive D81): the staircase is 3.8 m wide (flights 1.75 m, was 1.33), with a 2 m landing, a
+2.7 m run and a 1.9 m half landing where the block is deep enough (they shrink back toward the old 1.3/2.3/1.3 m
+only when fewer than 3.4 m of rooms would be left behind them). Halls 2.1 m (was 1.5), corridors 1.9 m (1.4),
+bathrooms 2.5 m (1.9), bedrooms at least 3.2 m (2.6) and about 5 m (4.2), doors 1.3 × 2.3 m (1.1 × 2.15; bathroom and
+storage doors 1.1 m), flats under 4.6 m left out (3.5). Deep blocks keep 5.5 m back rooms. Fewer, bigger rooms, as
+D11 wanted. Window glass is a little more visible (it read as an open hole). Ceilings stay at the facade's storey
+height.
