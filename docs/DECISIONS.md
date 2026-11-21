@@ -712,3 +712,11 @@ the rest. Latin crosses, gilded. 500–4,500 triangles. Tests: the kinds by year
 synagogues and untyped buildings not this, a tower with a cross above the roof, the door at the west, within a metre
 with and without an apse (167 pass). Not yet: churches mapped in parts keep the old meshes; towers on ragged
 outlines are left out when no square fits; Lutheran churches look Catholic.
+
+## D44 — Podlasie's villages mostly wooden (Baltic Drive's joined map, 21 Nov)
+Seen in the game at Trześcianka and Soce (the Land of Open Shutters): most houses came out modern. The villages are
+mapped as `building=yes` (330 of 368 buildings within 500 m of Trześcianka's centre), half of the houses squarer than
+D40's 1.25 and some over 170 m² with sheds built on, so they fell to the general mix. Now in Podlasie any one-storey
+house under 240 m² is a cottage 85 % of the time when its footprint is at least 1.15 times as long as wide (65 %
+when squarer); the rest modern or kostka. (Baltic Drive also stopped passing the importer's guessed heights for
+house-sized buildings, its D104: 6.5 m had read as two storeys.) 167 tests pass.

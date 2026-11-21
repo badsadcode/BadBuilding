@@ -78,13 +78,12 @@ public sealed class House : IStyle
         // mapped as wood: a cottage (D40)
         if (r.Material == "wood" && !twoStorey && area < 200f) return Family.Cottage;
         // Podlasie (D40): the wooden village; the long, one-storey footprints are mostly the old houses
-        if (podlasie)
-        {
-            if (ratio >= 1.25f && area < 170f && !twoStorey)
-                return rng.Weighted<Family>([(Family.Cottage, 78), (Family.Modern, 14), (Family.Kostka, 8)]);
-            if (area < 150f && !twoStorey)
-                return rng.Weighted<Family>([(Family.Cottage, 55), (Family.Kostka, 25), (Family.Modern, 20)]);
-        }
+        // (D44: Trześcianka and Soce are mapped as building=yes, half of them squarer than 1.25 and some over 170 m²
+        // with sheds built on: in Podlasie any one-storey house up to 240 m² is most likely the wooden one)
+        if (podlasie && !twoStorey && area < 240f)
+            return ratio >= 1.15f
+                ? rng.Weighted<Family>([(Family.Cottage, 85), (Family.Modern, 9), (Family.Kostka, 6)])
+                : rng.Weighted<Family>([(Family.Cottage, 65), (Family.Kostka, 20), (Family.Modern, 15)]);
         if (ratio < 1.35f && area is >= 60f and <= 170f && !oneStorey)
             return rng.Weighted<Family>([(Family.Kostka, 6), (Family.Modern, 4)]);
         if (ratio >= 1.45f && area < 130f && !twoStorey)
